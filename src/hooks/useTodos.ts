@@ -30,10 +30,17 @@ export function useTodos() {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
 
+  // TODOを編集
+  const editTodo = (id: string, newTitle: string) => {
+    if (!newTitle.trim()) return;
+    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, title: newTitle.trim() } : todo)));
+  };
+
   return {
     todos,
     addTodo,
     toggleTodo,
     deleteTodo,
+    editTodo,
   };
 }

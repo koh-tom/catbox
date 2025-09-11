@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTodos } from '@/hooks/useTodos';
 
 function App() {
-  const { todos, addTodo, toggleTodo, deleteTodo } = useTodos();
+  const { todos, addTodo, toggleTodo, deleteTodo, editTodo } = useTodos();
 
   const completedCount = todos.filter((t) => t.completed).length;
 
@@ -17,7 +17,7 @@ function App() {
           </CardHeader>
           <CardContent>
             <TodoInput onAdd={addTodo} />
-            <TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} />
+            <TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} onEdit={editTodo} />
 
             {todos.length > 0 && (
               <div className="mt-6 pt-4 border-t text-sm text-muted-foreground">
