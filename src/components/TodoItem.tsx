@@ -1,6 +1,6 @@
-import { MdEdit, MdClose } from "react-icons/md";
-import { useState, useRef, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { MdClose, MdEdit } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -54,8 +54,9 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
 
   return (
     <li
-      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${todo.completed ? 'opacity-60' : ''
-        }`}
+      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${
+        todo.completed ? 'opacity-60' : ''
+      }`}
     >
       <Checkbox
         id={`todo-${todo.id}`}
@@ -74,13 +75,15 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
           className="flex-1 h-8"
         />
       ) : (
-        <span
+        <button
+          type="button"
           onDoubleClick={handleEdit}
-          className={`flex-1 text-sm cursor-pointer select-none ${todo.completed ? 'line-through text-muted-foreground' : ''
-            }`}
+          className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${
+            todo.completed ? 'line-through text-muted-foreground' : ''
+          }`}
         >
           {todo.title}
-        </span>
+        </button>
       )}
 
       {!isEditing && (
