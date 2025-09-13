@@ -35,7 +35,15 @@ export function TodoInput({ onAdd }: TodoInputProps) {
         className="flex-1"
         autoFocus
       />
-      <Button type="submit" disabled={!value.trim()}>
+      <Button
+        type="submit"
+        disabled={!value.trim()}
+        className={
+          value.trim()
+            ? 'bg-green-500 hover:bg-green-600 text-white'
+            : 'bg-gray-500 hover:bg-gray-600 text-white'
+        }
+      >
         追加
       </Button>
     </form>
