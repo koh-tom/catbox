@@ -1,3 +1,4 @@
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +14,10 @@ function App() {
       <div className="max-w-xl mx-auto">
         <Card>
           <CardHeader className="pb-4">
-            <CardTitle className="text-2xl font-semibold">😺📦 Catbox</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-2xl font-semibold">😺📦 Catbox</CardTitle>
+              <ThemeToggle />
+            </div>
           </CardHeader>
           <CardContent>
             <TodoInput onAdd={addTodo} />
