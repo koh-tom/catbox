@@ -75,15 +75,23 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
           className="flex-1 h-8"
         />
       ) : (
-        <button
-          type="button"
-          onDoubleClick={handleEdit}
-          className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${
-            todo.completed ? 'line-through text-muted-foreground' : ''
-          }`}
-        >
-          {todo.title}
-        </button>
+        <div className="flex flex-1 items-center gap-2">
+          <button
+            type="button"
+            onDoubleClick={handleEdit}
+            className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${
+              todo.completed ? 'line-through text-muted-foreground' : ''
+            }`}
+          >
+            {todo.title}
+          </button>
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
+            {new Date(todo.createdAt).toLocaleDateString('ja-JP', {
+              month: 'numeric',
+              day: 'numeric',
+            })}
+          </span>
+        </div>
       )}
 
       {!isEditing && (

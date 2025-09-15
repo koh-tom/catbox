@@ -3,5 +3,4 @@ export interface Todo {
   title: string;
   completed: boolean;
   createdAt: number;
-  createdDate?: string;
 }
