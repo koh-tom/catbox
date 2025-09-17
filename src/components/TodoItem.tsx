@@ -10,12 +10,13 @@ interface TodoItemProps {
   todo: Todo;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (id: string, newTitle: string) => void;
+  onEdit: (id: string, newTitle: string, deadlineDate?: string) => void;
 }
 
 export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(todo.title);
+  const [editDeadlineDate, setEditDeadlineDate] = useState(todo.deadlineDate || '');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -27,20 +28,23 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
 
   const handleEdit = () => {
     setEditValue(todo.title);
+    setEditDeadlineDate(todo.deadlineDate || '');
     setIsEditing(true);
   };
 
   const handleSave = () => {
     if (editValue.trim()) {
-      onEdit(todo.id, editValue);
+      onEdit(todo.id, editValue, editDeadlineDate);
     } else {
       setEditValue(todo.title);
+      setEditDeadlineDate(todo.deadlineDate || '');
     }
     setIsEditing(false);
   };
 
   const handleCancel = () => {
     setEditValue(todo.title);
+    setEditDeadlineDate(todo.deadlineDate || '');
     setIsEditing(false);
   };
 
@@ -54,9 +58,8 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
 
   return (
     <li
-      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${
-        todo.completed ? 'opacity-60' : ''
-      }`}
+      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${todo.completed ? 'opacity-60' : ''
+        }`}
     >
       <Checkbox
         id={`todo-${todo.id}`}
@@ -66,31 +69,47 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
       />
 
       {isEditing ? (
-        <Input
-          ref={inputRef}
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={handleSave}
-          className="flex-1 h-8"
-        />
+        <div className="flex flex-1 gap-2">
+          <Input
+            ref={inputRef}
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-1 h-8"
+          />
+          <Input
+            value={editDeadlineDate}
+            onChange={(e) => setEditDeadlineDate(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={handleSave}
+            placeholder="期限"
+            className="w-24 h-8"
+          />
+        </div>
       ) : (
         <div className="flex flex-1 items-center gap-2">
           <button
             type="button"
             onDoubleClick={handleEdit}
-            className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${
-              todo.completed ? 'line-through text-muted-foreground' : ''
-            }`}
+            className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${todo.completed ? 'line-through text-muted-foreground' : ''
+              }`}
           >
             {todo.title}
           </button>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
-            {new Date(todo.createdAt).toLocaleDateString('ja-JP', {
-              month: 'numeric',
-              day: 'numeric',
-            })}
-          </span>
+
+          <div className="flex gap-1">
+            {todo.deadlineDate && (
+              <span className="text-xs text-red-500 bg-red-100 dark:bg-red-950 px-2 py-0.5 rounded shrink-0">
+                期限: {todo.deadlineDate}
+              </span>
+            )}
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
+              {new Date(todo.createdAt).toLocaleDateString('ja-JP', {
+                month: 'numeric',
+                day: 'numeric',
+              })}
+            </span>
+          </div>
         </div>
       )}
 

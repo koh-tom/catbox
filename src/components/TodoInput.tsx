@@ -4,17 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 interface TodoInputProps {
-  onAdd: (title: string) => void;
+  onAdd: (title: string, deadlineDate?: string) => void;
 }
 
 export function TodoInput({ onAdd }: TodoInputProps) {
   const [value, setValue] = useState('');
+  const [deadlineDate, setDeadlineDate] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (value.trim()) {
-      onAdd(value);
+      onAdd(value, deadlineDate);
       setValue('');
+      setDeadlineDate('');
     }
   };
 
@@ -34,6 +36,14 @@ export function TodoInput({ onAdd }: TodoInputProps) {
         placeholder="新しいタスクを追加..."
         className="flex-1"
         autoFocus
+      />
+      <Input
+        type="text"
+        value={deadlineDate}
+        onChange={(e) => setDeadlineDate(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="期限 (例: 2/26)"
+        className="w-32"
       />
       <Button
         type="submit"
