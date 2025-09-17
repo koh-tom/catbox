@@ -13,7 +13,7 @@ export function TodoInput({ onAdd }: TodoInputProps) {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (value.trim()) {
+    if (value.trim() && deadlineDate.trim()) {
       onAdd(value, deadlineDate);
       setValue('');
       setDeadlineDate('');
@@ -47,9 +47,9 @@ export function TodoInput({ onAdd }: TodoInputProps) {
       />
       <Button
         type="submit"
-        disabled={!value.trim()}
+        disabled={!value.trim() || !deadlineDate.trim()}
         className={
-          value.trim()
+          value.trim() && deadlineDate.trim()
             ? 'bg-green-500 hover:bg-green-600 text-white'
             : 'bg-gray-500 hover:bg-gray-600 text-white'
         }
