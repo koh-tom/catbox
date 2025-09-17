@@ -33,13 +33,16 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
   };
 
   const handleSave = () => {
-    if (editValue.trim()) {
+    const isValidDeadline = !editDeadlineDate.trim() || /^\d+\/\d+$/.test(editDeadlineDate.trim());
+
+    if (editValue.trim() && isValidDeadline) {
       onEdit(todo.id, editValue, editDeadlineDate);
-    } else {
+      setIsEditing(false);
+    } else if (!editValue.trim()) {
       setEditValue(todo.title);
       setEditDeadlineDate(todo.deadlineDate || '');
+      setIsEditing(false);
     }
-    setIsEditing(false);
   };
 
   const handleCancel = () => {

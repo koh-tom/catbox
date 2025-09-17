@@ -11,9 +11,12 @@ export function TodoInput({ onAdd }: TodoInputProps) {
   const [value, setValue] = useState('');
   const [deadlineDate, setDeadlineDate] = useState('');
 
+  const isValidDeadline = (date: string) => /^\d+\/\d+$/.test(date.trim());
+  const isFormValid = value.trim() && isValidDeadline(deadlineDate);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (value.trim() && deadlineDate.trim()) {
+    if (isFormValid) {
       onAdd(value, deadlineDate);
       setValue('');
       setDeadlineDate('');
@@ -22,7 +25,9 @@ export function TodoInput({ onAdd }: TodoInputProps) {
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-      handleSubmit(e);
+      if (isFormValid) {
+        handleSubmit(e);
+      }
     }
   };
 
@@ -43,13 +48,13 @@ export function TodoInput({ onAdd }: TodoInputProps) {
         onChange={(e) => setDeadlineDate(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="期限 (例: 2/26)"
-        className="w-32"
+        className={`w-32 ${deadlineDate && !isValidDeadline(deadlineDate) ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
       />
       <Button
         type="submit"
-        disabled={!value.trim() || !deadlineDate.trim()}
+        disabled={!isFormValid}
         className={
-          value.trim() && deadlineDate.trim()
+          isFormValid
             ? 'bg-green-500 hover:bg-green-600 text-white'
             : 'bg-gray-500 hover:bg-gray-600 text-white'
         }
