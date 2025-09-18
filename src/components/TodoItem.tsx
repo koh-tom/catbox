@@ -1,6 +1,6 @@
 import type { KeyboardEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { MdClose, MdEdit } from 'react-icons/md';
+import { MdCheck, MdClose, MdEdit } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePicker } from '@/components/DatePicker';
@@ -88,6 +88,15 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
             placeholder="期限"
             className="w-32 h-8"
           />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100"
+            onClick={handleSave}
+            aria-label="保存"
+          >
+            <MdCheck className="h-5 w-5" />
+          </Button>
         </div>
       ) : (
         <div className="flex flex-1 items-center gap-2">

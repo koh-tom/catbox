@@ -37,7 +37,7 @@ export function useTodos() {
     setTodos(
       todos.map((todo) =>
         todo.id === id
-          ? { ...todo, title: newTitle.trim(), dueDate: newDeadlineDate?.trim() || undefined }
+          ? { ...todo, title: newTitle.trim(), deadlineDate: newDeadlineDate?.trim() || undefined }
           : todo,
       ),
     );
