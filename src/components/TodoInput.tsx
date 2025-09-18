@@ -1,6 +1,7 @@
 import type { FormEvent, KeyboardEvent } from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/DatePicker';
 import { Input } from '@/components/ui/input';
 
 interface TodoInputProps {
@@ -42,13 +43,11 @@ export function TodoInput({ onAdd }: TodoInputProps) {
         className="flex-1"
         autoFocus
       />
-      <Input
-        type="text"
-        value={deadlineDate}
-        onChange={(e) => setDeadlineDate(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="期限 (例: 2/26)"
-        className={`w-32 ${deadlineDate && !isValidDeadline(deadlineDate) ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+      <DatePicker
+        date={deadlineDate}
+        setDate={setDeadlineDate}
+        placeholder="期限を選択"
+        className="w-40"
       />
       <Button
         type="submit"

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MdClose, MdEdit } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DatePicker } from '@/components/DatePicker';
 import { Input } from '@/components/ui/input';
 import type { Todo } from '@/types/todo';
 
@@ -79,14 +80,13 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
             className="flex-1 h-8"
+            autoFocus
           />
-          <Input
-            value={editDeadlineDate}
-            onChange={(e) => setEditDeadlineDate(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onBlur={handleSave}
+          <DatePicker
+            date={editDeadlineDate}
+            setDate={setEditDeadlineDate}
             placeholder="期限"
-            className="w-24 h-8"
+            className="w-32 h-8"
           />
         </div>
       ) : (
