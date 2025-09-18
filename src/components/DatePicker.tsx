@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { addDays, format, nextMonday, startOfToday } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { FaRegCalendarCheck } from "react-icons/fa6";
 import { useEffect, useState } from 'react';
@@ -69,6 +69,32 @@ export function DatePicker({
                     onSelect={handleSelect}
                     locale={ja}
                 />
+                <div className="p-3 border-t border-border flex justify-between gap-1">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 text-xs"
+                        onClick={() => handleSelect(startOfToday())}
+                    >
+                        今日
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 text-xs"
+                        onClick={() => handleSelect(addDays(startOfToday(), 1))}
+                    >
+                        明日
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 text-xs"
+                        onClick={() => handleSelect(addDays(startOfToday(), 7))}
+                    >
+                        来週
+                    </Button>
+                </div>
             </PopoverContent>
         </Popover>
     );
