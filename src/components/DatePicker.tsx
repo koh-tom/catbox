@@ -69,27 +69,27 @@ export function DatePicker({
                     onSelect={handleSelect}
                     locale={ja}
                 />
-                <div className="p-3 border-t border-border flex justify-between gap-1">
+                <div className="p-3 border-t border-border flex justify-between gap-2">
                     <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        className="flex-1 text-xs"
+                        className="flex-1 text-xs border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950"
                         onClick={() => handleSelect(startOfToday())}
                     >
                         今日
                     </Button>
                     <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        className="flex-1 text-xs"
+                        className="flex-1 text-xs border-green-200 text-green-600 hover:text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950"
                         onClick={() => handleSelect(addDays(startOfToday(), 1))}
                     >
                         明日
                     </Button>
                     <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        className="flex-1 text-xs"
+                        className="flex-1 text-xs border-purple-200 text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-950"
                         onClick={() => handleSelect(addDays(startOfToday(), 7))}
                     >
                         来週
