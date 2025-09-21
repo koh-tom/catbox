@@ -52,3 +52,18 @@ export function getDeadlineBadgeVariant(dateStr: string): string {
   // 余裕あり: 青/スレート
   return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700';
 }
+
+export function isOverdue(dateStr?: string): boolean {
+    if (!dateStr) return false;
+
+    const parts = dateStr.split('/');
+    if (parts.length !== 2) return false;
+
+    const month = Number.parseInt(parts[0], 10);
+    const day = Number.parseInt(parts[1], 10);
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const targetDate = new Date(currentYear, month - 1, day);
+    
+    return differenceInCalendarDays(targetDate, now) < 0;
+}

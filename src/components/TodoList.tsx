@@ -1,5 +1,6 @@
 import type { Todo } from '@/types/todo';
 import { TodoItem } from './TodoItem';
+import { isOverdue } from '@/lib/date-utils';
 
 interface TodoListProps {
   todos: Todo[];
@@ -19,14 +20,46 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
   }
 
   const incompleteTodos = todos.filter((todo) => !todo.completed);
+  const overdueTodos = incompleteTodos.filter((todo) => isOverdue(todo.deadlineDate));
+  const activeTodos = incompleteTodos.filter((todo) => !isOverdue(todo.deadlineDate));
+
   const completedTodos = todos.filter((todo) => todo.completed);
 
   return (
-    <div className="space-y-4">
-      {/* 未完了タスク */}
-      {incompleteTodos.length > 0 && (
+    <div className="space-y-6">
+      {/* 期限切れタスク */}
+      {overdueTodos.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-red-500 flex items-center gap-2">
+            🚨 期限切れ
+          </h3>
+          <ul className="space-y-2">
+            {overdueTodos.map((todo) => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                onToggle={onToggle}
+                onDelete={onDelete}
+                onEdit={onEdit}
+              />
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* 期限切れと進行中の間のセパレーター */}
+      {overdueTodos.length > 0 && activeTodos.length > 0 && (
+        <div className="flex items-center gap-3 py-2">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs text-muted-foreground">進行中</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+      )}
+
+      {/* 進行中タスク（未完了かつ期限切れでない） */}
+      {activeTodos.length > 0 && (
         <ul className="space-y-2">
-          {incompleteTodos.map((todo) => (
+          {activeTodos.map((todo) => (
             <TodoItem
               key={todo.id}
               todo={todo}
