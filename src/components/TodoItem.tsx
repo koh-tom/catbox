@@ -1,9 +1,9 @@
 import type { KeyboardEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { MdCheck, MdClose, MdEdit } from 'react-icons/md';
+import { DatePicker } from '@/components/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { DatePicker } from '@/components/DatePicker';
 import { Input } from '@/components/ui/input';
 import { getDeadlineBadgeVariant, getRelativeDateLabel } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
@@ -64,8 +64,9 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
 
   return (
     <li
-      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${todo.completed ? 'opacity-60' : ''
-        }`}
+      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${
+        todo.completed ? 'opacity-60' : ''
+      }`}
     >
       <Checkbox
         id={`todo-${todo.id}`}
@@ -105,22 +106,23 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
           <button
             type="button"
             onDoubleClick={handleEdit}
-            className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${todo.completed ? 'line-through text-muted-foreground' : ''
-              }`}
+            className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${
+              todo.completed ? 'line-through text-muted-foreground' : ''
+            }`}
           >
             {todo.title}
           </button>
 
           <div className="flex gap-1 items-center">
             {todo.deadlineDate && (
-              <span className={cn(
-                "text-xs px-2 py-0.5 rounded shrink-0 flex items-center gap-1 border",
-                getDeadlineBadgeVariant(todo.deadlineDate)
-              )}>
+              <span
+                className={cn(
+                  'text-xs px-2 py-0.5 rounded shrink-0 flex items-center gap-1 border',
+                  getDeadlineBadgeVariant(todo.deadlineDate),
+                )}
+              >
                 期限: {todo.deadlineDate}
-                <span className="font-semibold">
-                  ({getRelativeDateLabel(todo.deadlineDate)})
-                </span>
+                <span className="font-semibold">({getRelativeDateLabel(todo.deadlineDate)})</span>
               </span>
             )}
             <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">

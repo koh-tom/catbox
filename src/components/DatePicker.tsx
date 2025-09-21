@@ -1,12 +1,12 @@
+import { addDays, format, startOfToday } from 'date-fns';
+import { ja } from 'date-fns/locale';
+import { useEffect, useState } from 'react';
+import { FaRegCalendarCheck } from 'react-icons/fa6';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { addDays, format, nextMonday, startOfToday } from 'date-fns';
-import { ja } from 'date-fns/locale';
-import { FaRegCalendarCheck } from "react-icons/fa6";
-import { useEffect, useState } from 'react';
 import { getRelativeDateLabel } from '@/lib/date-utils';
+import { cn } from '@/lib/utils';
 
 interface DatePickerProps {
     date?: string;
@@ -15,12 +15,7 @@ interface DatePickerProps {
     placeholder?: string;
 }
 
-export function DatePicker({
-    date,
-    setDate,
-    className,
-    placeholder = '期限',
-}: DatePickerProps) {
+export function DatePicker({ date, setDate, className, placeholder = '期限' }: DatePickerProps) {
     const [selectedDate, setSelectedDate] = useState<Date | undefined>();
     const [isOpen, setIsOpen] = useState(false);
 
@@ -70,12 +65,7 @@ export function DatePicker({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
-                <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={handleSelect}
-                    locale={ja}
-                />
+                <Calendar mode="single" selected={selectedDate} onSelect={handleSelect} locale={ja} />
                 <div className="p-3 border-t border-border flex justify-between gap-2">
                     <Button
                         variant="outline"
