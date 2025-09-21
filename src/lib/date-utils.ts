@@ -1,18 +1,24 @@
 import { differenceInCalendarDays } from 'date-fns';
 
-export function getRelativeDateLabel(dateStr: string): string {
-  if (!dateStr) return '';
+export function parseTodoDate(dateStr?: string): Date | undefined {
+  if (!dateStr) return undefined;
 
   const parts = dateStr.split('/');
-  if (parts.length !== 2) return '';
+  if (parts.length !== 2) return undefined;
 
   const month = Number.parseInt(parts[0], 10);
   const day = Number.parseInt(parts[1], 10);
   const now = new Date();
   const currentYear = now.getFullYear();
 
-  const targetDate = new Date(currentYear, month - 1, day);
+  return new Date(currentYear, month - 1, day);
+}
 
+export function getRelativeDateLabel(dateStr: string): string {
+  const targetDate = parseTodoDate(dateStr);
+  if (!targetDate) return '';
+
+  const now = new Date();
   const diff = differenceInCalendarDays(targetDate, now);
 
   if (diff === 0) return '今日';
@@ -24,16 +30,10 @@ export function getRelativeDateLabel(dateStr: string): string {
 }
 
 export function getDeadlineBadgeVariant(dateStr: string): string {
-  if (!dateStr) return '';
+  const targetDate = parseTodoDate(dateStr);
+  if (!targetDate) return '';
 
-  const parts = dateStr.split('/');
-  if (parts.length !== 2) return '';
-
-  const month = Number.parseInt(parts[0], 10);
-  const day = Number.parseInt(parts[1], 10);
   const now = new Date();
-  const currentYear = now.getFullYear();
-  const targetDate = new Date(currentYear, month - 1, day);
   const diff = differenceInCalendarDays(targetDate, now);
 
   if (diff < 0) {
@@ -54,16 +54,9 @@ export function getDeadlineBadgeVariant(dateStr: string): string {
 }
 
 export function isOverdue(dateStr?: string): boolean {
-    if (!dateStr) return false;
+  const targetDate = parseTodoDate(dateStr);
+  if (!targetDate) return false;
 
-    const parts = dateStr.split('/');
-    if (parts.length !== 2) return false;
-
-    const month = Number.parseInt(parts[0], 10);
-    const day = Number.parseInt(parts[1], 10);
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const targetDate = new Date(currentYear, month - 1, day);
-    
-    return differenceInCalendarDays(targetDate, now) < 0;
+  const now = new Date();
+  return differenceInCalendarDays(targetDate, now) < 0;
 }

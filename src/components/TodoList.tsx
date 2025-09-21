@@ -1,6 +1,6 @@
+import { isOverdue } from '@/lib/date-utils';
 import type { Todo } from '@/types/todo';
 import { TodoItem } from './TodoItem';
-import { isOverdue } from '@/lib/date-utils';
 
 interface TodoListProps {
   todos: Todo[];
@@ -30,9 +30,7 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
       {/* 期限切れタスク */}
       {overdueTodos.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-red-500 flex items-center gap-2">
-            🚨 期限切れ
-          </h3>
+          <h3 className="text-sm font-medium text-red-500 flex items-center gap-2">🚨 期限切れ</h3>
           <ul className="space-y-2">
             {overdueTodos.map((todo) => (
               <TodoItem
