@@ -6,6 +6,7 @@ import { addDays, format, nextMonday, startOfToday } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { FaRegCalendarCheck } from "react-icons/fa6";
 import { useEffect, useState } from 'react';
+import { getRelativeDateLabel } from '@/lib/date-utils';
 
 interface DatePickerProps {
     date?: string;
@@ -59,7 +60,13 @@ export function DatePicker({
                     )}
                 >
                     <FaRegCalendarCheck className="mr-2 h-4 w-4" />
-                    {date ? date : <span>{placeholder}</span>}
+                    {date ? (
+                        <span>
+                            {date} <span className="text-xs opacity-70">({getRelativeDateLabel(date)})</span>
+                        </span>
+                    ) : (
+                        <span>{placeholder}</span>
+                    )}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">

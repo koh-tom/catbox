@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePicker } from '@/components/DatePicker';
 import { Input } from '@/components/ui/input';
+import { getRelativeDateLabel } from '@/lib/date-utils';
 import type { Todo } from '@/types/todo';
 
 interface TodoItemProps {
@@ -109,10 +110,13 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
             {todo.title}
           </button>
 
-          <div className="flex gap-1">
+          <div className="flex gap-1 items-center">
             {todo.deadlineDate && (
-              <span className="text-xs text-red-500 bg-red-100 dark:bg-red-950 px-2 py-0.5 rounded shrink-0">
+              <span className="text-xs text-red-500 bg-red-100 dark:bg-red-950 px-2 py-0.5 rounded shrink-0 flex items-center gap-1">
                 期限: {todo.deadlineDate}
+                <span className="font-semibold">
+                  ({getRelativeDateLabel(todo.deadlineDate)})
+                </span>
               </span>
             )}
             <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
