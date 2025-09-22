@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { isOverdue } from '@/lib/date-utils';
 import type { Todo } from '@/types/todo';
 import { TodoItem } from './TodoItem';
@@ -10,6 +11,18 @@ interface TodoListProps {
 }
 
 export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
+  const { overdueTodos, activeTodos, completedTodos, incompleteCount } = useMemo(() => {
+    const incomplete = todos.filter((todo) => !todo.completed);
+    const completed = todos.filter((todo) => todo.completed);
+
+    return {
+      overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
+      activeTodos: incomplete.filter((todo) => !isOverdue(todo.deadlineDate)),
+      completedTodos: completed,
+      incompleteCount: incomplete.length
+    };
+  }, [todos]);
+
   if (todos.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -18,12 +31,6 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
       </div>
     );
   }
-
-  const incompleteTodos = todos.filter((todo) => !todo.completed);
-  const overdueTodos = incompleteTodos.filter((todo) => isOverdue(todo.deadlineDate));
-  const activeTodos = incompleteTodos.filter((todo) => !isOverdue(todo.deadlineDate));
-
-  const completedTodos = todos.filter((todo) => todo.completed);
 
   return (
     <div className="space-y-6">
@@ -70,7 +77,7 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
       )}
 
       {/* セパレーター */}
-      {incompleteTodos.length > 0 && completedTodos.length > 0 && (
+      {incompleteCount > 0 && completedTodos.length > 0 && (
         <div className="flex items-center gap-3 py-2">
           <div className="flex-1 h-px bg-border" />
           <span className="text-xs text-muted-foreground">完了済み</span>
