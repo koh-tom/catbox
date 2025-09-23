@@ -11,7 +11,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background py-8 px-4">
-      <div className="max-w-xl mx-auto">
+      <div className="w-full max-w-5xl mx-auto">
         <Card>
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
