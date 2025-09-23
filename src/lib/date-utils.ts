@@ -1,5 +1,8 @@
-import { differenceInCalendarDays } from 'date-fns';
+import { differenceInCalendarDays, startOfToday } from 'date-fns';
 
+/**
+ * "M/d" 形式の文字列をDateオブジェクトに変換する
+ */
 export function parseTodoDate(dateStr?: string): Date | undefined {
   if (!dateStr) return undefined;
 
@@ -8,7 +11,7 @@ export function parseTodoDate(dateStr?: string): Date | undefined {
 
   const month = Number.parseInt(parts[0], 10);
   const day = Number.parseInt(parts[1], 10);
-  const now = new Date();
+  const now = startOfToday();
   const currentYear = now.getFullYear();
 
   return new Date(currentYear, month - 1, day);
@@ -18,7 +21,7 @@ export function getRelativeDateLabel(dateStr: string): string {
   const targetDate = parseTodoDate(dateStr);
   if (!targetDate) return '';
 
-  const now = new Date();
+  const now = startOfToday();
   const diff = differenceInCalendarDays(targetDate, now);
 
   if (diff === 0) return '今日';
@@ -33,7 +36,7 @@ export function getDeadlineBadgeVariant(dateStr: string): string {
   const targetDate = parseTodoDate(dateStr);
   if (!targetDate) return '';
 
-  const now = new Date();
+  const now = startOfToday();
   const diff = differenceInCalendarDays(targetDate, now);
 
   if (diff < 0) {
@@ -57,6 +60,6 @@ export function isOverdue(dateStr?: string): boolean {
   const targetDate = parseTodoDate(dateStr);
   if (!targetDate) return false;
 
-  const now = new Date();
+  const now = startOfToday();
   return differenceInCalendarDays(targetDate, now) < 0;
 }
