@@ -19,7 +19,7 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
       overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
       activeTodos: incomplete.filter((todo) => !isOverdue(todo.deadlineDate)),
       completedTodos: completed,
-      incompleteCount: incomplete.length
+      incompleteCount: incomplete.length,
     };
   }, [todos]);
 

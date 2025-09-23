@@ -1,8 +1,5 @@
 import { differenceInCalendarDays, startOfToday } from 'date-fns';
 
-/**
- * "M/d" 形式の文字列をDateオブジェクトに変換する
- */
 export function parseTodoDate(dateStr?: string): Date | undefined {
   if (!dateStr) return undefined;
 
