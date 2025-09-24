@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { isOverdue } from '@/lib/date-utils';
+import { isOverdue, parseTodoDate } from '@/lib/date-utils';
 import type { Todo } from '@/types/todo';
 import { TodoItem } from './TodoItem';
 
@@ -12,8 +12,22 @@ interface TodoListProps {
 
 export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
   const { overdueTodos, activeTodos, completedTodos, incompleteCount } = useMemo(() => {
-    const incomplete = todos.filter((todo) => !todo.completed);
-    const completed = todos.filter((todo) => todo.completed);
+    // 期限日によるソート
+    const sortByDeadline = (a: Todo, b: Todo) => {
+      const dateA = parseTodoDate(a.deadlineDate);
+      const dateB = parseTodoDate(b.deadlineDate);
+
+      // 両方日付あり: 早い順
+      if (dateA && dateB) return dateA.getTime() - dateB.getTime();
+      // 片方なし: 日付ありが先
+      if (!dateA && dateB) return 1;
+      if (dateA && !dateB) return -1;
+      // 両方なし: そのまま
+      return 0;
+    };
+
+    const incomplete = todos.filter((todo) => !todo.completed).sort(sortByDeadline);
+    const completed = todos.filter((todo) => todo.completed).sort(sortByDeadline);
 
     return {
       overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
