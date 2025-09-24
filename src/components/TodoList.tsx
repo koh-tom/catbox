@@ -18,23 +18,34 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
 
   const { overdueTodos, activeTodos, completedTodos, incompleteCount } = useMemo(() => {
+    // 優先度による比較
+    const comparePriority = (a: Todo, b: Todo) => {
+      const pA = a.priority ?? 1;
+      const pB = b.priority ?? 1;
+      return pB - pA;
+    };
+
     // 期限日によるソート
     const sortByDeadline = (a: Todo, b: Todo) => {
       const dateA = parseTodoDate(a.deadlineDate);
       const dateB = parseTodoDate(b.deadlineDate);
 
-      // 両方日付あり: 早い順
-      if (dateA && dateB) return dateA.getTime() - dateB.getTime();
+      // 両方日付あり: 早い順 -> 同じなら優先度順
+      if (dateA && dateB) {
+        const diff = dateA.getTime() - dateB.getTime();
+        return diff !== 0 ? diff : comparePriority(a, b);
+      }
       // 片方なし: 日付ありが先
       if (!dateA && dateB) return 1;
       if (dateA && !dateB) return -1;
-      // 両方なし: そのまま
-      return 0;
+      // 両方なし: 優先度順
+      return comparePriority(a, b);
     };
 
-    // 作成日によるソート
+    // 作成日によるソート (古い順 -> 同じなら優先度順)
     const sortByCreated = (a: Todo, b: Todo) => {
-      return a.createdAt - b.createdAt;
+      const diff = a.createdAt - b.createdAt;
+      return diff !== 0 ? diff : comparePriority(a, b);
     };
 
     const sortFn = sortKey === 'deadline' ? sortByDeadline : sortByCreated;
