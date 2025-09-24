@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 interface TodoInputProps {
-  onAdd: (title: string, deadlineDate?: string) => void;
+  onAdd: (title: string, deadlineDate?: string, priority?: number) => void;
 }
 
 export function TodoInput({ onAdd }: TodoInputProps) {
   const [value, setValue] = useState('');
   const [deadlineDate, setDeadlineDate] = useState('');
+  const [priority, setPriority] = useState(1);
 
   const isValidDeadline = (date: string) => /^\d+\/\d+$/.test(date.trim());
   const isFormValid = value.trim() && isValidDeadline(deadlineDate);
@@ -18,9 +19,10 @@ export function TodoInput({ onAdd }: TodoInputProps) {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (isFormValid) {
-      onAdd(value, deadlineDate);
+      onAdd(value, deadlineDate, priority);
       setValue('');
       setDeadlineDate('');
+      setPriority(1);
     }
   };
 
@@ -48,6 +50,15 @@ export function TodoInput({ onAdd }: TodoInputProps) {
         setDate={setDeadlineDate}
         placeholder="期限を選択"
         className="w-40"
+      />
+      <Input
+        type="number"
+        value={priority}
+        onChange={(e) => setPriority(Number(e.target.value))}
+        className="w-20 text-center"
+        min={1}
+        max={5}
+        placeholder="優先度"
       />
       <Button
         type="submit"

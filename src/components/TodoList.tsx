@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { FaSortAmountDown, FaRegCalendarAlt, FaRegClock } from 'react-icons/fa';
+import { FaRegCalendarAlt, FaRegClock, FaSortAmountDown } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { isOverdue, parseTodoDate } from '@/lib/date-utils';
 import type { Todo } from '@/types/todo';
@@ -60,7 +60,7 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
   }
 
   const toggleSort = () => {
-    setSortKey(prev => prev === 'deadline' ? 'created' : 'deadline');
+    setSortKey((prev) => (prev === 'deadline' ? 'created' : 'deadline'));
   };
 
   return (

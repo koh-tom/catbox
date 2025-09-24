@@ -4,4 +4,5 @@ export interface Todo {
   completed: boolean;
   createdAt: number;
   deadlineDate?: string;
+  priority?: number;
 }

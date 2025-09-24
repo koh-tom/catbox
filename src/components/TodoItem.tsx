@@ -126,6 +126,9 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
               </span>
             )}
             <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
+              P{todo.priority ?? 1}
+            </span>
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
               {new Date(todo.createdAt).toLocaleDateString('ja-JP', {
                 month: 'numeric',
                 day: 'numeric',
