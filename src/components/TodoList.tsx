@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { FaRegCalendarAlt, FaRegClock, FaSortAmountDown } from 'react-icons/fa';
+import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSortAmountDown } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { isOverdue, parseTodoDate } from '@/lib/date-utils';
 import type { Todo } from '@/types/todo';
@@ -12,7 +12,7 @@ interface TodoListProps {
   onEdit: (id: string, newTitle: string) => void;
 }
 
-type SortKey = 'deadline' | 'created';
+type SortKey = 'deadline' | 'created' | 'priority';
 
 export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
@@ -48,7 +48,33 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
       return diff !== 0 ? diff : comparePriority(a, b);
     };
 
-    const sortFn = sortKey === 'deadline' ? sortByDeadline : sortByCreated;
+    // 優先度によるソート (優先度降順 -> 同じなら期限日早い順)
+    const sortByPriority = (a: Todo, b: Todo) => {
+      const diff = comparePriority(a, b);
+      if (diff !== 0) return diff;
+
+      // 優先度が同じなら期限日比較 (sortByDeadlineのロジックの一部再利用できないので書く)
+      const dateA = parseTodoDate(a.deadlineDate);
+      const dateB = parseTodoDate(b.deadlineDate);
+      if (dateA && dateB) return dateA.getTime() - dateB.getTime();
+      if (!dateA && dateB) return 1;
+      if (dateA && !dateB) return -1;
+      return 0;
+    };
+
+    let sortFn;
+    switch (sortKey) {
+      case 'created':
+        sortFn = sortByCreated;
+        break;
+      case 'priority':
+        sortFn = sortByPriority;
+        break;
+      case 'deadline':
+      default:
+        sortFn = sortByDeadline;
+        break;
+    }
 
     const incomplete = todos.filter((todo) => !todo.completed).sort(sortFn);
     const completed = todos.filter((todo) => todo.completed).sort(sortFn);
@@ -71,7 +97,11 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
   }
 
   const toggleSort = () => {
-    setSortKey((prev) => (prev === 'deadline' ? 'created' : 'deadline'));
+    setSortKey((prev) => {
+      if (prev === 'deadline') return 'created';
+      if (prev === 'created') return 'priority';
+      return 'deadline';
+    });
   };
 
   return (
@@ -84,15 +114,22 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
           className="text-muted-foreground hover:text-foreground gap-2"
         >
           <FaSortAmountDown className="w-3 h-3" />
-          {sortKey === 'deadline' ? (
+          {sortKey === 'deadline' && (
             <>
               <FaRegCalendarAlt className="w-3 h-3" />
               <span>期限順</span>
             </>
-          ) : (
+          )}
+          {sortKey === 'created' && (
             <>
               <FaRegClock className="w-3 h-3" />
               <span>作成順</span>
+            </>
+          )}
+          {sortKey === 'priority' && (
+            <>
+              <FaFlag className="w-3 h-3" />
+              <span>優先度順</span>
             </>
           )}
         </Button>
