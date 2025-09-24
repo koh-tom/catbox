@@ -1,4 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { FaSortAmountDown, FaRegCalendarAlt, FaRegClock } from 'react-icons/fa';
+import { Button } from '@/components/ui/button';
 import { isOverdue, parseTodoDate } from '@/lib/date-utils';
 import type { Todo } from '@/types/todo';
 import { TodoItem } from './TodoItem';
@@ -10,7 +12,11 @@ interface TodoListProps {
   onEdit: (id: string, newTitle: string) => void;
 }
 
+type SortKey = 'deadline' | 'created';
+
 export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
+  const [sortKey, setSortKey] = useState<SortKey>('deadline');
+
   const { overdueTodos, activeTodos, completedTodos, incompleteCount } = useMemo(() => {
     // 期限日によるソート
     const sortByDeadline = (a: Todo, b: Todo) => {
@@ -26,8 +32,15 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
       return 0;
     };
 
-    const incomplete = todos.filter((todo) => !todo.completed).sort(sortByDeadline);
-    const completed = todos.filter((todo) => todo.completed).sort(sortByDeadline);
+    // 作成日によるソート
+    const sortByCreated = (a: Todo, b: Todo) => {
+      return a.createdAt - b.createdAt;
+    };
+
+    const sortFn = sortKey === 'deadline' ? sortByDeadline : sortByCreated;
+
+    const incomplete = todos.filter((todo) => !todo.completed).sort(sortFn);
+    const completed = todos.filter((todo) => todo.completed).sort(sortFn);
 
     return {
       overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
@@ -35,7 +48,7 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
       completedTodos: completed,
       incompleteCount: incomplete.length,
     };
-  }, [todos]);
+  }, [todos, sortKey]);
 
   if (todos.length === 0) {
     return (
@@ -46,8 +59,34 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
     );
   }
 
+  const toggleSort = () => {
+    setSortKey(prev => prev === 'deadline' ? 'created' : 'deadline');
+  };
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleSort}
+          className="text-muted-foreground hover:text-foreground gap-2"
+        >
+          <FaSortAmountDown className="w-3 h-3" />
+          {sortKey === 'deadline' ? (
+            <>
+              <FaRegCalendarAlt className="w-3 h-3" />
+              <span>期限順</span>
+            </>
+          ) : (
+            <>
+              <FaRegClock className="w-3 h-3" />
+              <span>作成順</span>
+            </>
+          )}
+        </Button>
+      </div>
+
       {/* 期限切れタスク */}
       {overdueTodos.length > 0 && (
         <div className="space-y-2">
