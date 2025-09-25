@@ -62,19 +62,16 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
       return 0;
     };
 
-    let sortFn;
-    switch (sortKey) {
-      case 'created':
-        sortFn = sortByCreated;
-        break;
-      case 'priority':
-        sortFn = sortByPriority;
-        break;
-      case 'deadline':
-      default:
-        sortFn = sortByDeadline;
-        break;
-    }
+    const sortFn = (() => {
+      switch (sortKey) {
+        case 'created':
+          return sortByCreated;
+        case 'priority':
+          return sortByPriority;
+        default:
+          return sortByDeadline;
+      }
+    })();
 
     const incomplete = todos.filter((todo) => !todo.completed).sort(sortFn);
     const completed = todos.filter((todo) => todo.completed).sort(sortFn);
