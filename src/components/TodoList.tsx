@@ -9,7 +9,7 @@ interface TodoListProps {
   todos: Todo[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (id: string, newTitle: string) => void;
+  onEdit: (id: string, newTitle: string, deadlineDate?: string, priority?: number) => void;
 }
 
 type SortKey = 'deadline' | 'created' | 'priority';

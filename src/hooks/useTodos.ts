@@ -33,12 +33,22 @@ export function useTodos() {
   };
 
   // TODOを編集
-  const editTodo = (id: string, newTitle: string, newDeadlineDate?: string) => {
+  const editTodo = (
+    id: string,
+    newTitle: string,
+    newDeadlineDate?: string,
+    newPriority?: number,
+  ) => {
     if (!newTitle.trim()) return;
     setTodos(
       todos.map((todo) =>
         todo.id === id
-          ? { ...todo, title: newTitle.trim(), deadlineDate: newDeadlineDate?.trim() || undefined }
+          ? {
+              ...todo,
+              title: newTitle.trim(),
+              deadlineDate: newDeadlineDate?.trim() || undefined,
+              priority: newPriority ?? todo.priority ?? 1,
+            }
           : todo,
       ),
     );

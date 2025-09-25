@@ -13,13 +13,14 @@ interface TodoItemProps {
   todo: Todo;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (id: string, newTitle: string, deadlineDate?: string) => void;
+  onEdit: (id: string, newTitle: string, deadlineDate?: string, priority?: number) => void;
 }
 
 export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(todo.title);
   const [editDeadlineDate, setEditDeadlineDate] = useState(todo.deadlineDate || '');
+  const [editPriority, setEditPriority] = useState(todo.priority ?? 1);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
   const handleEdit = () => {
     setEditValue(todo.title);
     setEditDeadlineDate(todo.deadlineDate || '');
+    setEditPriority(todo.priority ?? 1);
     setIsEditing(true);
   };
 
@@ -39,11 +41,12 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
     const isValidDeadline = !editDeadlineDate.trim() || /^\d+\/\d+$/.test(editDeadlineDate.trim());
 
     if (editValue.trim() && isValidDeadline) {
-      onEdit(todo.id, editValue, editDeadlineDate);
+      onEdit(todo.id, editValue, editDeadlineDate, editPriority);
       setIsEditing(false);
     } else if (!editValue.trim()) {
       setEditValue(todo.title);
       setEditDeadlineDate(todo.deadlineDate || '');
+      setEditPriority(todo.priority ?? 1);
       setIsEditing(false);
     }
   };
@@ -51,6 +54,7 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
   const handleCancel = () => {
     setEditValue(todo.title);
     setEditDeadlineDate(todo.deadlineDate || '');
+    setEditPriority(todo.priority ?? 1);
     setIsEditing(false);
   };
 
@@ -90,6 +94,14 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
             setDate={setEditDeadlineDate}
             placeholder="期限"
             className="w-32 h-8"
+          />
+          <Input
+            type="number"
+            value={editPriority}
+            onChange={(e) => setEditPriority(Number(e.target.value))}
+            className="w-16 h-8 text-center"
+            min={1}
+            max={5}
           />
           <Button
             variant="ghost"
