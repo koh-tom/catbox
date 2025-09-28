@@ -100,8 +100,9 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
 
   return (
     <li
-      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${todo.completed ? 'opacity-60' : ''
-        }`}
+      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${
+        todo.completed ? 'opacity-60' : ''
+      }`}
     >
       <Checkbox
         id={`todo-${todo.id}`}
@@ -149,8 +150,9 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
           <button
             type="button"
             onDoubleClick={handleEdit}
-            className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${todo.completed ? 'line-through text-muted-foreground' : ''
-              }`}
+            className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${
+              todo.completed ? 'line-through text-muted-foreground' : ''
+            }`}
           >
             {todo.title}
           </button>

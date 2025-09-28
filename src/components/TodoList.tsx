@@ -20,56 +20,33 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
   const { overdueTodos, activeTodos, completedTodos, incompleteCount } = useMemo(() => {
     // 優先度による比較
     const comparePriority = (a: Todo, b: Todo) => {
-      const pA = a.priority ?? 1;
-      const pB = b.priority ?? 1;
-      return pB - pA;
+      return (b.priority ?? 1) - (a.priority ?? 1);
     };
 
-    // 期限日によるソート
-    const sortByDeadline = (a: Todo, b: Todo) => {
-      const dateA = parseTodoDate(a.deadlineDate);
-      const dateB = parseTodoDate(b.deadlineDate);
-
-      // 両方日付あり: 早い順 -> 同じなら優先度順
-      if (dateA && dateB) {
-        const diff = dateA.getTime() - dateB.getTime();
-        return diff !== 0 ? diff : comparePriority(a, b);
-      }
-      // 片方なし: 日付ありが先
-      if (!dateA && dateB) return 1;
-      if (dateA && !dateB) return -1;
-      // 両方なし: 優先度順
-      return comparePriority(a, b);
-    };
-
-    // 作成日によるソート (古い順 -> 同じなら優先度順)
-    const sortByCreated = (a: Todo, b: Todo) => {
-      const diff = a.createdAt - b.createdAt;
-      return diff !== 0 ? diff : comparePriority(a, b);
-    };
-
-    // 優先度によるソート (優先度降順 -> 同じなら期限日早い順)
-    const sortByPriority = (a: Todo, b: Todo) => {
-      const diff = comparePriority(a, b);
-      if (diff !== 0) return diff;
-
-      // 優先度が同じなら期限日比較 (sortByDeadlineのロジックの一部再利用できないので書く)
+    const compareDeadline = (a: Todo, b: Todo) => {
       const dateA = parseTodoDate(a.deadlineDate);
       const dateB = parseTodoDate(b.deadlineDate);
       if (dateA && dateB) return dateA.getTime() - dateB.getTime();
-      if (!dateA && dateB) return 1;
-      if (dateA && !dateB) return -1;
+      if (dateA) return -1;
+      if (dateB) return 1;
       return 0;
     };
+
+    const compareCreated = (a: Todo, b: Todo) => a.createdAt - b.createdAt;
+
+    // ソート: 第一キーが同じ(0)なら第二キーで比較
+    const sortCreated = (a: Todo, b: Todo) => compareCreated(a, b) || comparePriority(a, b);
+    const sortPriority = (a: Todo, b: Todo) => comparePriority(a, b) || compareDeadline(a, b);
+    const sortDeadline = (a: Todo, b: Todo) => compareDeadline(a, b) || comparePriority(a, b);
 
     const sortFn = (() => {
       switch (sortKey) {
         case 'created':
-          return sortByCreated;
+          return sortCreated;
         case 'priority':
-          return sortByPriority;
+          return sortPriority;
         default:
-          return sortByDeadline;
+          return sortDeadline;
       }
     })();
 
