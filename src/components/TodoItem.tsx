@@ -74,15 +74,16 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
           return 'text-sky-300';
       }
     };
+    const STARS = [1, 2, 3, 4, 5] as const;
 
     return (
       <div className="flex gap-0.5 items-center pl-1" title={`優先度: ${priority}`}>
-        {Array.from({ length: 5 }).map((_, i) => (
+        {STARS.map((star) => (
           <FaStar
-            key={i}
+            key={`star-${star}`}
             className={cn(
               'w-3 h-3 transition-all',
-              i < priority ? getColorClass(priority) : 'text-muted-foreground/20',
+              star < priority ? getColorClass(priority) : 'text-muted-foreground/20',
             )}
           />
         ))}
