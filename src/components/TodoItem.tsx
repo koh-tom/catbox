@@ -1,6 +1,6 @@
 import type { KeyboardEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { FaStar } from 'react-icons/fa';
+import { StarRating } from '@/components/StarRating';
 import { MdCheck, MdClose, MdEdit } from 'react-icons/md';
 import { DatePicker } from '@/components/DatePicker';
 import { Button } from '@/components/ui/button';
@@ -59,37 +59,6 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
     setIsEditing(false);
   };
 
-  const getPriorityBadge = (priority: number) => {
-    const getColorClass = (p: number) => {
-      switch (p) {
-        case 5:
-          return 'text-red-500 drop-shadow-sm';
-        case 4:
-          return 'text-orange-500';
-        case 3:
-          return 'text-yellow-500';
-        case 2:
-          return 'text-blue-400';
-        default:
-          return 'text-sky-300';
-      }
-    };
-    const STARS = [1, 2, 3, 4, 5] as const;
-
-    return (
-      <div className="flex gap-0.5 items-center pl-1" title={`優先度: ${priority}`}>
-        {STARS.map((star) => (
-          <FaStar
-            key={`star-${star}`}
-            className={cn(
-              'w-3 h-3 transition-all',
-              star < priority ? getColorClass(priority) : 'text-muted-foreground/20',
-            )}
-          />
-        ))}
-      </div>
-    );
-  };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
@@ -101,9 +70,8 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
 
   return (
     <li
-      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${
-        todo.completed ? 'opacity-60' : ''
-      }`}
+      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${todo.completed ? 'opacity-60' : ''
+        }`}
     >
       <Checkbox
         id={`todo-${todo.id}`}
@@ -128,14 +96,9 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
             placeholder="期限"
             className="w-32 h-8"
           />
-          <Input
-            type="number"
-            value={editPriority}
-            onChange={(e) => setEditPriority(Number(e.target.value))}
-            className="w-16 h-8 text-center"
-            min={1}
-            max={5}
-          />
+          <div className="flex items-center px-1">
+            <StarRating value={editPriority} onChange={setEditPriority} />
+          </div>
           <Button
             variant="ghost"
             size="icon"
@@ -151,9 +114,8 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
           <button
             type="button"
             onDoubleClick={handleEdit}
-            className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${
-              todo.completed ? 'line-through text-muted-foreground' : ''
-            }`}
+            className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${todo.completed ? 'line-through text-muted-foreground' : ''
+              }`}
           >
             {todo.title}
           </button>
@@ -170,7 +132,9 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
                 <span className="font-semibold">({getRelativeDateLabel(todo.deadlineDate)})</span>
               </span>
             )}
-            {getPriorityBadge(todo.priority ?? 1)}
+            <div className="px-1 scale-90 origin-left">
+              <StarRating value={todo.priority ?? 1} readOnly />
+            </div>
             <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
               {new Date(todo.createdAt).toLocaleDateString('ja-JP', {
                 month: 'numeric',

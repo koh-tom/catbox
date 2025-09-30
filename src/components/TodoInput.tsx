@@ -1,6 +1,7 @@
 import type { FormEvent, KeyboardEvent } from 'react';
 import { useState } from 'react';
 import { DatePicker } from '@/components/DatePicker';
+import { StarRating } from '@/components/StarRating';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -51,15 +52,9 @@ export function TodoInput({ onAdd }: TodoInputProps) {
         placeholder="期限を選択"
         className="w-40"
       />
-      <Input
-        type="number"
-        value={priority}
-        onChange={(e) => setPriority(Number(e.target.value))}
-        className="w-20 text-center"
-        min={1}
-        max={5}
-        placeholder="優先度"
-      />
+      <div className="flex items-center px-1">
+        <StarRating value={priority} onChange={setPriority} />
+      </div>
       <Button
         type="submit"
         disabled={!isFormValid}
