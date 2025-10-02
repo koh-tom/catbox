@@ -5,4 +5,5 @@ export interface Todo {
   createdAt: number;
   deadlineDate?: string;
   priority?: number;
+  tags?: string[];
 }

@@ -5,7 +5,12 @@ export function useTodos() {
   const [todos, setTodos] = useLocalStorage<Todo[]>('catbox-todos', []);
 
   // 新規TODOを追加
-  const addTodo = (title: string, deadlineDate?: string, priority?: number) => {
+  const addTodo = (
+    title: string,
+    deadlineDate?: string,
+    priority?: number,
+    tags: string[] = [],
+  ) => {
     if (!title.trim()) return;
 
     const newTodo: Todo = {
@@ -15,6 +20,7 @@ export function useTodos() {
       createdAt: Date.now(),
       deadlineDate: deadlineDate?.trim() || undefined,
       priority: priority ?? 1,
+      tags,
     };
 
     setTodos([newTodo, ...todos]);
@@ -38,6 +44,7 @@ export function useTodos() {
     newTitle: string,
     newDeadlineDate?: string,
     newPriority?: number,
+    newTags?: string[],
   ) => {
     if (!newTitle.trim()) return;
     setTodos(
@@ -48,6 +55,7 @@ export function useTodos() {
               title: newTitle.trim(),
               deadlineDate: newDeadlineDate?.trim() || undefined,
               priority: newPriority ?? todo.priority ?? 1,
+              tags: newTags ?? todo.tags ?? [],
             }
           : todo,
       ),

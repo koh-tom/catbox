@@ -120,6 +120,19 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
             {todo.title}
           </button>
 
+          {todo.tags && todo.tags.length > 0 && (
+            <div className="flex gap-1 flex-wrap items-center">
+              {todo.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-secondary-foreground border border-border/50"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
           <div className="flex gap-1 items-center">
             {todo.deadlineDate && (
               <span
