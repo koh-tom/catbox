@@ -37,8 +37,14 @@ function App() {
             </div>
           </CardHeader>
           <CardContent>
-            <TodoInput onAdd={addTodo} />
-            <TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} onEdit={editTodo} />
+            <TodoInput onAdd={addTodo} savedTags={savedTags} />
+            <TodoList
+              todos={todos}
+              onToggle={toggleTodo}
+              onDelete={deleteTodo}
+              onEdit={editTodo}
+              savedTags={savedTags}
+            />
 
             {todos.length > 0 && (
               <div className="mt-6 pt-4 border-t text-sm text-muted-foreground">

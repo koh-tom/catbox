@@ -16,11 +16,18 @@ interface TodoListProps {
     priority?: number,
     tags?: string[],
   ) => void;
+  savedTags: string[];
 }
 
 type SortKey = 'deadline' | 'created' | 'priority';
 
-export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
+export function TodoList({
+  todos,
+  onToggle,
+  onDelete,
+  onEdit,
+  savedTags,
+}: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
 
   const { overdueTodos, activeTodos, completedTodos, incompleteCount } = useMemo(() => {
@@ -127,6 +134,7 @@ export function TodoList({ todos, onToggle, onDelete, onEdit }: TodoListProps) {
                 onToggle={onToggle}
                 onDelete={onDelete}
                 onEdit={onEdit}
+                savedTags={savedTags}
               />
             ))}
           </ul>

@@ -2,20 +2,26 @@ import type { FormEvent, KeyboardEvent } from 'react';
 import { useState } from 'react';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
+import { TagSelector } from '@/components/TagSelector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FaTag, FaTimes } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 
 interface TodoInputProps {
-  onAdd: (title: string, deadlineDate?: string, priority?: number, tags?: string[]) => void;
+  onAdd: (
+    title: string,
+    deadlineDate?: string,
+    priority?: number,
+    tags?: string[],
+  ) => void;
+  savedTags?: string[];
 }
 
-export function TodoInput({ onAdd }: TodoInputProps) {
+export function TodoInput({ onAdd, savedTags = [] }: TodoInputProps) {
   const [value, setValue] = useState('');
   const [deadlineDate, setDeadlineDate] = useState('');
   const [priority, setPriority] = useState(1);
   const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState('');
 
   const isValidDeadline = (date: string) => !date.trim() || /^\d+\/\d+$/.test(date.trim());
   const isFormValid = value.trim() && isValidDeadline(deadlineDate);
@@ -28,7 +34,6 @@ export function TodoInput({ onAdd }: TodoInputProps) {
       setDeadlineDate('');
       setPriority(1);
       setTags([]);
-      setTagInput('');
     }
   };
 
@@ -38,16 +43,6 @@ export function TodoInput({ onAdd }: TodoInputProps) {
     }
   };
 
-  const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-      e.preventDefault();
-      const newTag = tagInput.trim();
-      if (newTag && !tags.includes(newTag)) {
-        setTags([...tags, newTag]);
-        setTagInput('');
-      }
-    }
-  };
 
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
@@ -90,16 +85,12 @@ export function TodoInput({ onAdd }: TodoInputProps) {
           <StarRating value={priority} onChange={setPriority} />
         </div>
 
-        <div className="flex-1 min-w-[200px] flex items-center gap-2 border rounded-md px-3 h-10 bg-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-          <FaTag className="text-muted-foreground w-4 h-4 shrink-0" />
-          <input
-            className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
-            placeholder="タグを追加 (Enter)"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleTagKeyDown}
-          />
-        </div>
+        <TagSelector
+          savedTags={savedTags}
+          selectedTags={tags}
+          onChange={setTags}
+          className="flex-1 min-w-[150px] justify-start"
+        />
       </div>
 
       {tags.length > 0 && (

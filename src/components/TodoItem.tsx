@@ -2,7 +2,7 @@ import type { KeyboardEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { StarRating } from '@/components/StarRating';
 import { MdCheck, MdClose, MdEdit } from 'react-icons/md';
-import { FaTag, FaTimes } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import { DatePicker } from '@/components/DatePicker';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { getDeadlineBadgeVariant, getRelativeDateLabel } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import type { Todo } from '@/types/todo';
+import { TagSelector } from '@/components/TagSelector';
 
 interface TodoItemProps {
   todo: Todo;
@@ -22,15 +23,15 @@ interface TodoItemProps {
     priority?: number,
     tags?: string[],
   ) => void;
+  savedTags?: string[];
 }
 
-export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
+export function TodoItem({ todo, onToggle, onDelete, onEdit, savedTags = [] }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(todo.title);
   const [editDeadlineDate, setEditDeadlineDate] = useState(todo.deadlineDate || '');
   const [editPriority, setEditPriority] = useState(todo.priority ?? 1);
   const [editTags, setEditTags] = useState<string[]>(todo.tags || []);
-  const [editTagInput, setEditTagInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -45,7 +46,6 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
     setEditDeadlineDate(todo.deadlineDate || '');
     setEditPriority(todo.priority ?? 1);
     setEditTags(todo.tags || []);
-    setEditTagInput('');
     setIsEditing(true);
     setTimeout(() => {
       inputRef.current?.focus();
@@ -63,7 +63,6 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
       setEditDeadlineDate(todo.deadlineDate || '');
       setEditPriority(todo.priority ?? 1);
       setEditTags(todo.tags || []);
-      setEditTagInput('');
       setIsEditing(false);
     }
   };
@@ -73,19 +72,7 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
     setEditDeadlineDate(todo.deadlineDate || '');
     setEditPriority(todo.priority ?? 1);
     setEditTags(todo.tags || []);
-    setEditTagInput('');
     setIsEditing(false);
-  };
-
-  const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-      e.preventDefault();
-      const newTag = editTagInput.trim();
-      if (newTag && !editTags.includes(newTag)) {
-        setEditTags([...editTags, newTag]);
-        setEditTagInput('');
-      }
-    }
   };
 
   const removeEditTag = (tag: string) => {
@@ -155,16 +142,11 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: TodoItemProps) {
               <StarRating value={editPriority} onChange={setEditPriority} />
             </div>
 
-            <div className="flex-1 min-w-[120px] flex items-center gap-1 border rounded px-2 h-8 bg-background focus-within:ring-1 focus-within:ring-ring">
-              <FaTag className="text-muted-foreground w-3 h-3 shrink-0" />
-              <input
-                className="flex-1 bg-transparent outline-none text-xs placeholder:text-muted-foreground"
-                placeholder="タグ追加 (Enter)"
-                value={editTagInput}
-                onChange={(e) => setEditTagInput(e.target.value)}
-                onKeyDown={handleTagKeyDown}
-              />
-            </div>
+            <TagSelector
+              savedTags={savedTags}
+              selectedTags={editTags}
+              onChange={setEditTags}
+            />
           </div>
 
           {editTags.length > 0 && (
