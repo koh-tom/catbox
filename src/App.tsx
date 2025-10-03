@@ -1,3 +1,4 @@
+import { SettingsMenu } from '@/components/SettingsMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
@@ -16,7 +17,10 @@ function App() {
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-2xl font-semibold">😺📦 Catbox</CardTitle>
-              <ThemeToggle />
+              <div className="flex items-center gap-1">
+                <SettingsMenu />
+                <ThemeToggle />
+              </div>
             </div>
           </CardHeader>
           <CardContent>
