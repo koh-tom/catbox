@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSortAmountDown } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { isOverdue, parseTodoDate } from '@/lib/date-utils';
-import type { Todo } from '@/types/todo';
+import type { Tag, Todo } from '@/types/todo';
 import { TodoItem } from './TodoItem';
 
 interface TodoListProps {
@@ -16,18 +16,12 @@ interface TodoListProps {
     priority?: number,
     tags?: string[],
   ) => void;
-  savedTags: string[];
+  savedTags: Tag[];
 }
 
 type SortKey = 'deadline' | 'created' | 'priority';
 
-export function TodoList({
-  todos,
-  onToggle,
-  onDelete,
-  onEdit,
-  savedTags,
-}: TodoListProps) {
+export function TodoList({ todos, onToggle, onDelete, onEdit, savedTags }: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
 
   const { overdueTodos, activeTodos, completedTodos, incompleteCount } = useMemo(() => {
@@ -160,6 +154,7 @@ export function TodoList({
               onToggle={onToggle}
               onDelete={onDelete}
               onEdit={onEdit}
+              savedTags={savedTags}
             />
           ))}
         </ul>
@@ -184,6 +179,7 @@ export function TodoList({
               onToggle={onToggle}
               onDelete={onDelete}
               onEdit={onEdit}
+              savedTags={savedTags}
             />
           ))}
         </ul>

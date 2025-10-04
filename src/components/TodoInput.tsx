@@ -1,20 +1,15 @@
-import type { Tag } from '@/types/todo';
 import { type FormEvent, type KeyboardEvent, useState } from 'react';
+import { FaTimes } from 'react-icons/fa';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
 import { TagSelector } from '@/components/TagSelector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { FaTimes } from 'react-icons/fa';
+import type { Tag } from '@/types/todo';
 
 interface TodoInputProps {
-  onAdd: (
-    title: string,
-    deadlineDate?: string,
-    priority?: number,
-    tags?: string[],
-  ) => void;
+  onAdd: (title: string, deadlineDate?: string, priority?: number, tags?: string[]) => void;
   savedTags?: Tag[];
 }
 
@@ -43,7 +38,6 @@ export function TodoInput({ onAdd, savedTags = [] }: TodoInputProps) {
       handleSubmit(e);
     }
   };
-
 
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));

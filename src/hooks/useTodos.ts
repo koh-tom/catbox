@@ -43,10 +43,7 @@ export function useTodos() {
   const addSavedTag = (name: string, color: string) => {
     const trimmed = name.trim();
     if (trimmed && !savedTags.some((t) => t.name === trimmed)) {
-      setSavedTags([
-        ...savedTags,
-        { id: crypto.randomUUID(), name: trimmed, color },
-      ]);
+      setSavedTags([...savedTags, { id: crypto.randomUUID(), name: trimmed, color }]);
     }
   };
 
