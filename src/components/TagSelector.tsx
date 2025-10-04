@@ -5,10 +5,11 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import type { Tag } from '@/types/todo';
 import { FaCheck, FaTag } from 'react-icons/fa';
 
 interface TagSelectorProps {
-    savedTags: string[];
+    savedTags: Tag[];
     selectedTags: string[];
     onChange: (tags: string[]) => void;
     className?: string;
@@ -20,11 +21,11 @@ export function TagSelector({
     onChange,
     className,
 }: TagSelectorProps) {
-    const toggleTag = (tag: string) => {
-        if (selectedTags.includes(tag)) {
-            onChange(selectedTags.filter((t) => t !== tag));
+    const toggleTag = (tagName: string) => {
+        if (selectedTags.includes(tagName)) {
+            onChange(selectedTags.filter((t) => t !== tagName));
         } else {
-            onChange([...selectedTags, tag]);
+            onChange([...selectedTags, tagName]);
         }
     };
 
@@ -61,18 +62,26 @@ export function TagSelector({
                     ) : (
                         <div className="max-h-[200px] overflow-y-auto space-y-0.5">
                             {savedTags.map((tag) => {
-                                const isSelected = selectedTags.includes(tag);
+                                const isSelected = selectedTags.includes(tag.name);
                                 return (
                                     <button
-                                        key={tag}
+                                        key={tag.id}
                                         type="button"
-                                        onClick={() => toggleTag(tag)}
+                                        onClick={() => toggleTag(tag.name)}
                                         className={cn(
                                             'w-full flex items-center justify-between px-2 py-1.5 rounded-sm text-sm transition-colors hover:bg-accent hover:text-accent-foreground text-left',
                                             isSelected && 'bg-accent/50 font-medium',
                                         )}
                                     >
-                                        <span className="truncate">#{tag}</span>
+                                        <div className="flex items-center gap-2 truncate">
+                                            <div
+                                                className={cn(
+                                                    'w-2 h-2 rounded-full shrink-0',
+                                                    tag.color,
+                                                )}
+                                            />
+                                            <span>#{tag.name}</span>
+                                        </div>
                                         {isSelected && <FaCheck className="w-3 h-3 text-primary" />}
                                     </button>
                                 );

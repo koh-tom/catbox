@@ -1,16 +1,16 @@
 import type { KeyboardEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { StarRating } from '@/components/StarRating';
 import { MdCheck, MdClose, MdEdit } from 'react-icons/md';
 import { FaTimes } from 'react-icons/fa';
 import { DatePicker } from '@/components/DatePicker';
+import { StarRating } from '@/components/StarRating';
+import { TagSelector } from '@/components/TagSelector';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { getDeadlineBadgeVariant, getRelativeDateLabel } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
-import type { Todo } from '@/types/todo';
-import { TagSelector } from '@/components/TagSelector';
+import type { Tag, Todo } from '@/types/todo';
 
 interface TodoItemProps {
   todo: Todo;
@@ -23,7 +23,7 @@ interface TodoItemProps {
     priority?: number,
     tags?: string[],
   ) => void;
-  savedTags?: string[];
+  savedTags?: Tag[];
 }
 
 export function TodoItem({ todo, onToggle, onDelete, onEdit, savedTags = [] }: TodoItemProps) {
@@ -151,21 +151,28 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit, savedTags = [] }: T
 
           {editTags.length > 0 && (
             <div className="flex gap-1 flex-wrap">
-              {editTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary flex items-center gap-1"
-                >
-                  #{tag}
-                  <button
-                    type="button"
-                    onClick={() => removeEditTag(tag)}
-                    className="text-primary/60 hover:text-primary focus:outline-none"
+              {editTags.map((tagName) => {
+                const tagColor = savedTags.find((t) => t.name === tagName)?.color;
+                return (
+                  <span
+                    key={tagName}
+                    className={cn(
+                      'text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-transparent box-border',
+                      tagColor || 'bg-primary/10 text-primary',
+                    )}
                   >
-                    <FaTimes className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+                    #{tagName}
+                    <button
+                      type="button"
+                      onClick={() => removeEditTag(tagName)}
+                      className="hover:text-foreground/80 focus:outline-none"
+                      style={{ color: 'inherit', opacity: 0.7 }}
+                    >
+                      <FaTimes className="w-3 h-3" />
+                    </button>
+                  </span>
+                );
+              })}
             </div>
           )}
         </div>
@@ -182,14 +189,21 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit, savedTags = [] }: T
 
           {todo.tags && todo.tags.length > 0 && (
             <div className="flex gap-1 flex-wrap items-center">
-              {todo.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-secondary-foreground border border-border/50"
-                >
-                  #{tag}
-                </span>
-              ))}
+              {todo.tags.map((tagName) => {
+                const tagColor = savedTags.find((t) => t.name === tagName)?.color;
+                return (
+                  <span
+                    key={tagName}
+                    className={cn(
+                      'text-[10px] px-1.5 py-0.5 rounded-full border border-transparent box-border',
+                      tagColor ||
+                      'bg-secondary text-secondary-foreground border-border/50',
+                    )}
+                  >
+                    #{tagName}
+                  </span>
+                );
+              })}
             </div>
           )}
 

@@ -1,10 +1,11 @@
-import type { FormEvent, KeyboardEvent } from 'react';
-import { useState } from 'react';
+import type { Tag } from '@/types/todo';
+import { type FormEvent, type KeyboardEvent, useState } from 'react';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
 import { TagSelector } from '@/components/TagSelector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 import { FaTimes } from 'react-icons/fa';
 
 interface TodoInputProps {
@@ -14,7 +15,7 @@ interface TodoInputProps {
     priority?: number,
     tags?: string[],
   ) => void;
-  savedTags?: string[];
+  savedTags?: Tag[];
 }
 
 export function TodoInput({ onAdd, savedTags = [] }: TodoInputProps) {
@@ -95,21 +96,28 @@ export function TodoInput({ onAdd, savedTags = [] }: TodoInputProps) {
 
       {tags.length > 0 && (
         <div className="flex gap-2 flex-wrap pt-1">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-            >
-              #{tag}
-              <button
-                type="button"
-                onClick={() => removeTag(tag)}
-                className="text-primary/60 hover:text-primary focus:outline-none"
+          {tags.map((tagName) => {
+            const tagColor = savedTags.find((t) => t.name === tagName)?.color;
+            return (
+              <span
+                key={tagName}
+                className={cn(
+                  'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors border border-transparent box-border',
+                  tagColor || 'bg-primary/10 text-primary',
+                )}
               >
-                <FaTimes className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
+                #{tagName}
+                <button
+                  type="button"
+                  onClick={() => removeTag(tagName)}
+                  className="hover:text-foreground/80 focus:outline-none"
+                  style={{ color: 'inherit', opacity: 0.7 }}
+                >
+                  <FaTimes className="w-3 h-3" />
+                </button>
+              </span>
+            );
+          })}
         </div>
       )}
     </form>

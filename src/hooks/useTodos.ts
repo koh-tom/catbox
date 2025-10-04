@@ -1,9 +1,9 @@
-import type { Todo } from '@/types/todo';
+import type { Tag, Todo } from '@/types/todo';
 import { useLocalStorage } from './useLocalStorage';
 
 export function useTodos() {
   const [todos, setTodos] = useLocalStorage<Todo[]>('catbox-todos', []);
-  const [savedTags, setSavedTags] = useLocalStorage<string[]>('catbox-tags', []);
+  const [savedTags, setSavedTags] = useLocalStorage<Tag[]>('catbox-tags-v2', []);
 
   // 新規TODOを追加
   const addTodo = (
@@ -40,16 +40,19 @@ export function useTodos() {
   };
 
   // 保存済みタグを追加
-  const addSavedTag = (tag: string) => {
-    const trimmed = tag.trim();
-    if (trimmed && !savedTags.includes(trimmed)) {
-      setSavedTags([...savedTags, trimmed]);
+  const addSavedTag = (name: string, color: string) => {
+    const trimmed = name.trim();
+    if (trimmed && !savedTags.some((t) => t.name === trimmed)) {
+      setSavedTags([
+        ...savedTags,
+        { id: crypto.randomUUID(), name: trimmed, color },
+      ]);
     }
   };
 
   // 保存済みタグを削除
-  const deleteSavedTag = (tag: string) => {
-    setSavedTags(savedTags.filter((t) => t !== tag));
+  const deleteSavedTag = (id: string) => {
+    setSavedTags(savedTags.filter((t) => t.id !== id));
   };
 
   // TODOを編集
