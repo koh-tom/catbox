@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSortAmountDown } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { isOverdue, parseTodoDate } from '@/lib/date-utils';
+import { cn } from '@/lib/utils';
 import type { Tag, Todo } from '@/types/todo';
 import { TodoItem } from './TodoItem';
 
@@ -23,8 +24,22 @@ type SortKey = 'deadline' | 'created' | 'priority';
 
 export function TodoList({ todos, onToggle, onDelete, onEdit, savedTags }: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
+  const [filterTags, setFilterTags] = useState<string[]>([]);
+
+  const toggleFilterTag = (tagName: string) => {
+    setFilterTags((prev) =>
+      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName],
+    );
+  };
 
   const { overdueTodos, activeTodos, completedTodos, incompleteCount } = useMemo(() => {
+    let filteredTodos = todos;
+
+    // タグフィルター適用 (OR条件)
+    if (filterTags.length > 0) {
+      filteredTodos = todos.filter((todo) => todo.tags?.some((tag) => filterTags.includes(tag)));
+    }
+
     // 優先度による比較
     const comparePriority = (a: Todo, b: Todo) => {
       return (b.priority ?? 1) - (a.priority ?? 1);
@@ -57,8 +72,8 @@ export function TodoList({ todos, onToggle, onDelete, onEdit, savedTags }: TodoL
       }
     })();
 
-    const incomplete = todos.filter((todo) => !todo.completed).sort(sortFn);
-    const completed = todos.filter((todo) => todo.completed).sort(sortFn);
+    const incomplete = filteredTodos.filter((todo) => !todo.completed).sort(sortFn);
+    const completed = filteredTodos.filter((todo) => todo.completed).sort(sortFn);
 
     return {
       overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
@@ -66,7 +81,7 @@ export function TodoList({ todos, onToggle, onDelete, onEdit, savedTags }: TodoL
       completedTodos: completed,
       incompleteCount: incomplete.length,
     };
-  }, [todos, sortKey]);
+  }, [todos, sortKey, filterTags]);
 
   if (todos.length === 0) {
     return (
@@ -87,6 +102,42 @@ export function TodoList({ todos, onToggle, onDelete, onEdit, savedTags }: TodoL
 
   return (
     <div className="space-y-6">
+      {savedTags.length > 0 && (
+        <div className="flex gap-2 items-center flex-wrap pb-2 border-b border-border/40">
+          <span className="text-xs font-medium text-muted-foreground mr-1">フィルター:</span>
+          {savedTags.map((tag) => {
+            const isSelected = filterTags.includes(tag.name);
+            return (
+              <button
+                type="button"
+                key={tag.id}
+                onClick={() => toggleFilterTag(tag.name)}
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all border',
+                  isSelected
+                    ? cn(tag.color, 'border-transparent shadow-sm')
+                    : 'bg-background text-muted-foreground border-border hover:bg-accent hover:text-accent-foreground',
+                )}
+              >
+                <span
+                  className={cn('w-2 h-2 rounded-full', isSelected ? 'bg-white/40' : tag.color)}
+                />
+                #{tag.name}
+              </button>
+            );
+          })}
+          {filterTags.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setFilterTags([])}
+              className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 ml-auto sm:ml-0"
+            >
+              クリア
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="flex justify-end">
         <Button
           variant="ghost"
