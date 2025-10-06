@@ -12,4 +12,5 @@ export interface Todo {
   deadlineDate?: string;
   priority?: number;
   tags?: string[];
+  description?: string;
 }

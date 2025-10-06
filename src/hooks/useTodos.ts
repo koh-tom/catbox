@@ -59,6 +59,7 @@ export function useTodos() {
     newDeadlineDate?: string,
     newPriority?: number,
     newTags?: string[],
+    newDescription?: string,
   ) => {
     if (!newTitle.trim()) return;
     setTodos(
@@ -70,6 +71,7 @@ export function useTodos() {
               deadlineDate: newDeadlineDate?.trim() || undefined,
               priority: newPriority ?? todo.priority ?? 1,
               tags: newTags ?? todo.tags ?? [],
+              description: newDescription ?? todo.description,
             }
           : todo,
       ),

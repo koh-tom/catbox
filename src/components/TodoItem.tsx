@@ -1,7 +1,7 @@
 import type { KeyboardEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { MdCheck, MdClose, MdEdit } from 'react-icons/md';
+import { MdCheck, MdClose, MdEdit, MdOpenInNew } from 'react-icons/md';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
 import { TagSelector } from '@/components/TagSelector';
@@ -24,9 +24,17 @@ interface TodoItemProps {
     tags?: string[],
   ) => void;
   savedTags?: Tag[];
+  onSelect?: (todo: Todo) => void;
 }
 
-export function TodoItem({ todo, onToggle, onDelete, onEdit, savedTags = [] }: TodoItemProps) {
+export function TodoItem({
+  todo,
+  onToggle,
+  onDelete,
+  onEdit,
+  savedTags = [],
+  onSelect,
+}: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(todo.title);
   const [editDeadlineDate, setEditDeadlineDate] = useState(todo.deadlineDate || '');
@@ -230,6 +238,15 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit, savedTags = [] }: T
 
       {!isEditing && (
         <>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+            onClick={() => onSelect?.(todo)}
+            aria-label="詳細"
+          >
+            <MdOpenInNew className="h-4 w-4" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"

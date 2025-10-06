@@ -16,13 +16,22 @@ interface TodoListProps {
     deadlineDate?: string,
     priority?: number,
     tags?: string[],
+    description?: string,
   ) => void;
   savedTags: Tag[];
+  onSelectTodo?: (todo: Todo) => void;
 }
 
 type SortKey = 'deadline' | 'created' | 'priority';
 
-export function TodoList({ todos, onToggle, onDelete, onEdit, savedTags }: TodoListProps) {
+export function TodoList({
+  todos,
+  onToggle,
+  onDelete,
+  onEdit,
+  savedTags,
+  onSelectTodo,
+}: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
   const [filterTags, setFilterTags] = useState<string[]>([]);
 
@@ -180,6 +189,7 @@ export function TodoList({ todos, onToggle, onDelete, onEdit, savedTags }: TodoL
                 onDelete={onDelete}
                 onEdit={onEdit}
                 savedTags={savedTags}
+                onSelect={onSelectTodo}
               />
             ))}
           </ul>
@@ -206,6 +216,7 @@ export function TodoList({ todos, onToggle, onDelete, onEdit, savedTags }: TodoL
               onDelete={onDelete}
               onEdit={onEdit}
               savedTags={savedTags}
+              onSelect={onSelectTodo}
             />
           ))}
         </ul>
@@ -231,6 +242,7 @@ export function TodoList({ todos, onToggle, onDelete, onEdit, savedTags }: TodoL
               onDelete={onDelete}
               onEdit={onEdit}
               savedTags={savedTags}
+              onSelect={onSelectTodo}
             />
           ))}
         </ul>

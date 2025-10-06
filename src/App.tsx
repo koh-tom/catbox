@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { TodoDetailModal } from '@/components/TodoDetailModal';
 import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTodos } from '@/hooks/useTodos';
+import type { Todo } from '@/types/todo';
 
 function App() {
   const {
@@ -17,7 +20,31 @@ function App() {
     deleteSavedTag,
   } = useTodos();
 
+  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
   const completedCount = todos.filter((t) => t.completed).length;
+
+  const handleEditTodo = (
+    id: string,
+    newTitle: string,
+    deadlineDate?: string,
+    priority?: number,
+    tags?: string[],
+    description?: string,
+  ) => {
+    editTodo(id, newTitle, deadlineDate, priority, tags, description);
+  };
+
+  const handleSelectTodo = (todo: Todo) => {
+    setSelectedTodo(todo);
+    setIsDetailOpen(true);
+  };
+
+  const handleCloseDetail = () => {
+    setIsDetailOpen(false);
+    setTimeout(() => setSelectedTodo(null), 300);
+  };
 
   return (
     <div className="min-h-screen bg-background py-8 px-4">
@@ -42,8 +69,9 @@ function App() {
               todos={todos}
               onToggle={toggleTodo}
               onDelete={deleteTodo}
-              onEdit={editTodo}
+              onEdit={handleEditTodo}
               savedTags={savedTags}
+              onSelectTodo={handleSelectTodo}
             />
 
             {todos.length > 0 && (
@@ -53,6 +81,14 @@ function App() {
             )}
           </CardContent>
         </Card>
+
+        <TodoDetailModal
+          todo={selectedTodo}
+          isOpen={isDetailOpen}
+          onClose={handleCloseDetail}
+          onSave={handleEditTodo}
+          savedTags={savedTags}
+        />
       </div>
     </div>
   );
