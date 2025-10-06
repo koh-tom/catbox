@@ -69,7 +69,6 @@ function App() {
               todos={todos}
               onToggle={toggleTodo}
               onDelete={deleteTodo}
-              onEdit={handleEditTodo}
               savedTags={savedTags}
               onSelectTodo={handleSelectTodo}
             />
