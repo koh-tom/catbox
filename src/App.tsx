@@ -26,7 +26,7 @@ function App() {
   const completedCount = todos.filter((t) => t.completed).length;
 
   const handleSaveDetail = (
-    id: string,
+    _id: string,
     title: string,
     deadlineDate?: string,
     priority?: number,
