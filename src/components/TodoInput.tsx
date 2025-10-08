@@ -6,6 +6,7 @@ import { StarRating } from '@/components/StarRating';
 import { TagSelector } from '@/components/TagSelector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { getTagColorStyles } from '@/lib/tag-utils';
 import { cn } from '@/lib/utils';
 import type { Tag } from '@/types/todo';
 
@@ -104,13 +105,15 @@ export function TodoInput({ onAdd, savedTags = [], onOpenDetailAdd }: TodoInputP
         <div className="flex gap-2 flex-wrap pt-1">
           {tags.map((tagName) => {
             const tagColor = savedTags.find((t) => t.name === tagName)?.color;
+            const { className, style } = getTagColorStyles(tagColor);
             return (
               <span
                 key={tagName}
                 className={cn(
                   'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors border border-transparent box-border',
-                  tagColor || 'bg-primary/10 text-primary',
+                  className,
                 )}
+                style={style}
               >
                 #{tagName}
                 <button

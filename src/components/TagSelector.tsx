@@ -1,6 +1,7 @@
 import { FaCheck, FaTag } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { getTagColorStyles } from '@/lib/tag-utils';
 import { cn } from '@/lib/utils';
 import type { Tag } from '@/types/todo';
 
@@ -52,6 +53,7 @@ export function TagSelector({ savedTags, selectedTags, onChange, className }: Ta
             <div className="max-h-[200px] overflow-y-auto space-y-0.5">
               {savedTags.map((tag) => {
                 const isSelected = selectedTags.includes(tag.name);
+                const { className, style } = getTagColorStyles(tag.color);
                 return (
                   <button
                     key={tag.id}
@@ -63,7 +65,10 @@ export function TagSelector({ savedTags, selectedTags, onChange, className }: Ta
                     )}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      <div className={cn('w-2 h-2 rounded-full shrink-0', tag.color)} />
+                      <div
+                        className={cn('w-2 h-2 rounded-full shrink-0', className)}
+                        style={style}
+                      />
                       <span>#{tag.name}</span>
                     </div>
                     {isSelected && <FaCheck className="w-3 h-3 text-primary" />}

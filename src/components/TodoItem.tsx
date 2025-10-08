@@ -3,6 +3,7 @@ import { StarRating } from '@/components/StarRating';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { getDeadlineBadgeVariant, getRelativeDateLabel } from '@/lib/date-utils';
+import { getTagColorStyles } from '@/lib/tag-utils';
 import { cn } from '@/lib/utils';
 import type { Tag, Todo } from '@/types/todo';
 
@@ -43,13 +44,15 @@ export function TodoItem({ todo, onToggle, onDelete, savedTags = [], onSelect }:
           <div className="flex gap-1 flex-wrap items-center">
             {todo.tags.map((tagName) => {
               const tagColor = savedTags.find((t) => t.name === tagName)?.color;
+              const { className, style } = getTagColorStyles(tagColor);
               return (
                 <span
                   key={tagName}
                   className={cn(
                     'text-[10px] px-1.5 py-0.5 rounded-full border border-transparent box-border',
-                    tagColor || 'bg-secondary text-secondary-foreground border-border/50',
+                    className,
                   )}
+                  style={style}
                 >
                   #{tagName}
                 </span>

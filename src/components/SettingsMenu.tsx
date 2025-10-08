@@ -4,6 +4,7 @@ import { MdAdd, MdClose, MdSettings } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { getTagColorStyles } from '@/lib/tag-utils';
 import { cn } from '@/lib/utils';
 import type { Tag } from '@/types/todo';
 
@@ -63,7 +64,7 @@ export function SettingsMenu({ savedTags, addSavedTag, deleteSavedTag }: Setting
             </h5>
 
             <div className="space-y-2">
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1 items-center">
                 {TAG_COLORS.map((color) => (
                   <button
                     key={color.name}
@@ -79,6 +80,23 @@ export function SettingsMenu({ savedTags, addSavedTag, deleteSavedTag }: Setting
                     title={color.name}
                   />
                 ))}
+
+                <div
+                  className={cn(
+                    'relative w-5 h-5 overflow-hidden rounded-full border transition-all',
+                    !selectedColor.startsWith('bg-')
+                      ? 'ring-2 ring-primary ring-offset-1 scale-110 border-transparent'
+                      : 'hover:scale-105 border-input',
+                  )}
+                  title="カスタムカラー"
+                >
+                  <input
+                    type="color"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] p-0 border-0 cursor-pointer"
+                    onChange={(e) => setSelectedColor(e.target.value)}
+                    value={!selectedColor.startsWith('bg-') ? selectedColor : '#000000'}
+                  />
+                </div>
               </div>
 
               <div className="flex gap-2">
@@ -104,25 +122,29 @@ export function SettingsMenu({ savedTags, addSavedTag, deleteSavedTag }: Setting
               {savedTags.length === 0 && (
                 <span className="text-xs text-muted-foreground">登録されたタグはありません</span>
               )}
-              {savedTags.map((tag) => (
-                <span
-                  key={tag.id}
-                  className={cn(
-                    'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs box-border border-transparent',
-                    tag.color,
-                  )}
-                >
-                  #{tag.name}
-                  <button
-                    type="button"
-                    onClick={() => deleteSavedTag(tag.id)}
-                    className="hover:text-foreground/80 focus:outline-none"
-                    style={{ color: 'inherit', opacity: 0.7 }}
+              {savedTags.map((tag) => {
+                const { className, style } = getTagColorStyles(tag.color);
+                return (
+                  <span
+                    key={tag.id}
+                    className={cn(
+                      'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs box-border',
+                      className,
+                    )}
+                    style={style}
                   >
-                    <MdClose className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+                    #{tag.name}
+                    <button
+                      type="button"
+                      onClick={() => deleteSavedTag(tag.id)}
+                      className="hover:text-foreground/80 focus:outline-none"
+                      style={{ color: 'inherit', opacity: 0.7 }}
+                    >
+                      <MdClose className="w-3 h-3" />
+                    </button>
+                  </span>
+                );
+              })}
             </div>
           </div>
         </div>
