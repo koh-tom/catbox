@@ -1,5 +1,6 @@
 import { type FormEvent, type KeyboardEvent, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
+import { MdPlaylistAdd } from 'react-icons/md';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
 import { TagSelector } from '@/components/TagSelector';
@@ -11,9 +12,10 @@ import type { Tag } from '@/types/todo';
 interface TodoInputProps {
   onAdd: (title: string, deadlineDate?: string, priority?: number, tags?: string[]) => void;
   savedTags?: Tag[];
+  onOpenDetailAdd?: () => void;
 }
 
-export function TodoInput({ onAdd, savedTags = [] }: TodoInputProps) {
+export function TodoInput({ onAdd, savedTags = [], onOpenDetailAdd }: TodoInputProps) {
   const [value, setValue] = useState('');
   const [deadlineDate, setDeadlineDate] = useState('');
   const [priority, setPriority] = useState(1);
@@ -65,6 +67,16 @@ export function TodoInput({ onAdd, savedTags = [] }: TodoInputProps) {
           }
         >
           追加
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={onOpenDetailAdd}
+          title="詳細を入力して追加"
+          className="shrink-0"
+        >
+          <MdPlaylistAdd className="h-5 w-5" />
         </Button>
       </div>
 

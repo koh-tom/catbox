@@ -11,6 +11,7 @@ export function useTodos() {
     deadlineDate?: string,
     priority?: number,
     tags: string[] = [],
+    description?: string,
   ) => {
     if (!title.trim()) return;
 
@@ -22,6 +23,7 @@ export function useTodos() {
       deadlineDate: deadlineDate?.trim() || undefined,
       priority: priority ?? 1,
       tags,
+      description,
     };
 
     setTodos([newTodo, ...todos]);

@@ -20,30 +20,39 @@ function App() {
     deleteSavedTag,
   } = useTodos();
 
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const completedCount = todos.filter((t) => t.completed).length;
 
-  const handleEditTodo = (
+  const handleSaveDetail = (
     id: string,
-    newTitle: string,
+    title: string,
     deadlineDate?: string,
     priority?: number,
     tags?: string[],
     description?: string,
   ) => {
-    editTodo(id, newTitle, deadlineDate, priority, tags, description);
+    if (editingTodo) {
+      editTodo(editingTodo.id, title, deadlineDate, priority, tags, description);
+    } else {
+      addTodo(title, deadlineDate, priority, tags, description);
+    }
   };
 
-  const handleSelectTodo = (todo: Todo) => {
-    setSelectedTodo(todo);
+  const handleOpenCreateModal = () => {
+    setEditingTodo(null);
+    setIsDetailOpen(true);
+  };
+
+  const handleOpenEditModal = (todo: Todo) => {
+    setEditingTodo(todo);
     setIsDetailOpen(true);
   };
 
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
-    setTimeout(() => setSelectedTodo(null), 300);
+    setTimeout(() => setEditingTodo(null), 300);
   };
 
   return (
@@ -64,13 +73,17 @@ function App() {
             </div>
           </CardHeader>
           <CardContent>
-            <TodoInput onAdd={addTodo} savedTags={savedTags} />
+            <TodoInput
+              onAdd={addTodo}
+              savedTags={savedTags}
+              onOpenDetailAdd={handleOpenCreateModal}
+            />
             <TodoList
               todos={todos}
               onToggle={toggleTodo}
               onDelete={deleteTodo}
               savedTags={savedTags}
-              onSelectTodo={handleSelectTodo}
+              onSelectTodo={handleOpenEditModal}
             />
 
             {todos.length > 0 && (
@@ -82,10 +95,10 @@ function App() {
         </Card>
 
         <TodoDetailModal
-          todo={selectedTodo}
+          todo={editingTodo}
           isOpen={isDetailOpen}
           onClose={handleCloseDetail}
-          onSave={handleEditTodo}
+          onSave={handleSaveDetail}
           savedTags={savedTags}
         />
       </div>
