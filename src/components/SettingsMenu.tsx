@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { FaTag } from 'react-icons/fa';
 import { MdAdd, MdClose, MdColorLens, MdSettings } from 'react-icons/md';
+import { TagBadge } from '@/components/TagBadge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { getTagColorStyles } from '@/lib/tag-utils';
 import { cn } from '@/lib/utils';
 import type { Tag } from '@/types/todo';
 
@@ -130,35 +130,24 @@ export function SettingsMenu({ savedTags, addSavedTag, deleteSavedTag }: Setting
                   タグがありません
                 </div>
               )}
-              {savedTags.map((tag) => {
-                const { className, style } = getTagColorStyles(tag.color);
-                return (
-                  <div
-                    key={tag.id}
-                    className="flex items-center justify-between p-1.5 rounded-md hover:bg-accent/50 transition-colors group"
+              {savedTags.map((tag) => (
+                <div
+                  key={tag.id}
+                  className="flex items-center justify-between p-1.5 rounded-md hover:bg-accent/50 transition-colors group"
+                >
+                  <TagBadge tagName={tag.name} tagColor={tag.color} />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => deleteSavedTag(tag.id)}
+                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
+                    title="削除"
                   >
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      <div
-                        className={cn('w-3 h-3 rounded-full shrink-0', className)}
-                        style={style}
-                      />
-                      <span className="text-sm truncate" title={tag.name}>
-                        #{tag.name}
-                      </span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteSavedTag(tag.id)}
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
-                      title="削除"
-                    >
-                      <MdClose className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                );
-              })}
+                    <MdClose className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { MdClose, MdEdit } from 'react-icons/md';
 import { StarRating } from '@/components/StarRating';
+import { TagBadge } from '@/components/TagBadge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { getDeadlineBadgeVariant, getRelativeDateLabel } from '@/lib/date-utils';
@@ -18,9 +19,8 @@ interface TodoItemProps {
 export function TodoItem({ todo, onToggle, onDelete, savedTags = [], onSelect }: TodoItemProps) {
   return (
     <li
-      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${
-        todo.completed ? 'opacity-60' : ''
-      }`}
+      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${todo.completed ? 'opacity-60' : ''
+        }`}
     >
       <Checkbox
         id={`todo-${todo.id}`}
@@ -33,9 +33,8 @@ export function TodoItem({ todo, onToggle, onDelete, savedTags = [], onSelect }:
         <button
           type="button"
           onDoubleClick={() => onSelect?.(todo)}
-          className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${
-            todo.completed ? 'line-through text-muted-foreground' : ''
-          }`}
+          className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${todo.completed ? 'line-through text-muted-foreground' : ''
+            }`}
         >
           {todo.title}
         </button>
@@ -44,18 +43,13 @@ export function TodoItem({ todo, onToggle, onDelete, savedTags = [], onSelect }:
           <div className="flex gap-1 flex-wrap items-center">
             {todo.tags.map((tagName) => {
               const tagColor = savedTags.find((t) => t.name === tagName)?.color;
-              const { className, style } = getTagColorStyles(tagColor);
               return (
-                <span
+                <TagBadge
                   key={tagName}
-                  className={cn(
-                    'text-[10px] px-1.5 py-0.5 rounded-full border border-transparent box-border',
-                    className,
-                  )}
-                  style={style}
-                >
-                  #{tagName}
-                </span>
+                  tagName={tagName}
+                  tagColor={tagColor}
+                  className="text-[10px] px-1.5"
+                />
               );
             })}
           </div>

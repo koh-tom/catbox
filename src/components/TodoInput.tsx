@@ -1,12 +1,11 @@
 import { type FormEvent, type KeyboardEvent, useState } from 'react';
-import { FaTimes } from 'react-icons/fa';
 import { MdPlaylistAdd } from 'react-icons/md';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
+import { TagBadge } from '@/components/TagBadge';
 import { TagSelector } from '@/components/TagSelector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getTagColorStyles } from '@/lib/tag-utils';
 import { cn } from '@/lib/utils';
 import type { Tag } from '@/types/todo';
 
@@ -105,26 +104,13 @@ export function TodoInput({ onAdd, savedTags = [], onOpenDetailAdd }: TodoInputP
         <div className="flex gap-2 flex-wrap pt-1">
           {tags.map((tagName) => {
             const tagColor = savedTags.find((t) => t.name === tagName)?.color;
-            const { className, style } = getTagColorStyles(tagColor);
             return (
-              <span
+              <TagBadge
                 key={tagName}
-                className={cn(
-                  'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors border border-transparent box-border',
-                  className,
-                )}
-                style={style}
-              >
-                #{tagName}
-                <button
-                  type="button"
-                  onClick={() => removeTag(tagName)}
-                  className="hover:text-foreground/80 focus:outline-none"
-                  style={{ color: 'inherit', opacity: 0.7 }}
-                >
-                  <FaTimes className="w-3 h-3" />
-                </button>
-              </span>
+                tagName={tagName}
+                tagColor={tagColor}
+                onDelete={() => removeTag(tagName)}
+              />
             );
           })}
         </div>
