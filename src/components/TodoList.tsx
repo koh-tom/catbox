@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSortAmountDown } from 'react-icons/fa';
+import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSort, FaSortAmountDown } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { isOverdue, parseTodoDate } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,7 @@ interface TodoListProps {
   onSelectTodo?: (todo: Todo) => void;
 }
 
-type SortKey = 'deadline' | 'created' | 'priority';
+type SortKey = 'deadline' | 'created' | 'priority' | 'manual';
 
 export function TodoList({ todos, onToggle, onDelete, savedTags, onSelectTodo }: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
@@ -61,6 +61,8 @@ export function TodoList({ todos, onToggle, onDelete, savedTags, onSelectTodo }:
           return sortCreated;
         case 'priority':
           return sortPriority;
+        case 'manual':
+          return () => 0;
         default:
           return sortDeadline;
       }
@@ -90,6 +92,7 @@ export function TodoList({ todos, onToggle, onDelete, savedTags, onSelectTodo }:
     setSortKey((prev) => {
       if (prev === 'deadline') return 'created';
       if (prev === 'created') return 'priority';
+      if (prev === 'priority') return 'manual';
       return 'deadline';
     });
   };
@@ -156,6 +159,12 @@ export function TodoList({ todos, onToggle, onDelete, savedTags, onSelectTodo }:
             <>
               <FaFlag className="w-3 h-3" />
               <span>優先度順</span>
+            </>
+          )}
+          {sortKey === 'manual' && (
+            <>
+              <FaSort className="w-3 h-3" />
+              <span>自由</span>
             </>
           )}
         </Button>
