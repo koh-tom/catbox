@@ -124,31 +124,39 @@ export function SettingsMenu({ savedTags, addSavedTag, deleteSavedTag }: Setting
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-1.5 max-h-[150px] overflow-y-auto">
+            <div className="space-y-1 max-h-[200px] overflow-y-auto pr-1">
               {savedTags.length === 0 && (
-                <span className="text-xs text-muted-foreground">登録されたタグはありません</span>
+                <div className="text-xs text-muted-foreground text-center py-4">
+                  タグがありません
+                </div>
               )}
               {savedTags.map((tag) => {
                 const { className, style } = getTagColorStyles(tag.color);
                 return (
-                  <span
+                  <div
                     key={tag.id}
-                    className={cn(
-                      'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs box-border',
-                      className,
-                    )}
-                    style={style}
+                    className="flex items-center justify-between p-1.5 rounded-md hover:bg-accent/50 transition-colors group"
                   >
-                    #{tag.name}
-                    <button
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <div
+                        className={cn('w-3 h-3 rounded-full shrink-0', className)}
+                        style={style}
+                      />
+                      <span className="text-sm truncate" title={tag.name}>
+                        #{tag.name}
+                      </span>
+                    </div>
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => deleteSavedTag(tag.id)}
-                      className="hover:text-foreground/80 focus:outline-none"
-                      style={{ color: 'inherit', opacity: 0.7 }}
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
+                      title="削除"
                     >
-                      <MdClose className="w-3 h-3" />
-                    </button>
-                  </span>
+                      <MdClose className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
                 );
               })}
             </div>
