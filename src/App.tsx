@@ -6,6 +6,7 @@ import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTodos } from '@/hooks/useTodos';
+import { APP_NAME } from '@/lib/constants';
 import type { Todo } from '@/types/todo';
 
 function App() {
@@ -61,7 +62,7 @@ function App() {
         <Card>
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl font-semibold">😺📦 Catbox</CardTitle>
+              <CardTitle className="text-2xl font-semibold">{APP_NAME}</CardTitle>
               <div className="flex items-center gap-1">
                 <SettingsMenu
                   savedTags={savedTags}

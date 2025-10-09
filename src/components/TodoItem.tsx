@@ -4,7 +4,6 @@ import { TagBadge } from '@/components/TagBadge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { getDeadlineBadgeVariant, getRelativeDateLabel } from '@/lib/date-utils';
-import { getTagColorStyles } from '@/lib/tag-utils';
 import { cn } from '@/lib/utils';
 import type { Tag, Todo } from '@/types/todo';
 
@@ -19,8 +18,9 @@ interface TodoItemProps {
 export function TodoItem({ todo, onToggle, onDelete, savedTags = [], onSelect }: TodoItemProps) {
   return (
     <li
-      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${todo.completed ? 'opacity-60' : ''
-        }`}
+      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${
+        todo.completed ? 'opacity-60' : ''
+      }`}
     >
       <Checkbox
         id={`todo-${todo.id}`}
@@ -33,8 +33,9 @@ export function TodoItem({ todo, onToggle, onDelete, savedTags = [], onSelect }:
         <button
           type="button"
           onDoubleClick={() => onSelect?.(todo)}
-          className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${todo.completed ? 'line-through text-muted-foreground' : ''
-            }`}
+          className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${
+            todo.completed ? 'line-through text-muted-foreground' : ''
+          }`}
         >
           {todo.title}
         </button>

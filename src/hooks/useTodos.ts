@@ -1,9 +1,10 @@
+import { DEFAULT_PRIORITY, STORAGE_KEYS } from '@/lib/constants';
 import type { Tag, Todo } from '@/types/todo';
 import { useLocalStorage } from './useLocalStorage';
 
 export function useTodos() {
-  const [todos, setTodos] = useLocalStorage<Todo[]>('catbox-todos', []);
-  const [savedTags, setSavedTags] = useLocalStorage<Tag[]>('catbox-tags-v2', []);
+  const [todos, setTodos] = useLocalStorage<Todo[]>(STORAGE_KEYS.TODOS, []);
+  const [savedTags, setSavedTags] = useLocalStorage<Tag[]>(STORAGE_KEYS.TAGS, []);
 
   // 新規TODOを追加
   const addTodo = (
@@ -21,7 +22,7 @@ export function useTodos() {
       completed: false,
       createdAt: Date.now(),
       deadlineDate: deadlineDate?.trim() || undefined,
-      priority: priority ?? 1,
+      priority: priority ?? DEFAULT_PRIORITY,
       tags,
       description,
     };

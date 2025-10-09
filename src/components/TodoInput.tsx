@@ -6,7 +6,6 @@ import { TagBadge } from '@/components/TagBadge';
 import { TagSelector } from '@/components/TagSelector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 import type { Tag } from '@/types/todo';
 
 interface TodoInputProps {
