@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FaTag } from 'react-icons/fa';
-import { MdAdd, MdClose, MdSettings } from 'react-icons/md';
+import { MdAdd, MdClose, MdColorLens, MdSettings } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -83,16 +83,22 @@ export function SettingsMenu({ savedTags, addSavedTag, deleteSavedTag }: Setting
 
                 <div
                   className={cn(
-                    'relative w-5 h-5 overflow-hidden rounded-full border transition-all',
+                    'relative w-5 h-5 rounded-full overflow-hidden transition-all flex items-center justify-center',
                     !selectedColor.startsWith('bg-')
-                      ? 'ring-2 ring-primary ring-offset-1 scale-110 border-transparent'
-                      : 'hover:scale-105 border-input',
+                      ? 'ring-2 ring-primary ring-offset-1 scale-110'
+                      : 'hover:scale-105 opacity-80 hover:opacity-100 border border-transparent',
                   )}
                   title="カスタムカラー"
                 >
+                  {!selectedColor.startsWith('bg-') ? (
+                    <div className="w-full h-full" style={{ backgroundColor: selectedColor }} />
+                  ) : (
+                    <MdColorLens className="w-full h-full text-muted-foreground bg-muted" />
+                  )}
+
                   <input
                     type="color"
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] p-0 border-0 cursor-pointer"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer p-0 border-0"
                     onChange={(e) => setSelectedColor(e.target.value)}
                     value={!selectedColor.startsWith('bg-') ? selectedColor : '#000000'}
                   />
