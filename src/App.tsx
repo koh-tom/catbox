@@ -16,6 +16,7 @@ function App() {
     toggleTodo,
     deleteTodo,
     editTodo,
+    reorderTodos,
     savedTags,
     addSavedTag,
     deleteSavedTag,
@@ -83,6 +84,7 @@ function App() {
               todos={todos}
               onToggle={toggleTodo}
               onDelete={deleteTodo}
+              onReorder={reorderTodos}
               savedTags={savedTags}
               onSelectTodo={handleOpenEditModal}
             />

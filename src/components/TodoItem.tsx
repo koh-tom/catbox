@@ -1,4 +1,8 @@
-import { MdClose, MdEdit } from 'react-icons/md';
+import type {
+  DraggableProvidedDraggableProps,
+  DraggableProvidedDragHandleProps,
+} from '@hello-pangea/dnd';
+import { MdClose, MdDragIndicator, MdEdit } from 'react-icons/md';
 import { StarRating } from '@/components/StarRating';
 import { TagBadge } from '@/components/TagBadge';
 import { Button } from '@/components/ui/button';
@@ -13,15 +17,41 @@ interface TodoItemProps {
   onDelete: (id: string) => void;
   savedTags?: Tag[];
   onSelect?: (todo: Todo) => void;
+  innerRef?: (element?: HTMLElement | null) => void;
+  draggableProps?: DraggableProvidedDraggableProps;
+  dragHandleProps?: DraggableProvidedDragHandleProps | null;
+  isDraggable?: boolean;
 }
 
-export function TodoItem({ todo, onToggle, onDelete, savedTags = [], onSelect }: TodoItemProps) {
+export function TodoItem({
+  todo,
+  onToggle,
+  onDelete,
+  savedTags = [],
+  onSelect,
+  innerRef,
+  draggableProps,
+  dragHandleProps,
+  isDraggable = false,
+}: TodoItemProps) {
   return (
     <li
-      className={`group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50 ${
-        todo.completed ? 'opacity-60' : ''
-      }`}
+      ref={innerRef}
+      {...draggableProps}
+      style={draggableProps?.style}
+      className={cn(
+        'group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50',
+        todo.completed ? 'opacity-60' : '',
+      )}
     >
+      {isDraggable && (
+        <div
+          {...dragHandleProps}
+          className="text-muted-foreground/50 hover:text-foreground cursor-grab active:cursor-grabbing p-1 -ml-2"
+        >
+          <MdDragIndicator className="w-5 h-5" />
+        </div>
+      )}
       <Checkbox
         id={`todo-${todo.id}`}
         checked={todo.completed}

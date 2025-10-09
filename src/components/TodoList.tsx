@@ -1,3 +1,4 @@
+import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { useMemo, useState } from 'react';
 import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSort, FaSortAmountDown } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
@@ -12,11 +13,19 @@ interface TodoListProps {
   onDelete: (id: string) => void;
   savedTags: Tag[];
   onSelectTodo?: (todo: Todo) => void;
+  onReorder?: (startIndex: number, endIndex: number) => void;
 }
 
 type SortKey = 'deadline' | 'created' | 'priority' | 'manual';
 
-export function TodoList({ todos, onToggle, onDelete, savedTags, onSelectTodo }: TodoListProps) {
+export function TodoList({
+  todos,
+  onToggle,
+  onDelete,
+  savedTags,
+  onSelectTodo,
+  onReorder,
+}: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
   const [filterTags, setFilterTags] = useState<string[]>([]);
 
@@ -26,58 +35,63 @@ export function TodoList({ todos, onToggle, onDelete, savedTags, onSelectTodo }:
     );
   };
 
-  const { overdueTodos, activeTodos, completedTodos, incompleteCount } = useMemo(() => {
-    let filteredTodos = todos;
+  const { overdueTodos, activeTodos, completedTodos, incompleteCount, manualTodos } =
+    useMemo(() => {
+      let filteredTodos = todos;
 
-    // タグフィルター適用 (OR条件)
-    if (filterTags.length > 0) {
-      filteredTodos = todos.filter((todo) => todo.tags?.some((tag) => filterTags.includes(tag)));
-    }
-
-    // 優先度による比較
-    const comparePriority = (a: Todo, b: Todo) => {
-      return (b.priority ?? 1) - (a.priority ?? 1);
-    };
-
-    const compareDeadline = (a: Todo, b: Todo) => {
-      const dateA = parseTodoDate(a.deadlineDate);
-      const dateB = parseTodoDate(b.deadlineDate);
-      if (dateA && dateB) return dateA.getTime() - dateB.getTime();
-      if (dateA) return -1;
-      if (dateB) return 1;
-      return 0;
-    };
-
-    const compareCreated = (a: Todo, b: Todo) => a.createdAt - b.createdAt;
-
-    // ソート: 第一キーが同じ(0)なら第二キーで比較
-    const sortCreated = (a: Todo, b: Todo) => compareCreated(a, b) || comparePriority(a, b);
-    const sortPriority = (a: Todo, b: Todo) => comparePriority(a, b) || compareDeadline(a, b);
-    const sortDeadline = (a: Todo, b: Todo) => compareDeadline(a, b) || comparePriority(a, b);
-
-    const sortFn = (() => {
-      switch (sortKey) {
-        case 'created':
-          return sortCreated;
-        case 'priority':
-          return sortPriority;
-        case 'manual':
-          return () => 0;
-        default:
-          return sortDeadline;
+      // タグフィルター適用 (OR条件)
+      if (filterTags.length > 0) {
+        filteredTodos = todos.filter((todo) => todo.tags?.some((tag) => filterTags.includes(tag)));
       }
-    })();
 
-    const incomplete = filteredTodos.filter((todo) => !todo.completed).sort(sortFn);
-    const completed = filteredTodos.filter((todo) => todo.completed).sort(sortFn);
+      // 優先度による比較
+      const comparePriority = (a: Todo, b: Todo) => {
+        return (b.priority ?? 1) - (a.priority ?? 1);
+      };
 
-    return {
-      overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
-      activeTodos: incomplete.filter((todo) => !isOverdue(todo.deadlineDate)),
-      completedTodos: completed,
-      incompleteCount: incomplete.length,
-    };
-  }, [todos, sortKey, filterTags]);
+      const compareDeadline = (a: Todo, b: Todo) => {
+        const dateA = parseTodoDate(a.deadlineDate);
+        const dateB = parseTodoDate(b.deadlineDate);
+        if (dateA && dateB) return dateA.getTime() - dateB.getTime();
+        if (dateA) return -1;
+        if (dateB) return 1;
+        return 0;
+      };
+
+      const compareCreated = (a: Todo, b: Todo) => a.createdAt - b.createdAt;
+
+      // ソート: 第一キーが同じ(0)なら第二キーで比較
+      const sortCreated = (a: Todo, b: Todo) => compareCreated(a, b) || comparePriority(a, b);
+      const sortPriority = (a: Todo, b: Todo) => comparePriority(a, b) || compareDeadline(a, b);
+      const sortDeadline = (a: Todo, b: Todo) => compareDeadline(a, b) || comparePriority(a, b);
+
+      const sortFn = (() => {
+        switch (sortKey) {
+          case 'created':
+            return sortCreated;
+          case 'priority':
+            return sortPriority;
+          case 'manual':
+            return () => 0;
+          default:
+            return sortDeadline;
+        }
+      })();
+
+      // manual用の全件リスト (ソートなし、フィルタのみ)
+      const isManualMode = sortKey === 'manual' && filterTags.length === 0;
+
+      const incomplete = filteredTodos.filter((todo) => !todo.completed).sort(sortFn);
+      const completed = filteredTodos.filter((todo) => todo.completed).sort(sortFn);
+
+      return {
+        overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
+        activeTodos: incomplete.filter((todo) => !isOverdue(todo.deadlineDate)),
+        completedTodos: completed,
+        incompleteCount: incomplete.length,
+        manualTodos: isManualMode ? filteredTodos : [], // manualモード用
+      };
+    }, [todos, sortKey, filterTags]);
 
   if (todos.length === 0) {
     return (
@@ -96,6 +110,13 @@ export function TodoList({ todos, onToggle, onDelete, savedTags, onSelectTodo }:
       return 'deadline';
     });
   };
+
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination || !onReorder) return;
+    onReorder(result.source.index, result.destination.index);
+  };
+
+  const isDragEnabled = sortKey === 'manual' && filterTags.length === 0;
 
   return (
     <div className="space-y-6">
@@ -135,7 +156,10 @@ export function TodoList({ todos, onToggle, onDelete, savedTags, onSelectTodo }:
         </div>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex justify-end items-center gap-4">
+        {sortKey === 'manual' && filterTags.length > 0 && (
+          <span className="text-xs text-muted-foreground">※ フィルター中は並び替えできません</span>
+        )}
         <Button
           variant="ghost"
           size="sm"
@@ -170,73 +194,106 @@ export function TodoList({ todos, onToggle, onDelete, savedTags, onSelectTodo }:
         </Button>
       </div>
 
-      {/* 期限切れタスク */}
-      {overdueTodos.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-red-500 flex items-center gap-2">🚨 期限切れ</h3>
-          <ul className="space-y-2">
-            {overdueTodos.map((todo) => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                onToggle={onToggle}
-                onDelete={onDelete}
-                savedTags={savedTags}
-                onSelect={onSelectTodo}
-              />
-            ))}
-          </ul>
-        </div>
-      )}
+      {isDragEnabled ? (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="todos">
+            {(provided) => (
+              <ul ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
+                {manualTodos.map((todo, index) => (
+                  <Draggable key={todo.id} draggableId={todo.id} index={index}>
+                    {(provided) => (
+                      <TodoItem
+                        innerRef={provided.innerRef}
+                        draggableProps={provided.draggableProps}
+                        dragHandleProps={provided.dragHandleProps}
+                        todo={todo}
+                        onToggle={onToggle}
+                        onDelete={onDelete}
+                        savedTags={savedTags}
+                        onSelect={onSelectTodo}
+                        isDraggable
+                      />
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </ul>
+            )}
+          </Droppable>
+        </DragDropContext>
+      ) : (
+        <>
+          {/* 期限切れタスク */}
+          {overdueTodos.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-red-500 flex items-center gap-2">
+                🚨 期限切れ
+              </h3>
+              <ul className="space-y-2">
+                {overdueTodos.map((todo) => (
+                  <TodoItem
+                    key={todo.id}
+                    todo={todo}
+                    onToggle={onToggle}
+                    onDelete={onDelete}
+                    savedTags={savedTags}
+                    onSelect={onSelectTodo}
+                  />
+                ))}
+              </ul>
+            </div>
+          )}
 
-      {/* 期限切れと進行中の間のセパレーター */}
-      {overdueTodos.length > 0 && activeTodos.length > 0 && (
-        <div className="flex items-center gap-3 py-2">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-muted-foreground">進行中</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-      )}
+          {/* 期限切れと進行中の間のセパレーター */}
+          {overdueTodos.length > 0 && activeTodos.length > 0 && (
+            <div className="flex items-center gap-3 py-2">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs text-muted-foreground">進行中</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+          )}
 
-      {/* 進行中タスク（未完了かつ期限切れでない） */}
-      {activeTodos.length > 0 && (
-        <ul className="space-y-2">
-          {activeTodos.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              savedTags={savedTags}
-              onSelect={onSelectTodo}
-            />
-          ))}
-        </ul>
-      )}
+          {/* 進行中タスク（未完了かつ期限切れでない） */}
+          {activeTodos.length > 0 && (
+            <ul className="space-y-2">
+              {activeTodos.map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={onToggle}
+                  onDelete={onDelete}
+                  savedTags={savedTags}
+                  onSelect={onSelectTodo}
+                />
+              ))}
+            </ul>
+          )}
 
-      {/* セパレーター */}
-      {incompleteCount > 0 && completedTodos.length > 0 && (
-        <div className="flex items-center gap-3 py-2">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-muted-foreground">完了済み</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-      )}
+          {/* セパレーター */}
+          {incompleteCount > 0 && completedTodos.length > 0 && (
+            <div className="flex items-center gap-3 py-2">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs text-muted-foreground">完了済み</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+          )}
 
-      {/* 完了済みタスク */}
-      {completedTodos.length > 0 && (
-        <ul className="space-y-2">
-          {completedTodos.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              savedTags={savedTags}
-              onSelect={onSelectTodo}
-            />
-          ))}
-        </ul>
+          {/* 完了済みタスク */}
+          {completedTodos.length > 0 && (
+            <ul className="space-y-2">
+              {completedTodos.map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={onToggle}
+                  onDelete={onDelete}
+                  savedTags={savedTags}
+                  onSelect={onSelectTodo}
+                />
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </div>
   );

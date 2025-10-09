@@ -73,12 +73,21 @@ export function useTodos() {
     );
   };
 
+  // TODOの並び替え
+  const reorderTodos = (startIndex: number, endIndex: number) => {
+    const result = Array.from(todos);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    setTodos(result);
+  };
+
   return {
     todos,
     addTodo,
     toggleTodo,
     deleteTodo,
     editTodo,
+    reorderTodos,
     savedTags,
     addSavedTag,
     deleteSavedTag,
