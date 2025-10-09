@@ -56,28 +56,20 @@ export function useTodos() {
   };
 
   // TODOを編集
-  const editTodo = (
-    id: string,
-    newTitle: string,
-    newDeadlineDate?: string,
-    newPriority?: number,
-    newTags?: string[],
-    newDescription?: string,
-  ) => {
-    if (!newTitle.trim()) return;
+  const editTodo = (id: string, updates: Partial<Omit<Todo, 'id' | 'createdAt'>>) => {
+    if (updates.title !== undefined && !updates.title.trim()) return;
+
     setTodos(
-      todos.map((todo) =>
-        todo.id === id
-          ? {
-              ...todo,
-              title: newTitle.trim(),
-              deadlineDate: newDeadlineDate?.trim() || undefined,
-              priority: newPriority ?? todo.priority ?? 1,
-              tags: newTags ?? todo.tags ?? [],
-              description: newDescription ?? todo.description,
-            }
-          : todo,
-      ),
+      todos.map((todo) => {
+        if (todo.id !== id) return todo;
+
+        const newTodo = { ...todo, ...updates };
+
+        newTodo.title = newTodo.title.trim();
+        newTodo.deadlineDate = newTodo.deadlineDate?.trim() || undefined;
+
+        return newTodo;
+      }),
     );
   };
 

@@ -35,7 +35,7 @@ function App() {
     description?: string,
   ) => {
     if (editingTodo) {
-      editTodo(editingTodo.id, title, deadlineDate, priority, tags, description);
+      editTodo(editingTodo.id, { title, deadlineDate, priority, tags, description });
     } else {
       addTodo(title, deadlineDate, priority, tags, description);
     }
