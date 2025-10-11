@@ -201,7 +201,7 @@ export function TodoList({
               <ul ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
                 {manualTodos.map((todo, index) => (
                   <Draggable key={todo.id} draggableId={todo.id} index={index}>
-                    {(provided) => (
+                    {(provided, snapshot) => (
                       <TodoItem
                         innerRef={provided.innerRef}
                         draggableProps={provided.draggableProps}
@@ -212,6 +212,7 @@ export function TodoList({
                         savedTags={savedTags}
                         onSelect={onSelectTodo}
                         isDraggable
+                        isDragging={snapshot.isDragging}
                       />
                     )}
                   </Draggable>

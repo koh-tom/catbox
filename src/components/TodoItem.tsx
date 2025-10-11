@@ -21,6 +21,7 @@ interface TodoItemProps {
   draggableProps?: DraggableProvidedDraggableProps;
   dragHandleProps?: DraggableProvidedDragHandleProps | null;
   isDraggable?: boolean;
+  isDragging?: boolean;
 }
 
 export function TodoItem({
@@ -33,6 +34,7 @@ export function TodoItem({
   draggableProps,
   dragHandleProps,
   isDraggable = false,
+  isDragging = false,
 }: TodoItemProps) {
   return (
     <li
@@ -40,14 +42,18 @@ export function TodoItem({
       {...draggableProps}
       style={draggableProps?.style}
       className={cn(
-        'group flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors hover:bg-accent/50',
+        'group flex items-center gap-3 p-3 rounded-lg border bg-card transition-all hover:bg-accent/50',
         todo.completed ? 'opacity-60' : '',
+        isDragging && 'shadow-xl ring-2 ring-primary/20 scale-[1.01] bg-accent z-50',
       )}
     >
       {isDraggable && (
         <div
           {...dragHandleProps}
-          className="text-muted-foreground/50 hover:text-foreground cursor-grab active:cursor-grabbing p-1 -ml-2"
+          className={cn(
+            'text-muted-foreground/50 hover:text-foreground cursor-grab active:cursor-grabbing p-1 -ml-2',
+            isDragging && 'cursor-grabbing',
+          )}
         >
           <MdDragIndicator className="w-5 h-5" />
         </div>
