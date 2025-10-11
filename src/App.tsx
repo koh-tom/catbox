@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { MdSearch } from 'react-icons/md';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { TodoDetailModal } from '@/components/TodoDetailModal';
 import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { useTodos } from '@/hooks/useTodos';
 import { APP_NAME } from '@/lib/constants';
 import type { Todo } from '@/types/todo';
@@ -24,6 +26,7 @@ function App() {
 
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const completedCount = todos.filter((t) => t.completed).length;
 
@@ -62,15 +65,27 @@ function App() {
       <div className="w-full max-w-5xl mx-auto">
         <Card>
           <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <CardTitle className="text-2xl font-semibold">{APP_NAME}</CardTitle>
-              <div className="flex items-center gap-1">
-                <SettingsMenu
-                  savedTags={savedTags}
-                  addSavedTag={addSavedTag}
-                  deleteSavedTag={deleteSavedTag}
-                />
-                <ThemeToggle />
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="relative flex-1 sm:w-64">
+                  <MdSearch className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="タスクを検索..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 h-9"
+                  />
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <SettingsMenu
+                    savedTags={savedTags}
+                    addSavedTag={addSavedTag}
+                    deleteSavedTag={deleteSavedTag}
+                  />
+                  <ThemeToggle />
+                </div>
               </div>
             </div>
           </CardHeader>
