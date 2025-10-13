@@ -102,6 +102,7 @@ function App() {
               onReorder={reorderTodos}
               savedTags={savedTags}
               onSelectTodo={handleOpenEditModal}
+              searchQuery={searchQuery}
             />
 
             {todos.length > 0 && (

@@ -14,6 +14,7 @@ interface TodoListProps {
   savedTags: Tag[];
   onSelectTodo?: (todo: Todo) => void;
   onReorder?: (startIndex: number, endIndex: number) => void;
+  searchQuery?: string;
 }
 
 type SortKey = 'deadline' | 'created' | 'priority' | 'manual';
@@ -25,6 +26,7 @@ export function TodoList({
   savedTags,
   onSelectTodo,
   onReorder,
+  searchQuery = '',
 }: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
   const [filterTags, setFilterTags] = useState<string[]>([]);
@@ -39,9 +41,19 @@ export function TodoList({
     useMemo(() => {
       let filteredTodos = todos;
 
+      // 検索フィルター適用
+      const query = searchQuery.trim().toLowerCase();
+      if (query) {
+        filteredTodos = filteredTodos.filter(
+          (todo) =>
+            todo.title.toLowerCase().includes(query) ||
+            todo.description?.toLowerCase().includes(query),
+        );
+      }
+
       // タグフィルター適用 (OR条件)
       if (filterTags.length > 0) {
-        filteredTodos = todos.filter((todo) => todo.tags?.some((tag) => filterTags.includes(tag)));
+        filteredTodos = filteredTodos.filter((todo) => todo.tags?.some((tag) => filterTags.includes(tag)));
       }
 
       // 優先度による比較
@@ -91,7 +103,7 @@ export function TodoList({
         incompleteCount: incomplete.length,
         manualTodos: isManualMode ? filteredTodos : [], // manualモード用
       };
-    }, [todos, sortKey, filterTags]);
+    }, [todos, sortKey, filterTags, searchQuery]);
 
   if (todos.length === 0) {
     return (
@@ -116,7 +128,7 @@ export function TodoList({
     onReorder(result.source.index, result.destination.index);
   };
 
-  const isDragEnabled = sortKey === 'manual' && filterTags.length === 0;
+  const isDragEnabled = sortKey === 'manual' && filterTags.length === 0 && !searchQuery;
 
   return (
     <div className="space-y-6">
@@ -157,8 +169,10 @@ export function TodoList({
       )}
 
       <div className="flex justify-end items-center gap-4">
-        {sortKey === 'manual' && filterTags.length > 0 && (
-          <span className="text-xs text-muted-foreground">※ フィルター中は並び替えできません</span>
+        {sortKey === 'manual' && (filterTags.length > 0 || searchQuery) && (
+          <span className="text-xs text-muted-foreground">
+            ※ フィルター・検索中は並び替えできません
+          </span>
         )}
         <Button
           variant="ghost"
