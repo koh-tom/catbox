@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MdSearch } from 'react-icons/md';
+import { CalendarView } from '@/components/CalendarView';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { TodoDetailModal } from '@/components/TodoDetailModal';
@@ -7,6 +8,7 @@ import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTodos } from '@/hooks/useTodos';
 import { APP_NAME } from '@/lib/constants';
 import type { Todo } from '@/types/todo';
@@ -95,21 +97,38 @@ function App() {
               savedTags={savedTags}
               onOpenDetailAdd={handleOpenCreateModal}
             />
-            <TodoList
-              todos={todos}
-              onToggle={toggleTodo}
-              onDelete={deleteTodo}
-              onReorder={reorderTodos}
-              savedTags={savedTags}
-              onSelectTodo={handleOpenEditModal}
-              searchQuery={searchQuery}
-            />
 
-            {todos.length > 0 && (
-              <div className="mt-6 pt-4 border-t text-sm text-muted-foreground">
-                {completedCount} / {todos.length} 完了
-              </div>
-            )}
+            <Tabs defaultValue="list" className="mt-6">
+              <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+                <TabsTrigger value="list">リスト</TabsTrigger>
+                <TabsTrigger value="calendar">カレンダー</TabsTrigger>
+              </TabsList>
+              <TabsContent value="list" className="mt-4">
+                <TodoList
+                  todos={todos}
+                  onToggle={toggleTodo}
+                  onDelete={deleteTodo}
+                  onReorder={reorderTodos}
+                  savedTags={savedTags}
+                  onSelectTodo={handleOpenEditModal}
+                  searchQuery={searchQuery}
+                />
+                {todos.length > 0 && (
+                  <div className="mt-6 pt-4 border-t text-sm text-muted-foreground">
+                    {completedCount} / {todos.length} 完了
+                  </div>
+                )}
+              </TabsContent>
+              <TabsContent value="calendar" className="mt-4">
+                <CalendarView
+                  todos={todos}
+                  onToggle={toggleTodo}
+                  onDelete={deleteTodo}
+                  savedTags={savedTags}
+                  onSelectTodo={handleOpenEditModal}
+                />
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 

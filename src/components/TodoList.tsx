@@ -53,7 +53,9 @@ export function TodoList({
 
       // タグフィルター適用 (OR条件)
       if (filterTags.length > 0) {
-        filteredTodos = filteredTodos.filter((todo) => todo.tags?.some((tag) => filterTags.includes(tag)));
+        filteredTodos = filteredTodos.filter((todo) =>
+          todo.tags?.some((tag) => filterTags.includes(tag)),
+        );
       }
 
       // 優先度による比較
