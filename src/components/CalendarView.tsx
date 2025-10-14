@@ -1,10 +1,12 @@
+import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { useMemo, useState } from 'react';
-import { TodoItem } from '@/components/TodoItem';
 import { Calendar } from '@/components/ui/calendar';
+import { TodoItem } from '@/components/TodoItem';
+import type { Todo, Tag } from '@/types/todo';
 import { isOverdue } from '@/lib/date-utils';
-import type { Tag, Todo } from '@/types/todo';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface CalendarViewProps {
   todos: Todo[];
@@ -43,81 +45,120 @@ export function CalendarView({
   }, [date, todosByDate]);
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 mt-4">
-      <div className="flex-none">
-        <div className="border rounded-md p-4 flex justify-center bg-card shadow-sm">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            locale={ja}
-            className="rounded-md"
-            components={
-              {
-                DayContent: (props: any) => {
-                  const { date: dayDate } = props;
-                  const dateKey = format(dayDate, 'yyyy-MM-dd');
-                  const dayTodos = todosByDate.get(dateKey);
-                  const hasTodos = dayTodos && dayTodos.length > 0;
+    <div className="flex flex-col gap-4 mt-2">
+      <div className="border rounded-lg p-3 bg-card shadow-sm overflow-hidden">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          locale={ja}
+          className="w-full p-0"
+          classNames={{
+            months: 'flex w-full flex-col',
+            month: 'space-y-2 w-full',
+            caption: 'flex justify-center pt-1 relative items-center h-9 mb-1',
+            caption_label: 'text-base font-semibold',
+            nav: 'space-x-1 flex items-center',
+            nav_button:
+              'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 border rounded-md hover:bg-muted flex items-center justify-center transition-colors',
+            nav_button_previous: 'absolute left-1 top-1',
+            nav_button_next: 'absolute right-1 top-1',
+            table: 'w-full border-collapse',
+            head_row: 'flex w-full',
+            head_cell: 'text-muted-foreground rounded-md w-[14.28%] font-medium text-xs py-1.5',
+            row: 'flex w-full',
+            cell: 'h-[88px] w-[14.28%] text-center text-sm p-0 relative focus-within:relative focus-within:z-20 border-t border-l first:border-l-0 border-border/30',
+            day: 'h-[88px] w-full p-1.5 font-normal aria-selected:opacity-100 flex flex-col items-start justify-start hover:bg-accent/40 hover:text-accent-foreground transition-colors',
+            day_selected:
+              'bg-accent text-accent-foreground hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+            day_today: 'bg-accent/30 text-accent-foreground font-bold',
+            day_outside:
+              'day-outside text-muted-foreground opacity-40 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30',
+            day_disabled: 'text-muted-foreground opacity-50',
+            day_range_middle: 'aria-selected:bg-accent aria-selected:text-accent-foreground',
+            day_hidden: 'invisible',
+          }}
+          components={
+            {
+              DayContent: (props: any) => {
+                const { date: dayDate } = props;
+                const dateKey = format(dayDate, 'yyyy-MM-dd');
+                const dayTodos = todosByDate.get(dateKey) || [];
 
-                  // 未完了かつ期限切れがあるか
-                  const hasOverdue = dayTodos?.some(
-                    (t) => !t.completed && isOverdue(t.deadlineDate),
-                  );
-                  // 全て完了しているか
-                  const isAllCompleted = dayTodos?.length
-                    ? dayTodos.every((t) => t.completed)
-                    : false;
+                // 表示するタスク（最大2件でコンパクトに）
+                const displayTodos = dayTodos.slice(0, 2);
+                const remainingCount = dayTodos.length - 2;
 
-                  // ドットの色決定
-                  let dotColor = 'bg-primary';
-                  if (hasOverdue) dotColor = 'bg-red-500';
-                  else if (isAllCompleted) dotColor = 'bg-muted-foreground/50';
-
-                  return (
-                    <div className="relative w-full h-full flex items-center justify-center p-2">
-                      <span>{dayDate.getDate()}</span>
-                      {hasTodos && (
-                        <div className={`absolute bottom-1 w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                return (
+                  <div className="w-full h-full flex flex-col">
+                    <div className="flex items-center justify-between w-full mb-0.5">
+                      <span className="text-xs font-medium w-5 h-5 flex items-center justify-center">
+                        {dayDate.getDate()}
+                      </span>
+                      {dayTodos.length > 0 && (
+                        <span className="text-[9px] text-muted-foreground bg-muted/50 px-1 rounded">
+                          {dayTodos.length}
+                        </span>
                       )}
                     </div>
-                  );
-                },
-              } as any
-            }
-          />
-        </div>
+
+                    <div className="w-full flex flex-col gap-0.5 overflow-hidden flex-1">
+                      {displayTodos.map((todo) => {
+                        const isOver = !todo.completed && isOverdue(todo.deadlineDate);
+
+                        return (
+                          <div
+                            key={todo.id}
+                            className={cn(
+                              'text-[9px] leading-tight px-1 py-0.5 rounded truncate font-medium',
+                              todo.completed
+                                ? 'bg-muted/60 text-muted-foreground line-through opacity-50'
+                                : isOver
+                                  ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                  : 'bg-primary/10 text-primary',
+                            )}
+                            title={todo.title}
+                          >
+                            {todo.title}
+                          </div>
+                        );
+                      })}
+                      {remainingCount > 0 && (
+                        <span className="text-[9px] text-muted-foreground/70 px-1">
+                          +{remainingCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              },
+            } as any
+          }
+        />
       </div>
 
-      <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-lg mb-4 flex items-center gap-2 border-b pb-2">
-          {date ? format(date, 'yyyy年M月d日 (EEE)', { locale: ja }) : '日付を選択'}
-          <span className="text-sm font-normal text-muted-foreground ml-auto bg-muted px-2 py-0.5 rounded-full">
-            {selectedDateTodos.length}件
-          </span>
-        </h3>
-
-        {selectedDateTodos.length > 0 ? (
-          <ul className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
-            {selectedDateTodos.map((todo) => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                onToggle={onToggle}
-                onDelete={onDelete}
-                savedTags={savedTags}
-                onSelect={onSelectTodo}
-              />
-            ))}
-          </ul>
-        ) : (
-          <div className="text-muted-foreground py-12 text-center border-2 border-dashed rounded-lg bg-muted/20">
-            <p>タスクはありません</p>
-            <p className="text-xs opacity-70 mt-1">
-              {date
-                ? '新しいタスクを追加するか、別の日を選択してください'
-                : '日付を選択してください'}
-            </p>
+      <div className="w-full">
+        {/* 選択された日のタスクリスト（カレンダーの下に配置） */}
+        {date && selectedDateTodos.length > 0 && (
+          <div className="border-t pt-4">
+            <h3 className="font-semibold text-base mb-3 flex items-center gap-2">
+              {format(date, 'M月d日 (EEE)', { locale: ja })}
+              <Badge variant="outline" className="text-xs">
+                {selectedDateTodos.length}件
+              </Badge>
+            </h3>
+            <ul className="space-y-1.5">
+              {selectedDateTodos.map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={onToggle}
+                  onDelete={onDelete}
+                  savedTags={savedTags}
+                  onSelect={onSelectTodo}
+                />
+              ))}
+            </ul>
           </div>
         )}
       </div>
