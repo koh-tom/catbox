@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { Calendar } from '@/components/ui/calendar';
+import { type DayProps } from 'react-day-picker';
 import { TodoItem } from '@/components/TodoItem';
 import type { Todo, Tag } from '@/types/todo';
 import { isOverdue } from '@/lib/date-utils';
@@ -73,7 +74,7 @@ export function CalendarView({
             hidden: 'invisible',
           }}
           components={{
-            Day: (props: any) => {
+            Day: (props: DayProps) => {
               const { day, modifiers, children, ...tdProps } = props;
               const dailyDate = day.date;
               const dateKey = format(dailyDate, 'M/d');
