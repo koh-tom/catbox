@@ -2,12 +2,13 @@ import type {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
 } from '@hello-pangea/dnd';
+import { format } from 'date-fns';
 import { MdClose, MdDragIndicator, MdEdit } from 'react-icons/md';
 import { StarRating } from '@/components/StarRating';
 import { TagBadge } from '@/components/TagBadge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { getDeadlineBadgeVariant, getRelativeDateLabel } from '@/lib/date-utils';
+import { getDeadlineBadgeVariant, getRelativeDateLabel, parseTodoDate } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import type { Tag, Todo } from '@/types/todo';
 
@@ -100,7 +101,10 @@ export function TodoItem({
                 getDeadlineBadgeVariant(todo.deadlineDate),
               )}
             >
-              期限: {todo.deadlineDate}
+              期限: {(() => {
+                const d = parseTodoDate(todo.deadlineDate);
+                return d ? format(d, 'M/d') : todo.deadlineDate;
+              })()}
               <span className="font-semibold">({getRelativeDateLabel(todo.deadlineDate)})</span>
             </span>
           )}

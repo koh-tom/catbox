@@ -26,7 +26,7 @@ export function DatePicker({ date, setDate, className, placeholder = '期限' }:
   const handleSelect = (d: Date | undefined) => {
     setSelectedDate(d);
     if (d) {
-      setDate(format(d, 'M/d'));
+      setDate(format(d, 'yyyy-MM-dd'));
       setIsOpen(false);
     } else {
       setDate('');
@@ -47,7 +47,8 @@ export function DatePicker({ date, setDate, className, placeholder = '期限' }:
           <FaRegCalendarCheck className="mr-2 h-4 w-4" />
           {date ? (
             <span>
-              {date} <span className="text-xs opacity-70">({getRelativeDateLabel(date)})</span>
+              {selectedDate ? format(selectedDate, 'M/d') : date}{' '}
+              <span className="text-xs opacity-70">({getRelativeDateLabel(date)})</span>
             </span>
           ) : (
             <span>{placeholder}</span>

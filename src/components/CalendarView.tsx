@@ -5,7 +5,7 @@ import type { DayProps } from 'react-day-picker';
 import { TodoItem } from '@/components/TodoItem';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
-import { isOverdue } from '@/lib/date-utils';
+import { isOverdue, parseTodoDate } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import type { Tag, Todo } from '@/types/todo';
 
@@ -30,8 +30,10 @@ export function CalendarView({
   const todosByDate = useMemo(() => {
     const map = new Map<string, Todo[]>();
     todos.forEach((todo) => {
-      if (!todo.deadlineDate) return;
-      const dateKey = todo.deadlineDate;
+      const dateObj = parseTodoDate(todo.deadlineDate);
+      if (!dateObj) return;
+
+      const dateKey = format(dateObj, 'yyyy-MM-dd');
       const current = map.get(dateKey) || [];
       map.set(dateKey, [...current, todo]);
     });
@@ -41,7 +43,7 @@ export function CalendarView({
   // 選択された日のタスクを取得
   const selectedDateTodos = useMemo(() => {
     if (!date) return [];
-    const dateKey = format(date, 'M/d');
+    const dateKey = format(date, 'yyyy-MM-dd');
     return todosByDate.get(dateKey) || [];
   }, [date, todosByDate]);
 
@@ -80,7 +82,7 @@ export function CalendarView({
             Day: (props: DayProps) => {
               const { day, modifiers, children, ...tdProps } = props;
               const dailyDate = day.date;
-              const dateKey = format(dailyDate, 'M/d');
+              const dateKey = format(dailyDate, 'yyyy-MM-dd');
               const dayTodos = todosByDate.get(dateKey) || [];
 
               // 表示するタスク（最大2件でコンパクトに）
@@ -107,8 +109,7 @@ export function CalendarView({
                   <button
                     type="button"
                     onClick={() => {
-                      // 日付クリック時の処理（必要に応じて実装）
-                      // 現状は日付選択のみを行う場合、本来はここで setDate(dailyDate) などを呼ぶべき
+                      setDate(dailyDate);
                     }}
                     className={cn(
                       'h-full w-full p-1.5 flex flex-col items-start justify-start cursor-pointer hover:bg-accent/40 transition-colors',

@@ -1,17 +1,16 @@
-import { differenceInCalendarDays, startOfToday } from 'date-fns';
+import { differenceInCalendarDays, isValid, parse, startOfToday } from 'date-fns';
 
 export function parseTodoDate(dateStr?: string): Date | undefined {
   if (!dateStr) return undefined;
 
-  const parts = dateStr.split('/');
-  if (parts.length !== 2) return undefined;
-
-  const month = Number.parseInt(parts[0], 10);
-  const day = Number.parseInt(parts[1], 10);
   const now = startOfToday();
-  const currentYear = now.getFullYear();
 
-  return new Date(currentYear, month - 1, day);
+  if (dateStr.includes('-')) {
+    const parsed = parse(dateStr, 'yyyy-MM-dd', now);
+    if (isValid(parsed)) return parsed;
+  }
+
+  return undefined;
 }
 
 export function getRelativeDateLabel(dateStr: string): string {
