@@ -20,7 +20,8 @@ export function TodoInput({ onAdd, savedTags = [], onOpenDetailAdd }: TodoInputP
   const [priority, setPriority] = useState(1);
   const [tags, setTags] = useState<string[]>([]);
 
-  const isValidDeadline = (date: string) => !date.trim() || /^\d+\/\d+$/.test(date.trim());
+  const isValidDeadline = (date: string) =>
+    !date.trim() || /^\d{4}-\d{2}-\d{2}$/.test(date.trim()) || /^\d+\/\d+$/.test(date.trim());
   const isFormValid = value.trim() && isValidDeadline(deadlineDate);
 
   const handleSubmit = (e: FormEvent) => {
