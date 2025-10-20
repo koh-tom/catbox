@@ -17,6 +17,14 @@ interface CalendarViewProps {
   onSelectTodo: (todo: Todo) => void;
 }
 
+const PRIORITY_COLORS: Record<number, string> = {
+  1: 'bg-blue-400',
+  2: 'bg-green-400',
+  3: 'bg-yellow-400',
+  4: 'bg-orange-500',
+  5: 'bg-red-500',
+};
+
 export function CalendarView({
   todos,
   onToggle,
@@ -89,15 +97,6 @@ export function CalendarView({
               const displayTodos = dayTodos.slice(0, 2);
               const remainingCount = dayTodos.length - 2;
 
-              // 優先度カラーマップ
-              const priorityColors: Record<number, string> = {
-                1: 'bg-blue-400',
-                2: 'bg-green-400',
-                3: 'bg-yellow-400',
-                4: 'bg-orange-500',
-                5: 'bg-red-500',
-              };
-
               return (
                 <td
                   {...tdProps}
@@ -143,7 +142,7 @@ export function CalendarView({
                     <div className="w-full flex flex-col gap-1 overflow-hidden flex-1 px-0.5 pb-1">
                       {displayTodos.map((todo) => {
                         const isOver = !todo.completed && isOverdue(todo.deadlineDate);
-                        const dotColor = priorityColors[todo.priority ?? 1] || 'bg-slate-400';
+                        const dotColor = PRIORITY_COLORS[todo.priority ?? 1] || 'bg-slate-400';
 
                         return (
                           <button
