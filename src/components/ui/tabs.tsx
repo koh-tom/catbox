@@ -22,12 +22,12 @@ function Tabs({
 }
 
 const tabsListVariants = cva(
-  'rounded-lg p-0.5 shadow-sm ring-1 ring-border/50 group-data-horizontal/tabs:h-9 data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col backdrop-blur-sm transition-all',
+  'rounded-lg p-1 shadow-sm ring-1 ring-border/50 group-data-horizontal/tabs:h-9 data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col backdrop-blur-sm transition-all',
   {
     variants: {
       variant: {
-        default: 'bg-muted/50',
-        line: 'gap-2 bg-transparent shadow-none ring-0',
+        default: 'bg-muted/80 dark:bg-muted/50',
+        line: 'gap-2 bg-transparent shadow-none ring-0 p-0',
       },
     },
     defaultVariants: {
@@ -56,15 +56,19 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        'gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200',
+        'gap-1.5 rounded-md px-3 py-1 text-sm font-medium transition-all duration-300 ease-in-out',
         "[&_svg:not([class*='size-'])]:size-4",
 
         // デフォルトバリアント（背景あり）のスタイル
         'group-data-[variant=default]/tabs-list:shadow-none',
-        'group-data-[variant=default]/tabs-list:hover:bg-background/60',
-        'group-data-[variant=default]/tabs-list:data-active:bg-background',
-        'group-data-[variant=default]/tabs-list:data-active:shadow-md',
-        'group-data-[variant=default]/tabs-list:data-active:shadow-primary/5',
+        'group-data-[variant=default]/tabs-list:hover:bg-background/50',
+        'group-data-[variant=default]/tabs-list:hover:text-foreground',
+
+        // アクティブ状態のスタイル強化
+        'group-data-[variant=default]/tabs-list:data-[state=active]:bg-background',
+        'group-data-[variant=default]/tabs-list:data-[state=active]:text-primary', // テキスト色をプライマリに
+        'group-data-[variant=default]/tabs-list:data-[state=active]:shadow-sm',
+        'group-data-[variant=default]/tabs-list:data-[state=active]:scale-[1.02]', // 僅かに拡大して強調
 
         // ラインバリアントのスタイル
         'group-data-[variant=line]/tabs-list:bg-transparent',
@@ -72,38 +76,30 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
         'group-data-[variant=line]/tabs-list:hover:bg-accent/50',
         'group-data-[variant=line]/tabs-list:data-active:bg-transparent',
 
-        // テキストカラー
-        'text-muted-foreground',
-        'hover:text-foreground',
-        'data-active:text-foreground',
+        // ベーステキストカラー
+        'text-muted-foreground/70',
 
-        // ダークモード
-        'dark:text-muted-foreground',
-        'dark:hover:text-foreground',
-        'dark:data-active:text-foreground',
-        'dark:group-data-[variant=default]/tabs-list:data-active:bg-background/80',
+        // ダークモード調整
+        'dark:group-data-[variant=default]/tabs-list:data-[state=active]:bg-background',
+        'dark:group-data-[variant=default]/tabs-list:data-[state=active]:text-primary',
 
         // フォーカス
-        'focus-visible:outline-none',
-        'focus-visible:ring-2',
-        'focus-visible:ring-ring/50',
-        'focus-visible:ring-offset-1',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-1',
 
         // レスポンシブ
         'relative inline-flex h-full flex-1 items-center justify-center whitespace-nowrap',
         'group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start',
 
         // 無効化
-        'disabled:pointer-events-none disabled:opacity-50',
-        '[&_svg]:pointer-events-none [&_svg]:shrink-0',
+        'disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
 
         // アンダーラインエフェクト（ラインバリアント用）
         'after:absolute after:bottom-0 after:left-0 after:right-0',
         'after:h-0.5 after:rounded-full',
         'after:bg-primary after:opacity-0',
         'after:transition-all after:duration-300',
-        'group-data-[variant=line]/tabs-list:data-active:after:opacity-100',
-        'after:scale-x-0 group-data-[variant=line]/tabs-list:data-active:after:scale-x-100',
+        'group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100',
+        'after:scale-x-0 group-data-[variant=line]/tabs-list:data-[state=active]:after:scale-x-100',
 
         className,
       )}
