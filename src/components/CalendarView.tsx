@@ -117,6 +117,9 @@ export function CalendarView({
                       modifiers.outside && 'opacity-40',
                     )}
                   >
+                    {/* アクセシビリティ用（見えないようにレンダリング） */}
+                    <span className="sr-only">{children}</span>
+
                     {/* 日付表示 */}
                     <div className="flex items-center justify-between w-full mb-1">
                       <span
