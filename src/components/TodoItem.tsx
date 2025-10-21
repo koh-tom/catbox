@@ -3,7 +3,7 @@ import type {
   DraggableProvidedDragHandleProps,
 } from '@hello-pangea/dnd';
 import { format } from 'date-fns';
-import { MdClose, MdDragIndicator, MdEdit, MdCheck, MdUndo } from 'react-icons/md';
+import { MdCheck, MdClose, MdDragIndicator, MdEdit, MdUndo } from 'react-icons/md';
 import { StarRating } from '@/components/StarRating';
 import { TagBadge } from '@/components/TagBadge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,8 @@ interface TodoItemProps {
   dragHandleProps?: DraggableProvidedDragHandleProps | null;
   isDraggable?: boolean;
   isDragging?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
 export function TodoItem({
@@ -36,6 +38,8 @@ export function TodoItem({
   dragHandleProps,
   isDraggable = false,
   isDragging = false,
+  isSelected = false,
+  onToggleSelect,
 }: TodoItemProps) {
   return (
     <li
@@ -45,6 +49,7 @@ export function TodoItem({
       className={cn(
         'group flex items-center gap-3 p-3 rounded-lg border bg-card transition-all hover:bg-accent/50',
         todo.completed ? 'opacity-60' : '',
+        isSelected ? 'bg-primary/5 border-primary/30' : '',
         isDragging && 'shadow-xl ring-2 ring-primary/20 scale-[1.01] bg-accent z-50',
       )}
     >
@@ -60,6 +65,14 @@ export function TodoItem({
         </div>
       )}
 
+      {onToggleSelect && (
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={() => onToggleSelect(todo.id)}
+          className="mr-1 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+          aria-label="選択"
+        />
+      )}
 
       <div className="flex flex-1 items-center gap-2">
         <button

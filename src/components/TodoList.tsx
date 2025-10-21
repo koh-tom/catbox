@@ -35,11 +35,32 @@ export function TodoList({
 }: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
   const [filterTags, setFilterTags] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const toggleFilterTag = (tagName: string) => {
     setFilterTags((prev) =>
       prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName],
     );
+  };
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === todos.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(todos.map((t) => t.id)));
+    }
   };
 
   const { overdueTodos, activeTodos, completedTodos, incompleteCount, manualTodos } =
@@ -139,80 +160,126 @@ export function TodoList({
 
   return (
     <div className="space-y-6">
-      {savedTags.length > 0 && (
-        <div className="flex gap-2 items-center flex-wrap pb-2 border-b border-border/40">
-          <span className="text-xs font-medium text-muted-foreground mr-1">フィルター:</span>
-          {savedTags.map((tag) => {
-            const isSelected = filterTags.includes(tag.name);
-            return (
-              <button
-                type="button"
-                key={tag.id}
-                onClick={() => toggleFilterTag(tag.name)}
-                className={cn(
-                  'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all border',
-                  isSelected
-                    ? cn(tag.color, 'border-transparent shadow-sm')
-                    : 'bg-background text-muted-foreground border-border hover:bg-accent hover:text-accent-foreground',
+      <div className="flex flex-col gap-4">
+        {/* 上部コントロールバー */}
+        <div className="flex justify-between items-center pb-2 border-b border-border/40 min-h-[40px]">
+          {/* 左側: フィルター */}
+          <div className="flex gap-2 items-center flex-wrap flex-1">
+            {savedTags.length > 0 && (
+              <>
+                <span className="text-xs font-medium text-muted-foreground mr-1">フィルター:</span>
+                {savedTags.map((tag) => {
+                  const isSelected = filterTags.includes(tag.name);
+                  return (
+                    <button
+                      type="button"
+                      key={tag.id}
+                      onClick={() => toggleFilterTag(tag.name)}
+                      className={cn(
+                        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all border',
+                        isSelected
+                          ? cn(tag.color, 'border-transparent shadow-sm')
+                          : 'bg-background text-muted-foreground border-border hover:bg-accent hover:text-accent-foreground',
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'w-2 h-2 rounded-full',
+                          isSelected ? 'bg-white/40' : tag.color,
+                        )}
+                      />
+                      #{tag.name}
+                    </button>
+                  );
+                })}
+                {filterTags.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setFilterTags([])}
+                    className="text-xs text-muted-foreground hover:text-foreground px-2 py-1"
+                  >
+                    クリア
+                  </button>
                 )}
-              >
-                <span
-                  className={cn('w-2 h-2 rounded-full', isSelected ? 'bg-white/40' : tag.color)}
-                />
-                #{tag.name}
-              </button>
-            );
-          })}
-          {filterTags.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setFilterTags([])}
-              className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 ml-auto sm:ml-0"
+              </>
+            )}
+          </div>
+
+          {/* 右側: ソート切替 */}
+          <div className="flex items-center gap-2 shrink-0 ml-auto">
+            {sortKey === 'manual' && (filterTags.length > 0 || searchQuery) && (
+              <span className="text-xs text-muted-foreground hidden sm:inline-block">
+                ※ フィルター中は固定
+              </span>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleSort}
+              className="text-muted-foreground hover:text-foreground gap-2 h-8 px-2"
             >
-              クリア
-            </button>
+              <FaSortAmountDown className="w-3 h-3" />
+              {sortKey === 'deadline' && (
+                <>
+                  <FaRegCalendarAlt className="w-3 h-3" />
+                  <span className="hidden sm:inline">期限順</span>
+                </>
+              )}
+              {sortKey === 'created' && (
+                <>
+                  <FaRegClock className="w-3 h-3" />
+                  <span className="hidden sm:inline">作成順</span>
+                </>
+              )}
+              {sortKey === 'priority' && (
+                <>
+                  <FaFlag className="w-3 h-3" />
+                  <span className="hidden sm:inline">優先度順</span>
+                </>
+              )}
+              {sortKey === 'manual' && (
+                <>
+                  <FaSort className="w-3 h-3" />
+                  <span className="hidden sm:inline">自由</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* 選択アクションバー（選択中のみ表示） */}
+        <div className="flex items-center justify-between min-h-[40px]">
+          {selectedIds.size > 0 ? (
+            <div className="flex items-center gap-4 w-full p-2 rounded-md bg-accent text-accent-foreground animate-in fade-in slide-in-from-top-1">
+              <span className="text-sm font-medium pl-2">{selectedIds.size} 件選択中</span>
+              <div className="flex items-center gap-2 ml-auto">
+                <Button size="sm" variant="ghost" className="h-8" onClick={toggleSelectAll}>
+                  {selectedIds.size === todos.length ? '全解除' : 'すべて選択'}
+                </Button>
+                <div className="w-px h-4 bg-border mx-2" />
+                <Button size="sm" variant="ghost" className="h-8">
+                  完了にする
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 text-destructive hover:text-destructive"
+                >
+                  削除
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleSelectAll}
+              className="text-muted-foreground hover:text-foreground h-8 px-2"
+            >
+              すべて選択
+            </Button>
           )}
         </div>
-      )}
-
-      <div className="flex justify-end items-center gap-4">
-        {sortKey === 'manual' && (filterTags.length > 0 || searchQuery) && (
-          <span className="text-xs text-muted-foreground">
-            ※ フィルター・検索中は並び替えできません
-          </span>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleSort}
-          className="text-muted-foreground hover:text-foreground gap-2"
-        >
-          <FaSortAmountDown className="w-3 h-3" />
-          {sortKey === 'deadline' && (
-            <>
-              <FaRegCalendarAlt className="w-3 h-3" />
-              <span>期限順</span>
-            </>
-          )}
-          {sortKey === 'created' && (
-            <>
-              <FaRegClock className="w-3 h-3" />
-              <span>作成順</span>
-            </>
-          )}
-          {sortKey === 'priority' && (
-            <>
-              <FaFlag className="w-3 h-3" />
-              <span>優先度順</span>
-            </>
-          )}
-          {sortKey === 'manual' && (
-            <>
-              <FaSort className="w-3 h-3" />
-              <span>自由</span>
-            </>
-          )}
-        </Button>
       </div>
 
       {isDragEnabled ? (
@@ -234,6 +301,8 @@ export function TodoList({
                         onSelect={onSelectTodo}
                         isDraggable
                         isDragging={snapshot.isDragging}
+                        isSelected={selectedIds.has(todo.id)}
+                        onToggleSelect={toggleSelection}
                       />
                     )}
                   </Draggable>
@@ -260,6 +329,8 @@ export function TodoList({
                     onDelete={onDelete}
                     savedTags={savedTags}
                     onSelect={onSelectTodo}
+                    isSelected={selectedIds.has(todo.id)}
+                    onToggleSelect={toggleSelection}
                   />
                 ))}
               </ul>
@@ -286,6 +357,8 @@ export function TodoList({
                   onDelete={onDelete}
                   savedTags={savedTags}
                   onSelect={onSelectTodo}
+                  isSelected={selectedIds.has(todo.id)}
+                  onToggleSelect={toggleSelection}
                 />
               ))}
             </ul>
@@ -311,6 +384,8 @@ export function TodoList({
                   onDelete={onDelete}
                   savedTags={savedTags}
                   onSelect={onSelectTodo}
+                  isSelected={selectedIds.has(todo.id)}
+                  onToggleSelect={toggleSelection}
                 />
               ))}
             </ul>
@@ -318,8 +393,8 @@ export function TodoList({
         </>
       )}
 
-      {/* フッター: 完了数 + 一括削除ボタン */}
-      {todos.length > 0 && (
+      {/* フッター: 完了数 + 一括削除ボタン (選択中は非表示) */}
+      {todos.length > 0 && selectedIds.size === 0 && (
         <div className="mt-6 pt-4 border-t flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
             {completedCount} / {todos.length} 完了
