@@ -81,6 +81,11 @@ export function useTodos() {
     setTodos(result);
   };
 
+  // 完了済みTODOを一括削除
+  const deleteCompleted = () => {
+    setTodos(todos.filter((todo) => !todo.completed));
+  };
+
   return {
     todos,
     addTodo,
@@ -88,6 +93,7 @@ export function useTodos() {
     deleteTodo,
     editTodo,
     reorderTodos,
+    deleteCompleted,
     savedTags,
     addSavedTag,
     deleteSavedTag,

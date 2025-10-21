@@ -1,6 +1,7 @@
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { useMemo, useState } from 'react';
 import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSort, FaSortAmountDown } from 'react-icons/fa';
+import { MdDeleteSweep } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import { isOverdue, parseTodoDate } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
@@ -14,7 +15,9 @@ interface TodoListProps {
   savedTags: Tag[];
   onSelectTodo?: (todo: Todo) => void;
   onReorder?: (startIndex: number, endIndex: number) => void;
+  onDeleteCompleted?: () => void;
   searchQuery?: string;
+  completedCount?: number;
 }
 
 type SortKey = 'deadline' | 'created' | 'priority' | 'manual';
@@ -26,7 +29,9 @@ export function TodoList({
   savedTags,
   onSelectTodo,
   onReorder,
+  onDeleteCompleted,
   searchQuery = '',
+  completedCount = 0,
 }: TodoListProps) {
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
   const [filterTags, setFilterTags] = useState<string[]>([]);
@@ -311,6 +316,26 @@ export function TodoList({
             </ul>
           )}
         </>
+      )}
+
+      {/* フッター: 完了数 + 一括削除ボタン */}
+      {todos.length > 0 && (
+        <div className="mt-6 pt-4 border-t flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            {completedCount} / {todos.length} 完了
+          </span>
+          {completedCount > 0 && onDeleteCompleted && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onDeleteCompleted}
+              className="text-muted-foreground hover:text-destructive gap-2"
+            >
+              <MdDeleteSweep className="w-4 h-4" />
+              完了済みを削除
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

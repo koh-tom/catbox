@@ -21,6 +21,7 @@ function App() {
     deleteTodo,
     editTodo,
     reorderTodos,
+    deleteCompleted,
     savedTags,
     addSavedTag,
     deleteSavedTag,
@@ -109,15 +110,12 @@ function App() {
                   onToggle={toggleTodo}
                   onDelete={deleteTodo}
                   onReorder={reorderTodos}
+                  onDeleteCompleted={deleteCompleted}
                   savedTags={savedTags}
                   onSelectTodo={handleOpenEditModal}
                   searchQuery={searchQuery}
+                  completedCount={completedCount}
                 />
-                {todos.length > 0 && (
-                  <div className="mt-6 pt-4 border-t text-sm text-muted-foreground">
-                    {completedCount} / {todos.length} 完了
-                  </div>
-                )}
               </TabsContent>
               <TabsContent value="calendar" className="mt-4">
                 <CalendarView
