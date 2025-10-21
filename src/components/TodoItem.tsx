@@ -3,7 +3,7 @@ import type {
   DraggableProvidedDragHandleProps,
 } from '@hello-pangea/dnd';
 import { format } from 'date-fns';
-import { MdClose, MdDragIndicator, MdEdit } from 'react-icons/md';
+import { MdClose, MdDragIndicator, MdEdit, MdCheck, MdUndo } from 'react-icons/md';
 import { StarRating } from '@/components/StarRating';
 import { TagBadge } from '@/components/TagBadge';
 import { Button } from '@/components/ui/button';
@@ -59,20 +59,16 @@ export function TodoItem({
           <MdDragIndicator className="w-5 h-5" />
         </div>
       )}
-      <Checkbox
-        id={`todo-${todo.id}`}
-        checked={todo.completed}
-        onCheckedChange={() => onToggle(todo.id)}
-        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-      />
+
 
       <div className="flex flex-1 items-center gap-2">
         <button
           type="button"
           onDoubleClick={() => onSelect?.(todo)}
-          className={`flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0 ${
-            todo.completed ? 'line-through text-muted-foreground' : ''
-          }`}
+          className={cn(
+            'flex-1 text-sm text-left cursor-pointer select-none bg-transparent border-none p-0',
+            todo.completed && 'line-through text-muted-foreground',
+          )}
         >
           {todo.title}
         </button>
@@ -120,24 +116,38 @@ export function TodoItem({
         </div>
       </div>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
-        onClick={() => onSelect?.(todo)}
-        aria-label="編集"
-      >
-        <MdEdit className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-        onClick={() => onDelete(todo.id)}
-        aria-label="削除"
-      >
-        <MdClose className="h-4 w-4" />
-      </Button>
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn(
+            'h-8 w-8 text-muted-foreground hover:text-foreground',
+            todo.completed && 'text-primary hover:text-primary',
+          )}
+          onClick={() => onToggle(todo.id)}
+          aria-label={todo.completed ? '未完了に戻す' : '完了にする'}
+        >
+          {todo.completed ? <MdUndo className="h-4 w-4" /> : <MdCheck className="h-4 w-4" />}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          onClick={() => onSelect?.(todo)}
+          aria-label="編集"
+        >
+          <MdEdit className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+          onClick={() => onDelete(todo.id)}
+          aria-label="削除"
+        >
+          <MdClose className="h-4 w-4" />
+        </Button>
+      </div>
     </li>
   );
 }
