@@ -16,6 +16,8 @@ interface TodoListProps {
   onSelectTodo?: (todo: Todo) => void;
   onReorder?: (startIndex: number, endIndex: number) => void;
   onDeleteCompleted?: () => void;
+  onCompleteTodos?: (ids: string[]) => void;
+  onDeleteTodos?: (ids: string[]) => void;
   searchQuery?: string;
   completedCount?: number;
 }
@@ -30,6 +32,8 @@ export function TodoList({
   onSelectTodo,
   onReorder,
   onDeleteCompleted,
+  onCompleteTodos,
+  onDeleteTodos,
   searchQuery = '',
   completedCount = 0,
 }: TodoListProps) {
@@ -60,6 +64,22 @@ export function TodoList({
       setSelectedIds(new Set());
     } else {
       setSelectedIds(new Set(todos.map((t) => t.id)));
+    }
+  };
+
+  const handleBatchComplete = () => {
+    if (onCompleteTodos && selectedIds.size > 0) {
+      onCompleteTodos(Array.from(selectedIds));
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleBatchDelete = () => {
+    if (onDeleteTodos && selectedIds.size > 0) {
+      if (confirm(`${selectedIds.size}件のタスクを削除してもよいですか？`)) {
+        onDeleteTodos(Array.from(selectedIds));
+        setSelectedIds(new Set());
+      }
     }
   };
 
@@ -257,13 +277,14 @@ export function TodoList({
                   {selectedIds.size === todos.length ? '全解除' : 'すべて選択'}
                 </Button>
                 <div className="w-px h-4 bg-border mx-2" />
-                <Button size="sm" variant="ghost" className="h-8">
+                <Button size="sm" variant="ghost" className="h-8" onClick={handleBatchComplete}>
                   完了にする
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="h-8 text-destructive hover:text-destructive"
+                  onClick={handleBatchDelete}
                 >
                   削除
                 </Button>

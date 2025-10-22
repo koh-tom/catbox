@@ -22,6 +22,8 @@ function App() {
     editTodo,
     reorderTodos,
     deleteCompleted,
+    completeTodos,
+    deleteTodos,
     savedTags,
     addSavedTag,
     deleteSavedTag,
@@ -111,6 +113,8 @@ function App() {
                   onDelete={deleteTodo}
                   onReorder={reorderTodos}
                   onDeleteCompleted={deleteCompleted}
+                  onCompleteTodos={completeTodos}
+                  onDeleteTodos={deleteTodos}
                   savedTags={savedTags}
                   onSelectTodo={handleOpenEditModal}
                   searchQuery={searchQuery}

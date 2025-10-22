@@ -86,6 +86,18 @@ export function useTodos() {
     setTodos(todos.filter((todo) => !todo.completed));
   };
 
+  // 選択したTODOを一括完了
+  const completeTodos = (ids: string[]) => {
+    const idSet = new Set(ids);
+    setTodos(todos.map((todo) => (idSet.has(todo.id) ? { ...todo, completed: true } : todo)));
+  };
+
+  // 選択したTODOを一括削除
+  const deleteTodos = (ids: string[]) => {
+    const idSet = new Set(ids);
+    setTodos(todos.filter((todo) => !idSet.has(todo.id)));
+  };
+
   return {
     todos,
     addTodo,
@@ -94,6 +106,8 @@ export function useTodos() {
     editTodo,
     reorderTodos,
     deleteCompleted,
+    completeTodos,
+    deleteTodos,
     savedTags,
     addSavedTag,
     deleteSavedTag,
