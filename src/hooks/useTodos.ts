@@ -33,7 +33,17 @@ export function useTodos() {
   // TODOの状態を切り替え
   const toggleTodo = (id: string) => {
     setTodos(
-      todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)),
+      todos.map((todo) => {
+        if (todo.id === id) {
+          const isCompleted = !todo.completed;
+          return {
+            ...todo,
+            completed: isCompleted,
+            completedAt: isCompleted ? Date.now() : undefined,
+          };
+        }
+        return todo;
+      }),
     );
   };
 
@@ -89,7 +99,12 @@ export function useTodos() {
   // 選択したTODOを一括完了
   const completeTodos = (ids: string[]) => {
     const idSet = new Set(ids);
-    setTodos(todos.map((todo) => (idSet.has(todo.id) ? { ...todo, completed: true } : todo)));
+    const now = Date.now();
+    setTodos(
+      todos.map((todo) =>
+        idSet.has(todo.id) ? { ...todo, completed: true, completedAt: now } : todo,
+      ),
+    );
   };
 
   // 選択したTODOを一括削除

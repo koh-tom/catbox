@@ -121,10 +121,20 @@ export function TodoItem({
             <StarRating value={todo.priority ?? 1} readOnly />
           </div>
           <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
-            {new Date(todo.createdAt).toLocaleDateString('ja-JP', {
-              month: 'numeric',
-              day: 'numeric',
-            })}
+            {todo.completed && todo.completedAt ? (
+              <span className="text-primary font-medium">
+                完了:{' '}
+                {new Date(todo.completedAt).toLocaleDateString('ja-JP', {
+                  month: 'numeric',
+                  day: 'numeric',
+                })}
+              </span>
+            ) : (
+              new Date(todo.createdAt).toLocaleDateString('ja-JP', {
+                month: 'numeric',
+                day: 'numeric',
+              })
+            )}
           </span>
         </div>
       </div>

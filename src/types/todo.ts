@@ -13,4 +13,5 @@ export interface Todo {
   priority?: number;
   tags?: string[];
   description?: string;
+  completedAt?: number;
 }
