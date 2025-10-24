@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MdSearch } from 'react-icons/md';
 import { CalendarView } from '@/components/CalendarView';
 import { SettingsMenu } from '@/components/SettingsMenu';
@@ -6,6 +6,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { TodoDetailModal } from '@/components/TodoDetailModal';
 import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,6 +26,9 @@ function App() {
     completeTodos,
     deleteTodos,
     duplicateTodo,
+    restoreDeleted,
+    clearUndo,
+    isUndoable,
     savedTags,
     addSavedTag,
     deleteSavedTag,
@@ -35,6 +39,15 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const completedCount = todos.filter((t) => t.completed).length;
+
+  // Undo通知を5秒後に自動で消す
+  useEffect(() => {
+    if (!isUndoable) return;
+    const timer = setTimeout(() => {
+      clearUndo();
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [isUndoable, clearUndo]);
 
   const handleSaveDetail = (
     _id: string,
@@ -144,6 +157,20 @@ function App() {
           savedTags={savedTags}
         />
       </div>
+
+      {isUndoable && (
+        <div className="fixed bottom-6 right-6 md:right-auto md:left-1/2 md:-translate-x-1/2 bg-foreground text-background px-4 py-3 rounded-lg shadow-lg flex items-center gap-4 animate-in slide-in-from-bottom-2 z-50">
+          <span className="text-sm font-medium">タスクを削除しました</span>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={restoreDeleted}
+            className="h-8 px-3 text-xs"
+          >
+            元に戻す
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

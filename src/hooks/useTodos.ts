@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { DEFAULT_PRIORITY, STORAGE_KEYS } from '@/lib/constants';
 import type { Tag, Todo } from '@/types/todo';
 import { useLocalStorage } from './useLocalStorage';
@@ -5,6 +6,9 @@ import { useLocalStorage } from './useLocalStorage';
 export function useTodos() {
   const [todos, setTodos] = useLocalStorage<Todo[]>(STORAGE_KEYS.TODOS, []);
   const [savedTags, setSavedTags] = useLocalStorage<Tag[]>(STORAGE_KEYS.TAGS, []);
+
+  // 直前に削除したTODOを保持するstate
+  const [lastDeleted, setLastDeleted] = useState<Todo[] | null>(null);
 
   // 新規TODOを追加
   const addTodo = (
@@ -28,6 +32,7 @@ export function useTodos() {
     };
 
     setTodos([newTodo, ...todos]);
+    setLastDeleted(null); // 他の操作をしたらUndo履歴をクリア
   };
 
   // TODOの状態を切り替え
@@ -49,7 +54,11 @@ export function useTodos() {
 
   // TODOを削除
   const deleteTodo = (id: string) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+    const todoToDelete = todos.find((t) => t.id === id);
+    if (todoToDelete) {
+      setLastDeleted([todoToDelete]);
+      setTodos(todos.filter((todo) => todo.id !== id));
+    }
   };
 
   // 保存済みタグを追加
@@ -93,7 +102,11 @@ export function useTodos() {
 
   // 完了済みTODOを一括削除
   const deleteCompleted = () => {
-    setTodos(todos.filter((todo) => !todo.completed));
+    const completed = todos.filter((todo) => todo.completed);
+    if (completed.length > 0) {
+      setLastDeleted(completed);
+      setTodos(todos.filter((todo) => !todo.completed));
+    }
   };
 
   // 選択したTODOを一括完了
@@ -110,7 +123,11 @@ export function useTodos() {
   // 選択したTODOを一括削除
   const deleteTodos = (ids: string[]) => {
     const idSet = new Set(ids);
-    setTodos(todos.filter((todo) => !idSet.has(todo.id)));
+    const todosToDelete = todos.filter((todo) => idSet.has(todo.id));
+    if (todosToDelete.length > 0) {
+      setLastDeleted(todosToDelete);
+      setTodos(todos.filter((todo) => !idSet.has(todo.id)));
+    }
   };
 
   // TODOを複製
@@ -133,7 +150,18 @@ export function useTodos() {
     };
 
     setTodos([newTodo, ...todos]);
+    setLastDeleted(null); // 他の操作をしたらUndo履歴をクリア
   };
+
+  // 削除の取り消し
+  const restoreDeleted = () => {
+    if (lastDeleted) {
+      setTodos([...lastDeleted, ...todos]);
+      setLastDeleted(null);
+    }
+  };
+
+  const clearUndo = () => setLastDeleted(null);
 
   return {
     todos,
@@ -146,6 +174,9 @@ export function useTodos() {
     completeTodos,
     deleteTodos,
     duplicateTodo,
+    restoreDeleted,
+    clearUndo,
+    isUndoable: !!lastDeleted,
     savedTags,
     addSavedTag,
     deleteSavedTag,
