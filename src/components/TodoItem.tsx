@@ -3,7 +3,7 @@ import type {
   DraggableProvidedDragHandleProps,
 } from '@hello-pangea/dnd';
 import { format } from 'date-fns';
-import { MdCheck, MdClose, MdDragIndicator, MdEdit, MdUndo } from 'react-icons/md';
+import { MdCheck, MdClose, MdContentCopy, MdDragIndicator, MdEdit, MdUndo } from 'react-icons/md';
 import { StarRating } from '@/components/StarRating';
 import { TagBadge } from '@/components/TagBadge';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ interface TodoItemProps {
   isDragging?: boolean;
   isSelected?: boolean;
   onToggleSelect?: (id: string) => void;
+  onDuplicate?: (id: string) => void;
 }
 
 export function TodoItem({
@@ -40,6 +41,7 @@ export function TodoItem({
   isDragging = false,
   isSelected = false,
   onToggleSelect,
+  onDuplicate,
 }: TodoItemProps) {
   return (
     <li
@@ -161,6 +163,17 @@ export function TodoItem({
         >
           <MdEdit className="h-4 w-4" />
         </Button>
+        {onDuplicate && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            onClick={() => onDuplicate(todo.id)}
+            aria-label="複製"
+          >
+            <MdContentCopy className="h-4 w-4" />
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="icon"

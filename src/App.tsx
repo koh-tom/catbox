@@ -24,6 +24,7 @@ function App() {
     deleteCompleted,
     completeTodos,
     deleteTodos,
+    duplicateTodo,
     savedTags,
     addSavedTag,
     deleteSavedTag,
@@ -115,6 +116,7 @@ function App() {
                   onDeleteCompleted={deleteCompleted}
                   onCompleteTodos={completeTodos}
                   onDeleteTodos={deleteTodos}
+                  onDuplicate={duplicateTodo}
                   savedTags={savedTags}
                   onSelectTodo={handleOpenEditModal}
                   searchQuery={searchQuery}

@@ -18,6 +18,7 @@ interface TodoListProps {
   onDeleteCompleted?: () => void;
   onCompleteTodos?: (ids: string[]) => void;
   onDeleteTodos?: (ids: string[]) => void;
+  onDuplicate?: (id: string) => void;
   searchQuery?: string;
   completedCount?: number;
 }
@@ -34,6 +35,7 @@ export function TodoList({
   onDeleteCompleted,
   onCompleteTodos,
   onDeleteTodos,
+  onDuplicate,
   searchQuery = '',
   completedCount = 0,
 }: TodoListProps) {
@@ -318,6 +320,7 @@ export function TodoList({
                         todo={todo}
                         onToggle={onToggle}
                         onDelete={onDelete}
+                        onDuplicate={onDuplicate}
                         savedTags={savedTags}
                         onSelect={onSelectTodo}
                         isDraggable
@@ -348,6 +351,7 @@ export function TodoList({
                     todo={todo}
                     onToggle={onToggle}
                     onDelete={onDelete}
+                    onDuplicate={onDuplicate}
                     savedTags={savedTags}
                     onSelect={onSelectTodo}
                     isSelected={selectedIds.has(todo.id)}
@@ -376,6 +380,7 @@ export function TodoList({
                   todo={todo}
                   onToggle={onToggle}
                   onDelete={onDelete}
+                  onDuplicate={onDuplicate}
                   savedTags={savedTags}
                   onSelect={onSelectTodo}
                   isSelected={selectedIds.has(todo.id)}
@@ -403,6 +408,7 @@ export function TodoList({
                   todo={todo}
                   onToggle={onToggle}
                   onDelete={onDelete}
+                  onDuplicate={onDuplicate}
                   savedTags={savedTags}
                   onSelect={onSelectTodo}
                   isSelected={selectedIds.has(todo.id)}

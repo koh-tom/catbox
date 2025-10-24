@@ -113,6 +113,28 @@ export function useTodos() {
     setTodos(todos.filter((todo) => !idSet.has(todo.id)));
   };
 
+  // TODOを複製
+  const duplicateTodo = (id: string) => {
+    const original = todos.find((t) => t.id === id);
+    if (!original) return;
+
+    const match = original.title.match(/_(\d+)$/);
+    const newTitle = match
+      ? original.title.replace(/_(\d+)$/, `_${parseInt(match[1], 10) + 1}`)
+      : `${original.title}_1`;
+
+    const newTodo: Todo = {
+      ...original,
+      id: crypto.randomUUID(),
+      title: newTitle,
+      completed: false, // 複製時は未完了にする
+      completedAt: undefined,
+      createdAt: Date.now(),
+    };
+
+    setTodos([newTodo, ...todos]);
+  };
+
   return {
     todos,
     addTodo,
@@ -123,6 +145,7 @@ export function useTodos() {
     deleteCompleted,
     completeTodos,
     deleteTodos,
+    duplicateTodo,
     savedTags,
     addSavedTag,
     deleteSavedTag,
