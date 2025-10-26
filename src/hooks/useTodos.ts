@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { DEFAULT_PRIORITY, STORAGE_KEYS } from '@/lib/constants';
 import type { Tag, Todo } from '@/types/todo';
 import { useLocalStorage } from './useLocalStorage';
@@ -9,6 +9,12 @@ export function useTodos() {
 
   // 直前に削除したTODOを保持するstate
   const [lastDeleted, setLastDeleted] = useState<Todo[] | null>(null);
+
+  // lastDeletedの最新値を保持するref
+  const lastDeletedRef = useRef<Todo[] | null>(null);
+  useEffect(() => {
+    lastDeletedRef.current = lastDeleted;
+  }, [lastDeleted]);
 
   // 新規TODOを追加
   const addTodo = (
@@ -154,12 +160,14 @@ export function useTodos() {
   };
 
   // 削除の取り消し
-  const restoreDeleted = () => {
-    if (lastDeleted) {
-      setTodos([...lastDeleted, ...todos]);
+  // Toastのコールバックなど、非同期に呼ばれた場合でも最新のstateを参照できるようにrefを使用
+  const restoreDeleted = useCallback(() => {
+    const currentLastDeleted = lastDeletedRef.current;
+    if (currentLastDeleted) {
+      setTodos((prevTodos) => [...currentLastDeleted, ...prevTodos]);
       setLastDeleted(null);
     }
-  };
+  }, [setTodos]);
 
   const clearUndo = () => setLastDeleted(null);
 

@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { MdSearch } from 'react-icons/md';
+import { toast } from 'sonner';
 import { CalendarView } from '@/components/CalendarView';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { TodoDetailModal } from '@/components/TodoDetailModal';
 import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Toaster } from '@/components/ui/sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTodos } from '@/hooks/useTodos';
 import { APP_NAME } from '@/lib/constants';
@@ -27,8 +28,6 @@ function App() {
     deleteTodos,
     duplicateTodo,
     restoreDeleted,
-    clearUndo,
-    isUndoable,
     savedTags,
     addSavedTag,
     deleteSavedTag,
@@ -39,15 +38,6 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const completedCount = todos.filter((t) => t.completed).length;
-
-  // Undo通知を5秒後に自動で消す
-  useEffect(() => {
-    if (!isUndoable) return;
-    const timer = setTimeout(() => {
-      clearUndo();
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [isUndoable, clearUndo]);
 
   const handleSaveDetail = (
     _id: string,
@@ -77,6 +67,36 @@ function App() {
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
     setTimeout(() => setEditingTodo(null), 300);
+  };
+
+  const handleDeleteTodo = (id: string) => {
+    deleteTodo(id);
+    toast('タスクを削除しました', {
+      action: {
+        label: '元に戻す',
+        onClick: () => restoreDeleted(),
+      },
+    });
+  };
+
+  const handleDeleteCompleted = () => {
+    deleteCompleted();
+    toast('完了済みタスクを削除しました', {
+      action: {
+        label: '元に戻す',
+        onClick: () => restoreDeleted(),
+      },
+    });
+  };
+
+  const handleDeleteTodos = (ids: string[]) => {
+    deleteTodos(ids);
+    toast(`${ids.length}件のタスクを削除しました`, {
+      action: {
+        label: '元に戻す',
+        onClick: () => restoreDeleted(),
+      },
+    });
   };
 
   return (
@@ -124,11 +144,11 @@ function App() {
                 <TodoList
                   todos={todos}
                   onToggle={toggleTodo}
-                  onDelete={deleteTodo}
+                  onDelete={handleDeleteTodo}
                   onReorder={reorderTodos}
-                  onDeleteCompleted={deleteCompleted}
+                  onDeleteCompleted={handleDeleteCompleted}
                   onCompleteTodos={completeTodos}
-                  onDeleteTodos={deleteTodos}
+                  onDeleteTodos={handleDeleteTodos}
                   onDuplicate={duplicateTodo}
                   savedTags={savedTags}
                   onSelectTodo={handleOpenEditModal}
@@ -140,7 +160,7 @@ function App() {
                 <CalendarView
                   todos={todos}
                   onToggle={toggleTodo}
-                  onDelete={deleteTodo}
+                  onDelete={handleDeleteTodo}
                   savedTags={savedTags}
                   onSelectTodo={handleOpenEditModal}
                 />
@@ -158,19 +178,7 @@ function App() {
         />
       </div>
 
-      {isUndoable && (
-        <div className="fixed bottom-6 right-6 md:right-auto md:left-1/2 md:-translate-x-1/2 bg-foreground text-background px-4 py-3 rounded-lg shadow-lg flex items-center gap-4 animate-in slide-in-from-bottom-2 z-50">
-          <span className="text-sm font-medium">タスクを削除しました</span>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={restoreDeleted}
-            className="h-8 px-3 text-xs"
-          >
-            元に戻す
-          </Button>
-        </div>
-      )}
+      <Toaster />
     </div>
   );
 }
