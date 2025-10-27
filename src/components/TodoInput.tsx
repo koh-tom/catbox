@@ -36,8 +36,16 @@ export function TodoInput({ onAdd, savedTags = [], onOpenDetailAdd }: TodoInputP
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-      handleSubmit(e);
+    if (e.nativeEvent.isComposing) return;
+
+    if (e.key === 'Enter') {
+      if (e.metaKey || e.ctrlKey) {
+        // Ctrl+Enter or Cmd+Enter で送信
+        handleSubmit(e);
+      } else {
+        // 通常のEnterでも送信 (変換確定時を除く)
+        handleSubmit(e);
+      }
     }
   };
 
@@ -53,7 +61,7 @@ export function TodoInput({ onAdd, savedTags = [], onOpenDetailAdd }: TodoInputP
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="新しいタスクを追加..."
+          placeholder="新しいタスクを追加... (Enter または ⌘+Enter で追加)"
           className="flex-1"
           autoFocus
         />
