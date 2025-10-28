@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useAppShortcuts } from '@/hooks/useAppShortcuts';
 import { useTodos } from '@/hooks/useTodos';
 import { APP_NAME } from '@/lib/constants';
 import type { Todo } from '@/types/todo';
@@ -61,26 +61,10 @@ function App() {
     setIsDetailOpen(true);
   };
 
-  useKeyboardShortcuts([
-    {
-      combo: 'meta+k',
-      handler: (e) => {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      },
-      preventDefault: true,
-      allowInInput: true,
-    },
-    {
-      combo: 'ctrl+k',
-      handler: (e) => {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      },
-      preventDefault: true,
-      allowInInput: true,
-    },
-  ]);
+  useAppShortcuts({
+    onOpenSearch: () => searchInputRef.current?.focus(),
+    onOpenCreateModal: handleOpenCreateModal,
+  });
 
   const handleOpenEditModal = (todo: Todo) => {
     setEditingTodo(todo);
