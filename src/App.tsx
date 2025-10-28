@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { MdSearch } from 'react-icons/md';
 import { toast } from 'sonner';
 import { CalendarView } from '@/components/CalendarView';
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useTodos } from '@/hooks/useTodos';
 import { APP_NAME } from '@/lib/constants';
 import type { Todo } from '@/types/todo';
@@ -60,18 +61,26 @@ function App() {
     setIsDetailOpen(true);
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // 検索: Ctrl+K or Meta+K
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+  useKeyboardShortcuts([
+    {
+      combo: 'meta+k',
+      handler: (e) => {
         e.preventDefault();
         searchInputRef.current?.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+      },
+      preventDefault: true,
+      allowInInput: true,
+    },
+    {
+      combo: 'ctrl+k',
+      handler: (e) => {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      },
+      preventDefault: true,
+      allowInInput: true,
+    },
+  ]);
 
   const handleOpenEditModal = (todo: Todo) => {
     setEditingTodo(todo);
