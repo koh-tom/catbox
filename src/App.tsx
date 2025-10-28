@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MdSearch } from 'react-icons/md';
 import { toast } from 'sonner';
 import { CalendarView } from '@/components/CalendarView';
@@ -34,6 +34,7 @@ function App() {
   } = useTodos();
 
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -58,6 +59,19 @@ function App() {
     setEditingTodo(null);
     setIsDetailOpen(true);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 検索: Ctrl+K or Meta+K
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleOpenEditModal = (todo: Todo) => {
     setEditingTodo(todo);
@@ -110,8 +124,9 @@ function App() {
                 <div className="relative flex-1 sm:w-64">
                   <MdSearch className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
+                    ref={searchInputRef}
                     type="search"
-                    placeholder="タスクを検索..."
+                    placeholder="タスクを検索... (⌘K)"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9 h-9"
