@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { MdSearch } from 'react-icons/md';
+import { MdHelpOutline, MdSearch } from 'react-icons/md';
 import { toast } from 'sonner';
 import { CalendarView } from '@/components/CalendarView';
 import { SettingsMenu } from '@/components/SettingsMenu';
@@ -7,6 +7,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { TodoDetailModal } from '@/components/TodoDetailModal';
 import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/sonner';
@@ -132,6 +133,15 @@ function App() {
                     deleteSavedTag={deleteSavedTag}
                   />
                   <ThemeToggle />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0"
+                    title="ショートカット一覧"
+                    onClick={() => {}}
+                  >
+                    <MdHelpOutline className="h-5 w-5" />
+                  </Button>
                 </div>
               </div>
             </div>
