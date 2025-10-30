@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { MdHelpOutline, MdSearch } from 'react-icons/md';
 import { toast } from 'sonner';
+import { AboutModal } from '@/components/AboutModal';
 import { CalendarView } from '@/components/CalendarView';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -38,6 +39,7 @@ function App() {
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const completedCount = todos.filter((t) => t.completed).length;
@@ -136,8 +138,8 @@ function App() {
                     variant="ghost"
                     size="icon"
                     className="shrink-0"
-                    title="ショートカット一覧"
-                    onClick={() => {}}
+                    title="ヘルプ"
+                    onClick={() => setIsAboutOpen(true)}
                   >
                     <MdHelpOutline className="h-5 w-5" />
                   </Button>
@@ -193,6 +195,8 @@ function App() {
           onSave={handleSaveDetail}
           savedTags={savedTags}
         />
+
+        <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
       </div>
 
       <Toaster />
