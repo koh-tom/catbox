@@ -27,7 +27,8 @@ export function useAppShortcuts({ onOpenSearch, onOpenCreateModal }: UseAppShort
     },
     {
       combo: 'c',
-      handler: () => {
+      handler: (e) => {
+        e.preventDefault();
         onOpenCreateModal();
       },
     },
