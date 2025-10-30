@@ -2,9 +2,10 @@ import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 
 interface UseAppShortcutsProps {
   onOpenSearch: () => void;
+  onOpenCreateModal: () => void;
 }
 
-export function useAppShortcuts({ onOpenSearch }: UseAppShortcutsProps) {
+export function useAppShortcuts({ onOpenSearch, onOpenCreateModal }: UseAppShortcutsProps) {
   useKeyboardShortcuts([
     {
       combo: 'meta+k',
@@ -23,6 +24,12 @@ export function useAppShortcuts({ onOpenSearch }: UseAppShortcutsProps) {
       },
       preventDefault: true,
       allowInInput: true,
+    },
+    {
+      combo: 'c',
+      handler: () => {
+        onOpenCreateModal();
+      },
     },
   ]);
 }

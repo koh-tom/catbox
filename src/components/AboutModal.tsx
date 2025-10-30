@@ -54,6 +54,13 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
             {showShortcuts && (
               <div className="mt-2 border rounded-lg p-4 bg-muted/50 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="grid grid-cols-[1fr,auto] gap-y-2 text-sm">
+                  <span className="text-muted-foreground">新規タスク作成</span>
+                  <div className="flex gap-1">
+                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                      C
+                    </kbd>
+                  </div>
+
                   <span className="text-muted-foreground">タスク検索</span>
                   <div className="flex gap-1">
                     <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">

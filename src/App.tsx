@@ -66,6 +66,7 @@ function App() {
 
   useAppShortcuts({
     onOpenSearch: () => searchInputRef.current?.focus(),
+    onOpenCreateModal: handleOpenCreateModal,
   });
 
   const handleOpenEditModal = (todo: Todo) => {
