@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { FaRegStickyNote } from 'react-icons/fa';
-import { MdCheck, MdTitle } from 'react-icons/md';
+import { MdAdd, MdCheck, MdDelete, MdTitle } from 'react-icons/md';
+import { VscListSelection } from 'react-icons/vsc';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
 import { TagSelector } from '@/components/TagSelector';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -29,6 +31,9 @@ interface TodoDetailModalProps {
     description?: string,
   ) => void;
   savedTags: Tag[];
+  onAddSubTask: (todoId: string, title: string) => void;
+  onToggleSubTask: (todoId: string, subTaskId: string) => void;
+  onDeleteSubTask: (todoId: string, subTaskId: string) => void;
 }
 
 export function TodoDetailModal({
@@ -37,12 +42,16 @@ export function TodoDetailModal({
   onClose,
   onSave,
   savedTags,
+  onAddSubTask,
+  onToggleSubTask,
+  onDeleteSubTask,
 }: TodoDetailModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [deadlineDate, setDeadlineDate] = useState<string | undefined>(undefined);
   const [priority, setPriority] = useState(1);
   const [tags, setTags] = useState<string[]>([]);
+  const [subTaskTitle, setSubTaskTitle] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -66,6 +75,20 @@ export function TodoDetailModal({
     if (title.trim()) {
       onSave(todo ? todo.id : '', title, deadlineDate, priority, tags, description);
       onClose();
+    }
+  };
+
+  const handleAddSubTask = () => {
+    if (todo && subTaskTitle.trim()) {
+      onAddSubTask(todo.id, subTaskTitle);
+      setSubTaskTitle('');
+    }
+  };
+
+  const handleSubTaskKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      handleAddSubTask();
     }
   };
 
@@ -102,6 +125,64 @@ export function TodoDetailModal({
               className="min-h-[100px]"
             />
           </div>
+
+          {todo && (
+            <div className="grid gap-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <VscListSelection className="w-4 h-4" /> サブタスク
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={subTaskTitle}
+                  onChange={(e) => setSubTaskTitle(e.target.value)}
+                  onKeyDown={handleSubTaskKeyDown}
+                  placeholder="サブタスクを追加..."
+                  className="flex-1"
+                />
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={handleAddSubTask}
+                  disabled={!subTaskTitle.trim()}
+                  type="button"
+                >
+                  <MdAdd className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {todo.subtasks && todo.subtasks.length > 0 && (
+                <div className="space-y-2 mt-1">
+                  {todo.subtasks.map((st) => (
+                    <div
+                      key={st.id}
+                      className="flex items-center gap-2 p-2 rounded-md border bg-muted/40 group"
+                    >
+                      <Checkbox
+                        checked={st.completed}
+                        onCheckedChange={() => onToggleSubTask(todo.id, st.id)}
+                        id={`subtask-${st.id}`}
+                      />
+                      <label
+                        htmlFor={`subtask-${st.id}`}
+                        className={`text-sm flex-1 cursor-pointer ${st.completed ? 'line-through text-muted-foreground' : ''
+                          }`}
+                      >
+                        {st.title}
+                      </label>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => onDeleteSubTask(todo.id, st.id)}
+                      >
+                        <MdDelete className="w-3 h-3 text-muted-foreground hover:text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">

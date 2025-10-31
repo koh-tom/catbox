@@ -34,9 +34,13 @@ function App() {
     savedTags,
     addSavedTag,
     deleteSavedTag,
+    addSubTask,
+    toggleSubTask,
+    deleteSubTask,
   } = useTodos();
 
-  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
+  const editingTodo = editingTodoId ? todos.find((t) => t.id === editingTodoId) ?? null : null;
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -52,15 +56,15 @@ function App() {
     tags?: string[],
     description?: string,
   ) => {
-    if (editingTodo) {
-      editTodo(editingTodo.id, { title, deadlineDate, priority, tags, description });
+    if (editingTodoId) {
+      editTodo(editingTodoId, { title, deadlineDate, priority, tags, description });
     } else {
       addTodo(title, deadlineDate, priority, tags, description);
     }
   };
 
   const handleOpenCreateModal = () => {
-    setEditingTodo(null);
+    setEditingTodoId(null);
     setIsDetailOpen(true);
   };
 
@@ -70,13 +74,13 @@ function App() {
   });
 
   const handleOpenEditModal = (todo: Todo) => {
-    setEditingTodo(todo);
+    setEditingTodoId(todo.id);
     setIsDetailOpen(true);
   };
 
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
-    setTimeout(() => setEditingTodo(null), 300);
+    setTimeout(() => setEditingTodoId(null), 300);
   };
 
   const handleDeleteTodo = (id: string) => {
@@ -195,6 +199,9 @@ function App() {
           onClose={handleCloseDetail}
           onSave={handleSaveDetail}
           savedTags={savedTags}
+          onAddSubTask={addSubTask}
+          onToggleSubTask={toggleSubTask}
+          onDeleteSubTask={deleteSubTask}
         />
 
         <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
