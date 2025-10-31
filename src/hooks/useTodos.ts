@@ -171,6 +171,59 @@ export function useTodos() {
 
   const clearUndo = () => setLastDeleted(null);
 
+  // サブタスクを追加
+  const addSubTask = (todoId: string, title: string) => {
+    if (!title.trim()) return;
+
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id !== todoId) return todo;
+
+        const newSubTask = {
+          id: crypto.randomUUID(),
+          title: title.trim(),
+          completed: false,
+          order: todo.subtasks?.length ?? 0,
+        };
+
+        return {
+          ...todo,
+          subtasks: [...(todo.subtasks || []), newSubTask],
+        };
+      }),
+    );
+  };
+
+  // サブタスクの状態を切り替え
+  const toggleSubTask = (todoId: string, subTaskId: string) => {
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id !== todoId) return todo;
+
+        return {
+          ...todo,
+          subtasks: todo.subtasks?.map((st) =>
+            st.id === subTaskId ? { ...st, completed: !st.completed } : st,
+          ),
+        };
+      }),
+    );
+  };
+
+  // サブタスクを削除
+  const deleteSubTask = (todoId: string, subTaskId: string) => {
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id !== todoId) return todo;
+
+        return {
+          ...todo,
+          subtasks: todo.subtasks?.filter((st) => st.id !== subTaskId),
+        };
+      }),
+    );
+  };
+
   return {
     todos,
     addTodo,
@@ -188,5 +241,8 @@ export function useTodos() {
     savedTags,
     addSavedTag,
     deleteSavedTag,
+    addSubTask,
+    toggleSubTask,
+    deleteSubTask,
   };
 }

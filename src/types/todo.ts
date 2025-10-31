@@ -4,6 +4,13 @@ export interface Tag {
   color: string;
 }
 
+export interface SubTask {
+  id: string;
+  title: string;
+  completed: boolean;
+  order: number;
+}
+
 export interface Todo {
   id: string;
   title: string;
@@ -14,4 +21,5 @@ export interface Todo {
   tags?: string[];
   description?: string;
   completedAt?: number;
+  subtasks?: SubTask[];
 }
