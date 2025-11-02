@@ -4,6 +4,7 @@ import type {
 } from '@hello-pangea/dnd';
 import { format } from 'date-fns';
 import { MdCheck, MdClose, MdContentCopy, MdDragIndicator, MdEdit, MdUndo } from 'react-icons/md';
+import { VscListSelection } from 'react-icons/vsc';
 import { StarRating } from '@/components/StarRating';
 import { TagBadge } from '@/components/TagBadge';
 import { Button } from '@/components/ui/button';
@@ -87,6 +88,15 @@ export function TodoItem({
         >
           {todo.title}
         </button>
+
+        {todo.subtasks && todo.subtasks.length > 0 && (
+          <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-sm">
+            <VscListSelection className="w-3 h-3" />
+            <span>
+              {todo.subtasks.filter((st) => st.completed).length}/{todo.subtasks.length}
+            </span>
+          </span>
+        )}
 
         {todo.tags && todo.tags.length > 0 && (
           <div className="flex gap-1 flex-wrap items-center">
