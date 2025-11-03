@@ -22,4 +22,5 @@ export interface Todo {
   description?: string;
   completedAt?: number;
   subtasks?: SubTask[];
+  deletedAt?: number;
 }

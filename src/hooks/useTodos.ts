@@ -5,6 +5,7 @@ import { useLocalStorage } from './useLocalStorage';
 
 export function useTodos() {
   const [todos, setTodos] = useLocalStorage<Todo[]>(STORAGE_KEYS.TODOS, []);
+  const [trashedTodos, setTrashedTodos] = useLocalStorage<Todo[]>(STORAGE_KEYS.TRASH, []);
   const [savedTags, setSavedTags] = useLocalStorage<Tag[]>(STORAGE_KEYS.TAGS, []);
 
   // 直前に削除したTODOを保持するstate
@@ -58,11 +59,13 @@ export function useTodos() {
     );
   };
 
-  // TODOを削除
+  // TODOをゴミ箱に移動
   const deleteTodo = (id: string) => {
     const todoToDelete = todos.find((t) => t.id === id);
     if (todoToDelete) {
+      const trashedTodo = { ...todoToDelete, deletedAt: Date.now() };
       setLastDeleted([todoToDelete]);
+      setTrashedTodos([trashedTodo, ...trashedTodos]);
       setTodos(todos.filter((todo) => todo.id !== id));
     }
   };
@@ -106,11 +109,14 @@ export function useTodos() {
     setTodos(result);
   };
 
-  // 完了済みTODOを一括削除
+  // 完了済みTODOをゴミ箱に移動
   const deleteCompleted = () => {
     const completed = todos.filter((todo) => todo.completed);
     if (completed.length > 0) {
+      const now = Date.now();
+      const trashedCompleted = completed.map((t) => ({ ...t, deletedAt: now }));
       setLastDeleted(completed);
+      setTrashedTodos([...trashedCompleted, ...trashedTodos]);
       setTodos(todos.filter((todo) => !todo.completed));
     }
   };
@@ -126,12 +132,15 @@ export function useTodos() {
     );
   };
 
-  // 選択したTODOを一括削除
+  // 選択したTODOをゴミ箱に移動
   const deleteTodos = (ids: string[]) => {
     const idSet = new Set(ids);
     const todosToDelete = todos.filter((todo) => idSet.has(todo.id));
     if (todosToDelete.length > 0) {
+      const now = Date.now();
+      const trashedItems = todosToDelete.map((t) => ({ ...t, deletedAt: now }));
       setLastDeleted(todosToDelete);
+      setTrashedTodos([...trashedItems, ...trashedTodos]);
       setTodos(todos.filter((todo) => !idSet.has(todo.id)));
     }
   };
@@ -159,17 +168,40 @@ export function useTodos() {
     setLastDeleted(null); // 他の操作をしたらUndo履歴をクリア
   };
 
-  // 削除の取り消し
-  // Toastのコールバックなど、非同期に呼ばれた場合でも最新のstateを参照できるようにrefを使用
+  // ゴミ箱から元に戻す（undo発火）
   const restoreDeleted = useCallback(() => {
     const currentLastDeleted = lastDeletedRef.current;
     if (currentLastDeleted) {
+      // todosに復元
       setTodos((prevTodos) => [...currentLastDeleted, ...prevTodos]);
+      // ゴミ箱から削除
+      const deletedIds = new Set(currentLastDeleted.map((t) => t.id));
+      setTrashedTodos((prevTrashed) => prevTrashed.filter((t) => !deletedIds.has(t.id)));
       setLastDeleted(null);
     }
-  }, [setTodos]);
+  }, [setTodos, setTrashedTodos]);
 
   const clearUndo = () => setLastDeleted(null);
+
+  // ゴミ箱からタスクを復元
+  const restoreFromTrash = (id: string) => {
+    const todoToRestore = trashedTodos.find((t) => t.id === id);
+    if (todoToRestore) {
+      const { deletedAt: _, ...restoredTodo } = todoToRestore;
+      setTodos([restoredTodo, ...todos]);
+      setTrashedTodos(trashedTodos.filter((t) => t.id !== id));
+    }
+  };
+
+  // ゴミ箱からタスクを完全削除
+  const permanentlyDelete = (id: string) => {
+    setTrashedTodos(trashedTodos.filter((t) => t.id !== id));
+  };
+
+  // ゴミ箱を空にする
+  const emptyTrash = () => {
+    setTrashedTodos([]);
+  };
 
   // サブタスクを追加
   const addSubTask = (todoId: string, title: string) => {
@@ -226,6 +258,7 @@ export function useTodos() {
 
   return {
     todos,
+    trashedTodos,
     addTodo,
     toggleTodo,
     deleteTodo,
@@ -244,5 +277,8 @@ export function useTodos() {
     addSubTask,
     toggleSubTask,
     deleteSubTask,
+    restoreFromTrash,
+    permanentlyDelete,
+    emptyTrash,
   };
 }

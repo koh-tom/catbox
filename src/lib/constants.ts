@@ -3,6 +3,7 @@ export const APP_NAME = '😺📦 Catbox';
 export const STORAGE_KEYS = {
   TODOS: 'catbox-todos',
   TAGS: 'catbox-tags-v2',
+  TRASH: 'catbox-trash',
   THEME: 'vite-ui-theme',
 } as const;
 
