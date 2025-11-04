@@ -43,6 +43,8 @@ function App() {
     restoreFromTrash,
     permanentlyDelete,
     emptyTrash,
+    trashStorageSizeKB,
+    trashLimit,
   } = useTodos();
 
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
@@ -234,6 +236,8 @@ function App() {
           onRestore={restoreFromTrash}
           onPermanentlyDelete={permanentlyDelete}
           onEmptyTrash={emptyTrash}
+          trashLimit={trashLimit}
+          trashStorageSizeKB={trashStorageSizeKB}
         />
       </div>
 

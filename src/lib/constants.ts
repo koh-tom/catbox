@@ -9,6 +9,8 @@ export const STORAGE_KEYS = {
 
 export const DEFAULT_PRIORITY = 1;
 
+export const TRASH_LIMIT = 50; // trashの最大保存件数
+
 export const TAG_COLORS = [
   { name: 'Red', value: 'bg-red-500 text-white' },
   { name: 'Orange', value: 'bg-orange-500 text-white' },

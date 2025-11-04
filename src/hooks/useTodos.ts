@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DEFAULT_PRIORITY, STORAGE_KEYS } from '@/lib/constants';
+import { DEFAULT_PRIORITY, STORAGE_KEYS, TRASH_LIMIT } from '@/lib/constants';
 import type { Tag, Todo } from '@/types/todo';
 import { useLocalStorage } from './useLocalStorage';
 
@@ -7,6 +7,12 @@ export function useTodos() {
   const [todos, setTodos] = useLocalStorage<Todo[]>(STORAGE_KEYS.TODOS, []);
   const [trashedTodos, setTrashedTodos] = useLocalStorage<Todo[]>(STORAGE_KEYS.TRASH, []);
   const [savedTags, setSavedTags] = useLocalStorage<Tag[]>(STORAGE_KEYS.TAGS, []);
+
+  // ゴミ箱に追加（上限超過時は古いものから自動削除）
+  const addToTrash = (items: Todo[]) => {
+    const combined = [...items, ...trashedTodos];
+    setTrashedTodos(combined.slice(0, TRASH_LIMIT));
+  };
 
   // 直前に削除したTODOを保持するstate
   const [lastDeleted, setLastDeleted] = useState<Todo[] | null>(null);
@@ -65,7 +71,7 @@ export function useTodos() {
     if (todoToDelete) {
       const trashedTodo = { ...todoToDelete, deletedAt: Date.now() };
       setLastDeleted([todoToDelete]);
-      setTrashedTodos([trashedTodo, ...trashedTodos]);
+      addToTrash([trashedTodo]);
       setTodos(todos.filter((todo) => todo.id !== id));
     }
   };
@@ -116,7 +122,7 @@ export function useTodos() {
       const now = Date.now();
       const trashedCompleted = completed.map((t) => ({ ...t, deletedAt: now }));
       setLastDeleted(completed);
-      setTrashedTodos([...trashedCompleted, ...trashedTodos]);
+      addToTrash(trashedCompleted);
       setTodos(todos.filter((todo) => !todo.completed));
     }
   };
@@ -140,7 +146,7 @@ export function useTodos() {
       const now = Date.now();
       const trashedItems = todosToDelete.map((t) => ({ ...t, deletedAt: now }));
       setLastDeleted(todosToDelete);
-      setTrashedTodos([...trashedItems, ...trashedTodos]);
+      addToTrash(trashedItems);
       setTodos(todos.filter((todo) => !idSet.has(todo.id)));
     }
   };
@@ -256,6 +262,16 @@ export function useTodos() {
     );
   };
 
+  // ゴミ箱のストレージサイズ (KB表示)
+  const trashStorageSizeKB = (() => {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.TRASH);
+      return data ? Math.round((new Blob([data]).size / 1024) * 10) / 10 : 0;
+    } catch {
+      return 0;
+    }
+  })();
+
   return {
     todos,
     trashedTodos,
@@ -280,5 +296,7 @@ export function useTodos() {
     restoreFromTrash,
     permanentlyDelete,
     emptyTrash,
+    trashStorageSizeKB,
+    trashLimit: TRASH_LIMIT,
   };
 }
