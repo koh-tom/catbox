@@ -5,8 +5,8 @@ import { VscListSelection } from 'react-icons/vsc';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
 import { TagSelector } from '@/components/TagSelector';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -164,8 +164,9 @@ export function TodoDetailModal({
                       />
                       <label
                         htmlFor={`subtask-${st.id}`}
-                        className={`text-sm flex-1 cursor-pointer ${st.completed ? 'line-through text-muted-foreground' : ''
-                          }`}
+                        className={`text-sm flex-1 cursor-pointer ${
+                          st.completed ? 'line-through text-muted-foreground' : ''
+                        }`}
                       >
                         {st.title}
                       </label>

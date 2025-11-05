@@ -46,7 +46,7 @@ function App() {
   } = useTodos();
 
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
-  const editingTodo = editingTodoId ? todos.find((t) => t.id === editingTodoId) ?? null : null;
+  const editingTodo = editingTodoId ? (todos.find((t) => t.id === editingTodoId) ?? null) : null;
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
