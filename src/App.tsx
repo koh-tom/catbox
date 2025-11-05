@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { FaTrashAlt } from 'react-icons/fa';
 import { MdHelpOutline, MdSearch } from 'react-icons/md';
 import { toast } from 'sonner';
 import { AboutModal } from '@/components/AboutModal';
@@ -8,6 +9,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { TodoDetailModal } from '@/components/TodoDetailModal';
 import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
+import { TrashView } from '@/components/TrashView';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -37,6 +39,10 @@ function App() {
     addSubTask,
     toggleSubTask,
     deleteSubTask,
+    trashedTodos,
+    restoreFromTrash,
+    permanentlyDelete,
+    emptyTrash,
   } = useTodos();
 
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
@@ -44,6 +50,7 @@ function App() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [isTrashOpen, setIsTrashOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const completedCount = todos.filter((t) => t.completed).length;
@@ -142,6 +149,20 @@ function App() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="shrink-0 relative"
+                    title="ゴミ箱"
+                    onClick={() => setIsTrashOpen(true)}
+                  >
+                    <FaTrashAlt className="h-4 w-4" />
+                    {trashedTodos.length > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                        {trashedTodos.length}
+                      </span>
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="shrink-0"
                     title="ヘルプ"
                     onClick={() => setIsAboutOpen(true)}
@@ -205,6 +226,15 @@ function App() {
         />
 
         <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+
+        <TrashView
+          isOpen={isTrashOpen}
+          onClose={() => setIsTrashOpen(false)}
+          trashedTodos={trashedTodos}
+          onRestore={restoreFromTrash}
+          onPermanentlyDelete={permanentlyDelete}
+          onEmptyTrash={emptyTrash}
+        />
       </div>
 
       <Toaster />
