@@ -18,6 +18,7 @@ const mapTodoFromDB = (row: any, subtasksMap: Record<string, SubTask[]>): Todo =
   completedAt: row.completed_at || undefined,
   deletedAt: row.deleted_at || undefined,
   subtasks: subtasksMap[row.id] || [],
+  order: row.order_index || 0,
 });
 
 const mapSubtaskFromDB = (row: any): SubTask => ({
@@ -49,7 +50,7 @@ export function useTodos() {
     }
     try {
       const [todosRes, subtasksRes, tagsRes] = await Promise.all([
-        supabase.from('todos').select('*').order('created_at', { ascending: false }),
+        supabase.from('todos').select('*').order('order_index', { ascending: true }).order('created_at', { ascending: false }),
         supabase.from('subtasks').select('*').order('order_index', { ascending: true }),
         supabase.from('saved_tags').select('*'),
       ]);
@@ -86,20 +87,26 @@ export function useTodos() {
     if (!title.trim() || !user) return;
     const id = crypto.randomUUID();
     const now = Date.now();
-    const newTodo: Todo = {
-      id, title: title.trim(), completed: false, createdAt: now,
-      deadlineDate: deadlineDate?.trim() || undefined,
-      priority: priority ?? DEFAULT_PRIORITY, tags, description, subtasks: [],
-    };
+    
+    setTodos((prev) => {
+      const order = prev.length > 0 ? Math.min(...prev.map((t) => t.order)) - 1 : 0;
+      const newTodo: Todo = {
+        id, title: title.trim(), completed: false, createdAt: now,
+        deadlineDate: deadlineDate?.trim() || undefined,
+        priority: priority ?? DEFAULT_PRIORITY, tags, description, subtasks: [],
+        order,
+      };
 
-    setTodos((prev) => [newTodo, ...prev]);
+      supabase.from('todos').insert({
+        id, user_id: user.id, title: newTodo.title, completed: newTodo.completed,
+        created_at: newTodo.createdAt, deadline_date: newTodo.deadlineDate,
+        priority: newTodo.priority, tags: newTodo.tags, description: newTodo.description,
+        order_index: newTodo.order,
+      }).then(({ error }) => { if (error) toast.error('追加に失敗: ' + error.message); });
+
+      return [newTodo, ...prev];
+    });
     setLastDeleted(null);
-
-    supabase.from('todos').insert({
-      id, user_id: user.id, title: newTodo.title, completed: newTodo.completed,
-      created_at: newTodo.createdAt, deadline_date: newTodo.deadlineDate,
-      priority: newTodo.priority, tags: newTodo.tags, description: newTodo.description,
-    }).then(({ error }) => { if (error) toast.error('追加に失敗: ' + error.message); });
   };
 
   const toggleTodo = (id: string) => {
@@ -171,7 +178,16 @@ export function useTodos() {
       const result = Array.from(prev);
       const [removed] = result.splice(startIndex, 1);
       result.splice(endIndex, 0, removed);
-      return result;
+      
+      const updatedTodos = result.map((todo, index) => ({ ...todo, order: index }));
+      
+      Promise.all(
+        updatedTodos.map((todo) => 
+          supabase.from('todos').update({ order_index: todo.order }).eq('id', todo.id).then(({ error }) => { if (error) console.error(error); })
+        )
+      );
+      
+      return updatedTodos;
     });
   };
 
@@ -217,15 +233,20 @@ export function useTodos() {
     const newTitle = match ? original.title.replace(/_(\d+)$/, `_${parseInt(match[1], 10) + 1}`) : `${original.title}_1`;
     const newId = crypto.randomUUID();
     const now = Date.now();
-    const newTodo: Todo = { ...original, id: newId, title: newTitle, completed: false, completedAt: undefined, createdAt: now };
+    
+    setTodos((prev) => {
+      const order = prev.length > 0 ? Math.min(...prev.map((t) => t.order)) - 1 : 0;
+      const newTodo: Todo = { ...original, id: newId, title: newTitle, completed: false, completedAt: undefined, createdAt: now, order };
 
-    setTodos((prev) => [newTodo, ...prev]);
+      supabase.from('todos').insert({
+        id: newId, user_id: user.id, title: newTodo.title, completed: false, created_at: now,
+        deadline_date: newTodo.deadlineDate, priority: newTodo.priority, tags: newTodo.tags, description: newTodo.description,
+        order_index: newTodo.order,
+      }).then(({ error }) => { if (error) toast.error('複製に失敗: ' + error.message); });
+      
+      return [newTodo, ...prev];
+    });
     setLastDeleted(null);
-
-    supabase.from('todos').insert({
-      id: newId, user_id: user.id, title: newTodo.title, completed: false, created_at: now,
-      deadline_date: newTodo.deadlineDate, priority: newTodo.priority, tags: newTodo.tags, description: newTodo.description,
-    }).then(({ error }) => { if (error) toast.error('複製に失敗: ' + error.message); });
   };
 
   const restoreDeleted = useCallback(() => {

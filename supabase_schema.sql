@@ -34,6 +34,8 @@ CREATE TABLE saved_tags (
   color TEXT NOT NULL
 );
 
+ALTER TABLE todos ADD COLUMN order_index INTEGER DEFAULT 0;
+
 -- 4. RLS (Row Level Security) の有効化
 ALTER TABLE todos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subtasks ENABLE ROW LEVEL SECURITY;
