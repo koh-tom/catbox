@@ -238,7 +238,7 @@ export function useTodos() {
     setTrashedTodos((prev) => prev.filter((t) => !idSet.has(t.id)));
     setLastDeleted(null);
 
-    supabase.from('todos').update({ deleted_at: null }).in('id', ids).catch(console.error);
+    supabase.from('todos').update({ deleted_at: null }).in('id', ids).then(({ error }) => { if (error) console.error(error); });
   }, []);
 
   const clearUndo = () => setLastDeleted(null);
@@ -250,18 +250,18 @@ export function useTodos() {
     setTodos((prev) => [restoredTodo, ...prev]);
     setTrashedTodos((prev) => prev.filter((t) => t.id !== id));
 
-    supabase.from('todos').update({ deleted_at: null }).eq('id', id).catch(console.error);
+    supabase.from('todos').update({ deleted_at: null }).eq('id', id).then(({ error }) => { if (error) console.error(error); });
   };
 
   const permanentlyDelete = (id: string) => {
     setTrashedTodos((prev) => prev.filter((t) => t.id !== id));
-    supabase.from('todos').delete().eq('id', id).catch(console.error);
+    supabase.from('todos').delete().eq('id', id).then(({ error }) => { if (error) console.error(error); });
   };
 
   const emptyTrash = () => {
     const ids = trashedTodos.map(t => t.id);
     setTrashedTodos([]);
-    if (ids.length > 0) supabase.from('todos').delete().in('id', ids).catch(console.error);
+    if (ids.length > 0) supabase.from('todos').delete().in('id', ids).then(({ error }) => { if (error) console.error(error); });
   };
 
   const addSubTask = (todoId: string, title: string) => {
@@ -278,7 +278,7 @@ export function useTodos() {
 
     supabase.from('subtasks').insert({
       id, user_id: user.id, todo_id: todoId, title: title.trim(), completed: false, order_index: order
-    }).catch(console.error);
+    }).then(({ error }) => { if (error) console.error(error); });
   };
 
   const toggleSubTask = (todoId: string, subTaskId: string) => {
@@ -296,7 +296,7 @@ export function useTodos() {
         }),
       };
     }));
-    supabase.from('subtasks').update({ completed }).eq('id', subTaskId).catch(console.error);
+    supabase.from('subtasks').update({ completed }).eq('id', subTaskId).then(({ error }) => { if (error) console.error(error); });
   };
 
   const deleteSubTask = (todoId: string, subTaskId: string) => {
@@ -304,7 +304,7 @@ export function useTodos() {
       if (todo.id !== todoId) return todo;
       return { ...todo, subtasks: todo.subtasks?.filter((st) => st.id !== subTaskId) };
     }));
-    supabase.from('subtasks').delete().eq('id', subTaskId).catch(console.error);
+    supabase.from('subtasks').delete().eq('id', subTaskId).then(({ error }) => { if (error) console.error(error); });
   };
 
   // ゴミ箱のストレージサイズ（DB保存のため意味が薄れましたが件数で代用か0にします）
