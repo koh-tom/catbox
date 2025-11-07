@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
-import { MdHelpOutline, MdSearch } from 'react-icons/md';
+import { MdHelpOutline, MdLogout, MdSearch } from 'react-icons/md';
 import { toast } from 'sonner';
+import { AuthScreen } from '@/components/AuthScreen';
 import { AboutModal } from '@/components/AboutModal';
 import { CalendarView } from '@/components/CalendarView';
 import { SettingsMenu } from '@/components/SettingsMenu';
@@ -15,12 +16,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/contexts/AuthContext';
 import { useAppShortcuts } from '@/hooks/useAppShortcuts';
 import { useTodos } from '@/hooks/useTodos';
 import { APP_NAME } from '@/lib/constants';
 import type { Todo } from '@/types/todo';
 
 function App() {
+  const { user, isLoading, signOut } = useAuth();
+
   const {
     todos,
     addTodo,
@@ -122,6 +126,23 @@ function App() {
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground">読み込み中...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <AuthScreen />
+        <Toaster />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="w-full max-w-5xl mx-auto">
@@ -170,6 +191,15 @@ function App() {
                     onClick={() => setIsAboutOpen(true)}
                   >
                     <MdHelpOutline className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0"
+                    title="ログアウト"
+                    onClick={() => signOut()}
+                  >
+                    <MdLogout className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
