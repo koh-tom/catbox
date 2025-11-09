@@ -3,6 +3,17 @@ import { useMemo, useState } from 'react';
 import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSort, FaSortAmountDown } from 'react-icons/fa';
 import { MdDeleteSweep } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { isOverdue, parseTodoDate } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import type { Tag, Todo } from '@/types/todo';
@@ -427,15 +438,28 @@ export function TodoList({
             {completedCount} / {todos.length} 完了
           </span>
           {completedCount > 0 && onDeleteCompleted && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onDeleteCompleted}
-              className="text-muted-foreground hover:text-destructive gap-2"
-            >
-              <MdDeleteSweep className="w-4 h-4" />
-              完了済みを削除
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive gap-2">
+                  <MdDeleteSweep className="w-4 h-4" />
+                  完了済みを削除
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>完了済みのタスクを削除しますか？</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {completedCount}件の完了済みタスクをゴミ箱に移動します。
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                  <AlertDialogAction onClick={onDeleteCompleted} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    削除する
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       )}

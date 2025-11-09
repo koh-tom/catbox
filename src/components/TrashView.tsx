@@ -2,6 +2,17 @@ import { FaTrashAlt } from 'react-icons/fa';
 import { MdDeleteForever, MdRestoreFromTrash } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -98,15 +109,32 @@ export function TrashView({
                   >
                     <MdRestoreFromTrash className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => onPermanentlyDelete(todo.id)}
-                    title="完全に削除する"
-                  >
-                    <MdDeleteForever className="h-4 w-4" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        title="完全に削除する"
+                      >
+                        <MdDeleteForever className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>タスクを完全に削除しますか？</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          「{todo.title}」を削除します。この操作は取り消せません。データベースからも完全に削除されます。
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onPermanentlyDelete(todo.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          削除する
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             ))
@@ -115,10 +143,28 @@ export function TrashView({
 
         {trashedTodos.length > 0 && (
           <div className="pt-3 border-t">
-            <Button variant="destructive" size="sm" className="w-full" onClick={onEmptyTrash}>
-              <MdDeleteForever className="w-4 h-4 mr-2" />
-              ゴミ箱を空にする ({trashedTodos.length}件)
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="w-full">
+                  <MdDeleteForever className="w-4 h-4 mr-2" />
+                  ゴミ箱を空にする ({trashedTodos.length}件)
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>ゴミ箱を空にしますか？</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    ゴミ箱内のすべてのタスク（{trashedTodos.length}件）を完全に削除します。この操作は取り消せません。
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                  <AlertDialogAction onClick={onEmptyTrash} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    一括削除する
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         )}
       </DialogContent>

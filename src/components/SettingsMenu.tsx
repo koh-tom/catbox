@@ -3,6 +3,17 @@ import { FaTag } from 'react-icons/fa';
 import { MdAdd, MdClose, MdColorLens, MdSettings } from 'react-icons/md';
 import { TagBadge } from '@/components/TagBadge';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TAG_COLORS } from '@/lib/constants';
@@ -124,16 +135,33 @@ export function SettingsMenu({ savedTags, addSavedTag, deleteSavedTag }: Setting
                   className="flex items-center justify-between p-1.5 rounded-md hover:bg-accent/50 transition-colors group"
                 >
                   <TagBadge tagName={tag.name} tagColor={tag.color} />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => deleteSavedTag(tag.id)}
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
-                    title="削除"
-                  >
-                    <MdClose className="w-3.5 h-3.5" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
+                        title="削除"
+                      >
+                        <MdClose className="w-3.5 h-3.5" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>タグを削除しますか？</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          「{tag.name}」を削除します。この操作は取り消せません。
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => deleteSavedTag(tag.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          削除する
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               ))}
             </div>
