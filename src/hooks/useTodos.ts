@@ -328,8 +328,10 @@ export function useTodos() {
     supabase.from('subtasks').delete().eq('id', subTaskId).then(({ error }) => { if (error) console.error(error); });
   };
 
-  // ゴミ箱のストレージサイズ（DB保存のため意味が薄れましたが件数で代用か0にします）
-  const trashStorageSizeKB = 0;
+  // ゴミ箱のストレージサイズ（DB保存データのおおよそのデータ量）
+  const trashStorageSizeKB = trashedTodos.length > 0
+    ? Math.round((new Blob([JSON.stringify(trashedTodos)]).size / 1024) * 10) / 10
+    : 0;
 
   return {
     todos, trashedTodos, addTodo, toggleTodo, deleteTodo, editTodo, reorderTodos,
