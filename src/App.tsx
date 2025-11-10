@@ -144,9 +144,9 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
-      <div className="w-full max-w-5xl mx-auto">
-        <Card>
+    <div className="min-h-screen bg-background p-0 sm:p-4">
+      <div className="w-full mx-auto flex flex-col min-h-screen sm:min-h-[calc(100vh-2rem)]">
+        <Card className="flex-1 border-0 sm:border rounded-none sm:rounded-xl shadow-none sm:shadow-sm flex flex-col">
           <CardHeader className="pb-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <CardTitle className="text-2xl font-semibold">{APP_NAME}</CardTitle>
@@ -205,8 +205,8 @@ function App() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="mb-6">
+          <CardContent className="flex-1 flex flex-col">
+            <div className="mb-6 shrink-0">
               <Button
                 onClick={handleOpenCreateModal}
                 variant="outline"
@@ -217,12 +217,14 @@ function App() {
               </Button>
             </div>
 
-            <Tabs defaultValue="list" className="mt-2">
-              <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-                <TabsTrigger value="list">リスト</TabsTrigger>
-                <TabsTrigger value="calendar">カレンダー</TabsTrigger>
-              </TabsList>
-              <TabsContent value="list" className="mt-4">
+            <Tabs defaultValue="list" className="mt-2 flex-1 flex flex-col">
+              <div className="shrink-0 flex items-center justify-between">
+                <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+                  <TabsTrigger value="list">リスト</TabsTrigger>
+                  <TabsTrigger value="calendar">カレンダー</TabsTrigger>
+                </TabsList>
+              </div>
+              <TabsContent value="list" className="mt-4 flex-1 outline-none">
                 <TodoList
                   todos={todos}
                   onToggle={toggleTodo}
@@ -238,7 +240,7 @@ function App() {
                   completedCount={completedCount}
                 />
               </TabsContent>
-              <TabsContent value="calendar" className="mt-4">
+              <TabsContent value="calendar" className="mt-4 flex-1 outline-none">
                 <CalendarView
                   todos={todos}
                   onToggle={toggleTodo}
