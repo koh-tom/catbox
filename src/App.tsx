@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
-import { MdHelpOutline, MdLogout, MdSearch } from 'react-icons/md';
+import { MdAdd, MdHelpOutline, MdLogout, MdSearch } from 'react-icons/md';
 import { toast } from 'sonner';
 import { AuthScreen } from '@/components/AuthScreen';
 import { AboutModal } from '@/components/AboutModal';
@@ -8,7 +8,6 @@ import { CalendarView } from '@/components/CalendarView';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { TodoDetailModal } from '@/components/TodoDetailModal';
-import { TodoInput } from '@/components/TodoInput';
 import { TodoList } from '@/components/TodoList';
 import { TrashView } from '@/components/TrashView';
 import { Button } from '@/components/ui/button';
@@ -207,13 +206,18 @@ function App() {
             </div>
           </CardHeader>
           <CardContent>
-            <TodoInput
-              onAdd={addTodo}
-              savedTags={savedTags}
-              onOpenDetailAdd={handleOpenCreateModal}
-            />
+            <div className="mb-6">
+              <Button
+                onClick={handleOpenCreateModal}
+                variant="outline"
+                className="w-full h-14 border-2 border-dashed bg-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground rounded-xl flex items-center justify-center gap-2 transition-all hover:border-solid hover:border-primary/50"
+              >
+                <MdAdd className="w-6 h-6" />
+                <span className="font-medium text-base">新しいタスクを追加</span>
+              </Button>
+            </div>
 
-            <Tabs defaultValue="list" className="mt-6">
+            <Tabs defaultValue="list" className="mt-2">
               <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
                 <TabsTrigger value="list">リスト</TabsTrigger>
                 <TabsTrigger value="calendar">カレンダー</TabsTrigger>
