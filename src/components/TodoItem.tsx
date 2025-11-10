@@ -3,6 +3,7 @@ import type {
   DraggableProvidedDragHandleProps,
 } from '@hello-pangea/dnd';
 import { format } from 'date-fns';
+import { FaRegClock } from 'react-icons/fa';
 import { MdCheck, MdClose, MdContentCopy, MdDragIndicator, MdEdit, MdUndo } from 'react-icons/md';
 import { VscListSelection } from 'react-icons/vsc';
 import { StarRating } from '@/components/StarRating';
@@ -132,6 +133,12 @@ export function TodoItem({
           <div className="px-1 scale-90 origin-left">
             <StarRating value={todo.priority ?? 1} readOnly />
           </div>
+          {todo.estimatedMinutes !== undefined && (
+            <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded flex items-center gap-1 shrink-0 border border-muted">
+              <FaRegClock className="w-3 h-3" />
+              {todo.estimatedMinutes}分
+            </span>
+          )}
           <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
             {todo.completed && todo.completedAt ? (
               <span className="text-primary font-medium">

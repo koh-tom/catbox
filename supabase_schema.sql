@@ -35,6 +35,7 @@ CREATE TABLE saved_tags (
 );
 
 ALTER TABLE todos ADD COLUMN order_index INTEGER DEFAULT 0;
+ALTER TABLE todos ADD COLUMN estimated_minutes INTEGER;
 
 -- 4. RLS (Row Level Security) の有効化
 ALTER TABLE todos ENABLE ROW LEVEL SECURITY;

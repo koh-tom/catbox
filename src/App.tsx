@@ -68,11 +68,12 @@ function App() {
     priority?: number,
     tags?: string[],
     description?: string,
+    estimatedHours?: number,
   ) => {
     if (editingTodoId) {
-      editTodo(editingTodoId, { title, deadlineDate, priority, tags, description });
+      editTodo(editingTodoId, { title, deadlineDate, priority, tags, description, estimatedHours });
     } else {
-      addTodo(title, deadlineDate, priority, tags, description);
+      addTodo(title, deadlineDate, priority, tags, description, estimatedHours);
     }
   };
 

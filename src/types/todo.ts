@@ -24,4 +24,5 @@ export interface Todo {
   subtasks?: SubTask[];
   deletedAt?: number;
   order: number;
+  estimatedHours?: number;
 }
