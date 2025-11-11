@@ -320,7 +320,7 @@ export function TodoList({
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="todos">
             {(provided) => (
-              <ul ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
+              <ul ref={provided.innerRef} {...provided.droppableProps} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                 {manualTodos.map((todo, index) => (
                   <Draggable key={todo.id} draggableId={todo.id} index={index}>
                     {(provided, snapshot) => (
@@ -355,7 +355,7 @@ export function TodoList({
               <h3 className="text-sm font-medium text-red-500 flex items-center gap-2">
                 🚨 期限切れ
               </h3>
-              <ul className="space-y-2">
+              <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                 {overdueTodos.map((todo) => (
                   <TodoItem
                     key={todo.id}
@@ -384,7 +384,7 @@ export function TodoList({
 
           {/* 進行中タスク（未完了かつ期限切れでない） */}
           {activeTodos.length > 0 && (
-            <ul className="space-y-2">
+            <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
               {activeTodos.map((todo) => (
                 <TodoItem
                   key={todo.id}
@@ -412,7 +412,7 @@ export function TodoList({
 
           {/* 完了済みタスク */}
           {completedTodos.length > 0 && (
-            <ul className="space-y-2">
+            <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
               {completedTodos.map((todo) => (
                 <TodoItem
                   key={todo.id}
