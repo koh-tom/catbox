@@ -59,3 +59,11 @@ export function isOverdue(dateStr?: string): boolean {
   const now = startOfToday();
   return differenceInCalendarDays(targetDate, now) < 0;
 }
+
+export function isTodayTask(dateStr?: string): boolean {
+  const targetDate = parseTodoDate(dateStr);
+  if (!targetDate) return false;
+
+  const now = startOfToday();
+  return differenceInCalendarDays(targetDate, now) === 0;
+}
