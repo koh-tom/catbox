@@ -348,43 +348,48 @@ export function TodoList({
           </Droppable>
         </DragDropContext>
       ) : (
-        <>
-          {/* 期限切れタスク */}
-          {overdueTodos.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-red-500 flex items-center gap-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-start h-full pb-4">
+          {/* 期限切れカラム */}
+          <div className="flex flex-col gap-3 bg-red-500/5 dark:bg-red-500/10 p-3 sm:p-4 rounded-xl border border-red-500/20 max-h-[calc(100vh-14rem)] overflow-hidden">
+            <div className="flex items-center justify-between shrink-0">
+              <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-2">
                 🚨 期限切れ
               </h3>
-              <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
-                {overdueTodos.map((todo) => (
-                  <TodoItem
-                    key={todo.id}
-                    todo={todo}
-                    onToggle={onToggle}
-                    onDelete={onDelete}
-                    onDuplicate={onDuplicate}
-                    savedTags={savedTags}
-                    onSelect={onSelectTodo}
-                    isSelected={selectedIds.has(todo.id)}
-                    onToggleSelect={toggleSelection}
-                  />
-                ))}
-              </ul>
+              <span className="bg-red-500/10 text-red-600 dark:text-red-400 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                {overdueTodos.length}
+              </span>
             </div>
-          )}
+            <ul className="space-y-3 overflow-y-auto pr-1 pb-2 flex-1 scrollbar-thin scrollbar-thumb-muted">
+              {overdueTodos.map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={onToggle}
+                  onDelete={onDelete}
+                  onDuplicate={onDuplicate}
+                  savedTags={savedTags}
+                  onSelect={onSelectTodo}
+                  isSelected={selectedIds.has(todo.id)}
+                  onToggleSelect={toggleSelection}
+                />
+              ))}
+              {overdueTodos.length === 0 && (
+                <div className="text-sm text-muted-foreground/60 text-center py-10">タスクなし</div>
+              )}
+            </ul>
+          </div>
 
-          {/* 期限切れと進行中の間のセパレーター */}
-          {overdueTodos.length > 0 && activeTodos.length > 0 && (
-            <div className="flex items-center gap-3 py-2">
-              <div className="flex-1 h-px bg-border" />
-              <span className="text-xs text-muted-foreground">進行中</span>
-              <div className="flex-1 h-px bg-border" />
+          {/* 進行中カラム */}
+          <div className="flex flex-col gap-3 bg-card p-3 sm:p-4 rounded-xl border shadow-sm max-h-[calc(100vh-14rem)] overflow-hidden">
+            <div className="flex items-center justify-between shrink-0">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                🔄 進行中
+              </h3>
+              <span className="bg-primary/10 text-primary px-2.5 py-0.5 rounded-full text-xs font-bold">
+                {activeTodos.length}
+              </span>
             </div>
-          )}
-
-          {/* 進行中タスク（未完了かつ期限切れでない） */}
-          {activeTodos.length > 0 && (
-            <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+            <ul className="space-y-3 overflow-y-auto pr-1 pb-2 flex-1 scrollbar-thin scrollbar-thumb-muted">
               {activeTodos.map((todo) => (
                 <TodoItem
                   key={todo.id}
@@ -398,21 +403,23 @@ export function TodoList({
                   onToggleSelect={toggleSelection}
                 />
               ))}
+              {activeTodos.length === 0 && (
+                <div className="text-sm text-muted-foreground/60 text-center py-10">タスクなし</div>
+              )}
             </ul>
-          )}
+          </div>
 
-          {/* セパレーター */}
-          {incompleteCount > 0 && completedTodos.length > 0 && (
-            <div className="flex items-center gap-3 py-2">
-              <div className="flex-1 h-px bg-border" />
-              <span className="text-xs text-muted-foreground">完了済み</span>
-              <div className="flex-1 h-px bg-border" />
+          {/* 完了済みカラム */}
+          <div className="flex flex-col gap-3 bg-muted/30 p-3 sm:p-4 rounded-xl border border-transparent max-h-[calc(100vh-14rem)] overflow-hidden">
+            <div className="flex items-center justify-between shrink-0">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                ✅ 完了済み
+              </h3>
+              <span className="bg-muted-foreground/15 text-muted-foreground px-2.5 py-0.5 rounded-full text-xs font-bold">
+                {completedTodos.length}
+              </span>
             </div>
-          )}
-
-          {/* 完了済みタスク */}
-          {completedTodos.length > 0 && (
-            <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+            <ul className="space-y-3 overflow-y-auto pr-1 pb-2 flex-1 scrollbar-thin scrollbar-thumb-muted">
               {completedTodos.map((todo) => (
                 <TodoItem
                   key={todo.id}
@@ -426,9 +433,12 @@ export function TodoList({
                   onToggleSelect={toggleSelection}
                 />
               ))}
+              {completedTodos.length === 0 && (
+                <div className="text-sm text-muted-foreground/60 text-center py-10">タスクなし</div>
+              )}
             </ul>
-          )}
-        </>
+          </div>
+        </div>
       )}
 
       {/* フッター: 完了数 + 一括削除ボタン (選択中は非表示) */}
