@@ -96,77 +96,76 @@ export function TodoList({
     }
   };
 
-  const { overdueTodos, todayTodos, activeTodos, completedTodos, manualTodos } =
-    useMemo(() => {
-      let filteredTodos = todos;
+  const { overdueTodos, todayTodos, activeTodos, completedTodos, manualTodos } = useMemo(() => {
+    let filteredTodos = todos;
 
-      // 検索フィルター適用
-      const query = searchQuery.trim().toLowerCase();
-      if (query) {
-        filteredTodos = filteredTodos.filter(
-          (todo) =>
-            todo.title.toLowerCase().includes(query) ||
-            todo.description?.toLowerCase().includes(query),
-        );
+    // 検索フィルター適用
+    const query = searchQuery.trim().toLowerCase();
+    if (query) {
+      filteredTodos = filteredTodos.filter(
+        (todo) =>
+          todo.title.toLowerCase().includes(query) ||
+          todo.description?.toLowerCase().includes(query),
+      );
+    }
+
+    // タグフィルター適用 (OR条件)
+    if (filterTags.length > 0) {
+      filteredTodos = filteredTodos.filter((todo) =>
+        todo.tags?.some((tag) => filterTags.includes(tag)),
+      );
+    }
+
+    // 優先度による比較
+    const comparePriority = (a: Todo, b: Todo) => {
+      return (b.priority ?? 1) - (a.priority ?? 1);
+    };
+
+    const compareDeadline = (a: Todo, b: Todo) => {
+      const dateA = parseTodoDate(a.deadlineDate);
+      const dateB = parseTodoDate(b.deadlineDate);
+      if (dateA && dateB) return dateA.getTime() - dateB.getTime();
+      if (dateA) return -1;
+      if (dateB) return 1;
+      return 0;
+    };
+
+    const compareCreated = (a: Todo, b: Todo) => a.createdAt - b.createdAt;
+
+    // ソート: 第一キーが同じ(0)なら第二キーで比較
+    const sortCreated = (a: Todo, b: Todo) => compareCreated(a, b) || comparePriority(a, b);
+    const sortPriority = (a: Todo, b: Todo) => comparePriority(a, b) || compareDeadline(a, b);
+    const sortDeadline = (a: Todo, b: Todo) => compareDeadline(a, b) || comparePriority(a, b);
+
+    const sortFn = (() => {
+      switch (sortKey) {
+        case 'created':
+          return sortCreated;
+        case 'priority':
+          return sortPriority;
+        case 'manual':
+          return () => 0;
+        default:
+          return sortDeadline;
       }
+    })();
 
-      // タグフィルター適用 (OR条件)
-      if (filterTags.length > 0) {
-        filteredTodos = filteredTodos.filter((todo) =>
-          todo.tags?.some((tag) => filterTags.includes(tag)),
-        );
-      }
+    // manual用の全件リスト (ソートなし、フィルタのみ)
+    const isManualMode = sortKey === 'manual' && filterTags.length === 0;
 
-      // 優先度による比較
-      const comparePriority = (a: Todo, b: Todo) => {
-        return (b.priority ?? 1) - (a.priority ?? 1);
-      };
+    const incomplete = filteredTodos.filter((todo) => !todo.completed).sort(sortFn);
+    const completed = filteredTodos.filter((todo) => todo.completed).sort(sortFn);
 
-      const compareDeadline = (a: Todo, b: Todo) => {
-        const dateA = parseTodoDate(a.deadlineDate);
-        const dateB = parseTodoDate(b.deadlineDate);
-        if (dateA && dateB) return dateA.getTime() - dateB.getTime();
-        if (dateA) return -1;
-        if (dateB) return 1;
-        return 0;
-      };
+    const notOverdue = incomplete.filter((todo) => !isOverdue(todo.deadlineDate));
 
-      const compareCreated = (a: Todo, b: Todo) => a.createdAt - b.createdAt;
-
-      // ソート: 第一キーが同じ(0)なら第二キーで比較
-      const sortCreated = (a: Todo, b: Todo) => compareCreated(a, b) || comparePriority(a, b);
-      const sortPriority = (a: Todo, b: Todo) => comparePriority(a, b) || compareDeadline(a, b);
-      const sortDeadline = (a: Todo, b: Todo) => compareDeadline(a, b) || comparePriority(a, b);
-
-      const sortFn = (() => {
-        switch (sortKey) {
-          case 'created':
-            return sortCreated;
-          case 'priority':
-            return sortPriority;
-          case 'manual':
-            return () => 0;
-          default:
-            return sortDeadline;
-        }
-      })();
-
-      // manual用の全件リスト (ソートなし、フィルタのみ)
-      const isManualMode = sortKey === 'manual' && filterTags.length === 0;
-
-      const incomplete = filteredTodos.filter((todo) => !todo.completed).sort(sortFn);
-      const completed = filteredTodos.filter((todo) => todo.completed).sort(sortFn);
-
-      const notOverdue = incomplete.filter((todo) => !isOverdue(todo.deadlineDate));
-
-      return {
-        overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
-        todayTodos: notOverdue.filter((todo) => isTodayTask(todo.deadlineDate)),
-        activeTodos: notOverdue.filter((todo) => !isTodayTask(todo.deadlineDate)),
-        completedTodos: completed,
-        manualTodos: isManualMode ? filteredTodos : [], // manualモード用
-      };
-    }, [todos, sortKey, filterTags, searchQuery]);
+    return {
+      overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
+      todayTodos: notOverdue.filter((todo) => isTodayTask(todo.deadlineDate)),
+      activeTodos: notOverdue.filter((todo) => !isTodayTask(todo.deadlineDate)),
+      completedTodos: completed,
+      manualTodos: isManualMode ? filteredTodos : [], // manualモード用
+    };
+  }, [todos, sortKey, filterTags, searchQuery]);
 
   if (todos.length === 0) {
     return (
@@ -322,7 +321,11 @@ export function TodoList({
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="todos">
             {(provided) => (
-              <ul ref={provided.innerRef} {...provided.droppableProps} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+              <ul
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3"
+              >
                 {manualTodos.map((todo, index) => (
                   <Draggable key={todo.id} draggableId={todo.id} index={index}>
                     {(provided, snapshot) => (
@@ -406,7 +409,9 @@ export function TodoList({
                   />
                 ))}
                 {overdueTodos.length === 0 && (
-                  <div className="text-sm text-muted-foreground/60 text-center py-10">タスクなし</div>
+                  <div className="text-sm text-muted-foreground/60 text-center py-10">
+                    タスクなし
+                  </div>
                 )}
               </ul>
             </div>
@@ -436,7 +441,9 @@ export function TodoList({
                   />
                 ))}
                 {activeTodos.length === 0 && (
-                  <div className="text-sm text-muted-foreground/60 text-center py-10">タスクなし</div>
+                  <div className="text-sm text-muted-foreground/60 text-center py-10">
+                    タスクなし
+                  </div>
                 )}
               </ul>
             </div>
@@ -466,7 +473,9 @@ export function TodoList({
                   />
                 ))}
                 {completedTodos.length === 0 && (
-                  <div className="text-sm text-muted-foreground/60 text-center py-10">タスクなし</div>
+                  <div className="text-sm text-muted-foreground/60 text-center py-10">
+                    タスクなし
+                  </div>
                 )}
               </ul>
             </div>
@@ -483,7 +492,11 @@ export function TodoList({
           {completedCount > 0 && onDeleteCompleted && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-destructive gap-2"
+                >
                   <MdDeleteSweep className="w-4 h-4" />
                   完了済みを削除
                 </Button>
@@ -497,7 +510,10 @@ export function TodoList({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                  <AlertDialogAction onClick={onDeleteCompleted} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  <AlertDialogAction
+                    onClick={onDeleteCompleted}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
                     削除する
                   </AlertDialogAction>
                 </AlertDialogFooter>

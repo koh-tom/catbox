@@ -19,7 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAppShortcuts } from '@/hooks/useAppShortcuts';
 import { useTodos } from '@/hooks/useTodos';
 import { APP_NAME } from '@/lib/constants';
-import type { Todo } from '@/types/todo';
+import type { Todo, RecurrenceRule } from '@/types/todo';
 
 function App() {
   const { user, isLoading, signOut } = useAuth();
@@ -68,11 +68,12 @@ function App() {
     tags?: string[],
     description?: string,
     estimatedHours?: number,
+    recurrenceRule?: RecurrenceRule,
   ) => {
     if (editingTodoId) {
-      editTodo(editingTodoId, { title, deadlineDate, priority, tags, description, estimatedHours });
+      editTodo(editingTodoId, { title, deadlineDate, priority, tags, description, estimatedHours, recurrenceRule });
     } else {
-      addTodo(title, deadlineDate, priority, tags, description, estimatedHours);
+      addTodo(title, deadlineDate, priority, tags, description, estimatedHours, recurrenceRule);
     }
   };
 

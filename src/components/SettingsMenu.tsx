@@ -156,7 +156,10 @@ export function SettingsMenu({ savedTags, addSavedTag, deleteSavedTag }: Setting
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => deleteSavedTag(tag.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        <AlertDialogAction
+                          onClick={() => deleteSavedTag(tag.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
                           削除する
                         </AlertDialogAction>
                       </AlertDialogFooter>

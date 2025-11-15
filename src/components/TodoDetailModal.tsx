@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaRegClock, FaRegStickyNote } from 'react-icons/fa';
-import { MdAdd, MdCheck, MdDelete, MdTitle } from 'react-icons/md';
+import { MdAdd, MdCheck, MdDelete, MdTitle, MdRepeat } from 'react-icons/md';
 import { VscListSelection } from 'react-icons/vsc';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
@@ -16,7 +16,14 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import type { Tag, Todo } from '@/types/todo';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { Tag, Todo, RecurrenceRule } from '@/types/todo';
 
 interface TodoDetailModalProps {
   todo: Todo | null;
@@ -30,6 +37,7 @@ interface TodoDetailModalProps {
     tags?: string[],
     description?: string,
     estimatedHours?: number,
+    recurrenceRule?: RecurrenceRule,
   ) => void;
   savedTags: Tag[];
   onAddSubTask: (todoId: string, title: string) => void;
@@ -54,6 +62,7 @@ export function TodoDetailModal({
   const [tags, setTags] = useState<string[]>([]);
   const [estimatedHours, setEstimatedHours] = useState<string>('');
   const [subTaskTitle, setSubTaskTitle] = useState('');
+  const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | undefined>(undefined);
 
   useEffect(() => {
     if (isOpen) {
@@ -64,6 +73,7 @@ export function TodoDetailModal({
         setPriority(todo.priority ?? 1);
         setTags(todo.tags || []);
         setEstimatedHours(todo.estimatedHours ? String(todo.estimatedHours) : '');
+        setRecurrenceRule(todo.recurrenceRule);
       } else {
         setTitle('');
         setDescription('');
@@ -71,6 +81,7 @@ export function TodoDetailModal({
         setPriority(1);
         setTags([]);
         setEstimatedHours('');
+        setRecurrenceRule(undefined);
       }
     }
   }, [todo, isOpen]);
@@ -78,7 +89,7 @@ export function TodoDetailModal({
   const handleSave = () => {
     if (title.trim()) {
       const parsedHours = estimatedHours ? parseFloat(estimatedHours) : undefined;
-      onSave(todo ? todo.id : '', title, deadlineDate, priority, tags, description, isNaN(parsedHours!) ? undefined : parsedHours);
+      onSave(todo ? todo.id : '', title, deadlineDate, priority, tags, description, isNaN(parsedHours!) ? undefined : parsedHours, recurrenceRule);
       onClose();
     }
   };
@@ -130,18 +141,42 @@ export function TodoDetailModal({
           </div>
 
           <div className="grid gap-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <FaRegClock className="w-4 h-4" /> 見積もり時間 (h)
+            <div className="grid gap-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <FaRegClock className="w-4 h-4" /> 見積もり時間 (h)
+              </div>
+              <Input
+                type="number"
+                min="0"
+                step="0.5"
+                value={estimatedHours}
+                onChange={(e) => setEstimatedHours(e.target.value)}
+                placeholder="例: 0.5"
+                className="w-full"
+              />
             </div>
-            <Input
-              type="number"
-              min="0"
-              step="0.5"
-              value={estimatedHours}
-              onChange={(e) => setEstimatedHours(e.target.value)}
-              placeholder="例: 0.5 (30分), 2.5 (2時間半)"
-              className="w-full sm:w-1/2"
-            />
+
+            <div className="grid gap-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <MdRepeat className="w-4 h-4" /> 繰り返し
+              </div>
+              <Select
+                value={recurrenceRule || 'none'}
+                onValueChange={(val: string) => setRecurrenceRule(val === 'none' ? undefined : (val as NonNullable<RecurrenceRule>))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="なし" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">なし</SelectItem>
+                  <SelectItem value="daily">毎日</SelectItem>
+                  <SelectItem value="weekly">毎週</SelectItem>
+                  <SelectItem value="biweekly">2週</SelectItem>
+                  <SelectItem value="monthly">毎月</SelectItem>
+                  <SelectItem value="yearly">毎年</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid gap-2">

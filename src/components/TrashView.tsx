@@ -65,7 +65,9 @@ export function TrashView({
 
         <div className="flex flex-col gap-1 text-xs text-muted-foreground px-1">
           <div className="flex justify-between">
-            <span>{trashedTodos.length} / {trashLimit} 件</span>
+            <span>
+              {trashedTodos.length} / {trashLimit} 件
+            </span>
             <span>{trashStorageSizeKB} KB</span>
           </div>
           <div className="w-full bg-muted rounded-full h-1.5">
@@ -90,8 +92,9 @@ export function TrashView({
               >
                 <div className="flex-1 min-w-0">
                   <p
-                    className={`text-sm truncate ${todo.completed ? 'line-through text-muted-foreground' : ''
-                      }`}
+                    className={`text-sm truncate ${
+                      todo.completed ? 'line-through text-muted-foreground' : ''
+                    }`}
                   >
                     {todo.title}
                   </p>
@@ -124,12 +127,16 @@ export function TrashView({
                       <AlertDialogHeader>
                         <AlertDialogTitle>タスクを完全に削除しますか？</AlertDialogTitle>
                         <AlertDialogDescription>
-                          「{todo.title}」を削除します。この操作は取り消せません。データベースからも完全に削除されます。
+                          「{todo.title}
+                          」を削除します。この操作は取り消せません。データベースからも完全に削除されます。
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onPermanentlyDelete(todo.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        <AlertDialogAction
+                          onClick={() => onPermanentlyDelete(todo.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
                           削除する
                         </AlertDialogAction>
                       </AlertDialogFooter>
@@ -154,12 +161,16 @@ export function TrashView({
                 <AlertDialogHeader>
                   <AlertDialogTitle>ゴミ箱を空にしますか？</AlertDialogTitle>
                   <AlertDialogDescription>
-                    ゴミ箱内のすべてのタスク（{trashedTodos.length}件）を完全に削除します。この操作は取り消せません。
+                    ゴミ箱内のすべてのタスク（{trashedTodos.length}
+                    件）を完全に削除します。この操作は取り消せません。
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                  <AlertDialogAction onClick={onEmptyTrash} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  <AlertDialogAction
+                    onClick={onEmptyTrash}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
                     一括削除する
                   </AlertDialogAction>
                 </AlertDialogFooter>
