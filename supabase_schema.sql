@@ -35,7 +35,8 @@ CREATE TABLE saved_tags (
 );
 
 ALTER TABLE todos ADD COLUMN order_index INTEGER DEFAULT 0;
-ALTER TABLE todos ADD COLUMN estimated_minutes INTEGER;
+ALTER TABLE todos ADD COLUMN estimated_hours INTEGER;
+ALTER TABLE todos ADD COLUMN recurrence_rule TEXT;
 
 -- 4. RLS (Row Level Security) の有効化
 ALTER TABLE todos ENABLE ROW LEVEL SECURITY;

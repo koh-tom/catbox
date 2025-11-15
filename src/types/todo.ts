@@ -11,6 +11,8 @@ export interface SubTask {
   order: number;
 }
 
+export type RecurrenceRule = 'daily' | 'biweekly' | 'weekly' | 'monthly' | 'yearly';
+
 export interface Todo {
   id: string;
   title: string;
@@ -25,4 +27,5 @@ export interface Todo {
   deletedAt?: number;
   order: number;
   estimatedHours?: number;
+  recurrenceRule?: RecurrenceRule;
 }

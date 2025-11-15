@@ -19,6 +19,7 @@ const mapTodoFromDB = (row: any, subtasksMap: Record<string, SubTask[]>): Todo =
   subtasks: subtasksMap[row.id] || [],
   order: row.order_index || 0,
   estimatedHours: row.estimated_hours || undefined,
+  recurrenceRule: row.recurrence_rule || undefined,
 });
 
 const mapSubtaskFromDB = (row: any): SubTask => ({
@@ -83,7 +84,7 @@ export function useTodos() {
     setTrashedTodos((prev) => [...items, ...prev].slice(0, TRASH_LIMIT));
   }, []);
 
-  const addTodo = (title: string, deadlineDate?: string, priority?: number, tags: string[] = [], description?: string, estimatedHours?: number) => {
+  const addTodo = (title: string, deadlineDate?: string, priority?: number, tags: string[] = [], description?: string, estimatedHours?: number, recurrenceRule?: Todo['recurrenceRule']) => {
     if (!title.trim() || !user) return;
     const id = crypto.randomUUID();
     const now = Date.now();
@@ -93,7 +94,7 @@ export function useTodos() {
       id, title: title.trim(), completed: false, createdAt: now,
       deadlineDate: deadlineDate?.trim() || undefined,
       priority: priority ?? DEFAULT_PRIORITY, tags, description, subtasks: [],
-      order, estimatedHours,
+      order, estimatedHours, recurrenceRule,
     };
 
     setTodos((prev) => [newTodo, ...prev]);
@@ -103,7 +104,7 @@ export function useTodos() {
       id, user_id: user.id, title: newTodo.title, completed: newTodo.completed,
       created_at: newTodo.createdAt, deadline_date: newTodo.deadlineDate,
       priority: newTodo.priority, tags: newTodo.tags, description: newTodo.description,
-      order_index: newTodo.order, estimated_hours: newTodo.estimatedHours,
+      order_index: newTodo.order, estimated_hours: newTodo.estimatedHours, recurrence_rule: newTodo.recurrenceRule,
     }).then(({ error }) => { if (error) toast.error('追加に失敗: ' + error.message); });
   };
 
@@ -165,6 +166,7 @@ export function useTodos() {
       tags: updates.tags,
       description: updates.description,
       estimated_hours: updates.estimatedHours,
+      recurrence_rule: updates.recurrenceRule,
     };
     Object.keys(dbUpdates).forEach((k) => dbUpdates[k] === undefined && delete dbUpdates[k]);
 
@@ -240,7 +242,7 @@ export function useTodos() {
     supabase.from('todos').insert({
       id: newId, user_id: user.id, title: newTodo.title, completed: false, created_at: now,
       deadline_date: newTodo.deadlineDate, priority: newTodo.priority, tags: newTodo.tags, description: newTodo.description,
-      order_index: newTodo.order, estimated_hours: newTodo.estimatedHours,
+      order_index: newTodo.order, estimated_hours: newTodo.estimatedHours, recurrence_rule: newTodo.recurrenceRule,
     }).then(({ error }) => { if (error) toast.error('複製に失敗: ' + error.message); });
   };
 
