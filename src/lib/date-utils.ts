@@ -1,4 +1,5 @@
-import { differenceInCalendarDays, isValid, parse, startOfToday } from 'date-fns';
+import { differenceInCalendarDays, isValid, parse, startOfToday, addDays, addWeeks, addMonths, addYears, format } from 'date-fns';
+import type { RecurrenceRule } from '@/types/todo';
 
 export function parseTodoDate(dateStr?: string): Date | undefined {
   if (!dateStr) return undefined;
@@ -66,4 +67,31 @@ export function isTodayTask(dateStr?: string): boolean {
 
   const now = startOfToday();
   return differenceInCalendarDays(targetDate, now) === 0;
+}
+
+export function calcNextRecurrenceDate(deadlineDate?: string, rule?: RecurrenceRule): string | undefined {
+  if (!rule) return undefined;
+
+  const baseDate = parseTodoDate(deadlineDate) || startOfToday();
+  let nextDate = baseDate;
+
+  switch (rule) {
+    case 'daily':
+      nextDate = addDays(baseDate, 1);
+      break;
+    case 'weekly':
+      nextDate = addWeeks(baseDate, 1);
+      break;
+    case 'biweekly':
+      nextDate = addWeeks(baseDate, 2);
+      break;
+    case 'monthly':
+      nextDate = addMonths(baseDate, 1);
+      break;
+    case 'yearly':
+      nextDate = addYears(baseDate, 1);
+      break;
+  }
+
+  return format(nextDate, 'yyyy-MM-dd');
 }
