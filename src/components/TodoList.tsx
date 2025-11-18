@@ -72,13 +72,7 @@ export function TodoList({
     });
   };
 
-  const toggleSelectAll = () => {
-    if (selectedIds.size === todos.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(todos.map((t) => t.id)));
-    }
-  };
+
 
   const handleBatchComplete = () => {
     if (onCompleteTodos && selectedIds.size > 0) {
@@ -96,7 +90,7 @@ export function TodoList({
     }
   };
 
-  const { overdueTodos, todayTodos, activeTodos, completedTodos, manualTodos } = useMemo(() => {
+  const { overdueTodos, todayTodos, activeTodos, completedTodos, manualTodos, visibleTodos } = useMemo(() => {
     let filteredTodos = todos;
 
     // 検索フィルター適用
@@ -164,8 +158,28 @@ export function TodoList({
       activeTodos: notOverdue.filter((todo) => !isTodayTask(todo.deadlineDate)),
       completedTodos: completed,
       manualTodos: isManualMode ? filteredTodos : [], // manualモード用
+      visibleTodos: filteredTodos,
     };
   }, [todos, sortKey, filterTags, searchQuery]);
+
+  const toggleSelectAll = () => {
+    if (visibleTodos.length === 0) return;
+
+    // 現在画面に見えているもの全てが選択済みかどうか
+    const allVisibleSelected = visibleTodos.every(t => selectedIds.has(t.id));
+
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (allVisibleSelected) {
+        // 全て選択済みの場合は、画面に見えているものだけを選択解除
+        visibleTodos.forEach((t) => newSet.delete(t.id));
+      } else {
+        // それ以外の場合は、画面に見えているものを全て選択状態にする
+        visibleTodos.forEach((t) => newSet.add(t.id));
+      }
+      return newSet;
+    });
+  };
 
   if (todos.length === 0) {
     return (
@@ -281,30 +295,32 @@ export function TodoList({
           </div>
         </div>
 
-        {/* 選択アクションバー（選択中のみ表示） */}
-        <div className="flex items-center justify-between min-h-[40px]">
-          {selectedIds.size > 0 ? (
-            <div className="flex items-center gap-4 w-full p-2 rounded-md bg-accent text-accent-foreground animate-in fade-in slide-in-from-top-1">
-              <span className="text-sm font-medium pl-2">{selectedIds.size} 件選択中</span>
-              <div className="flex items-center gap-2 ml-auto">
-                <Button size="sm" variant="ghost" className="h-8" onClick={toggleSelectAll}>
-                  {selectedIds.size === todos.length ? '全解除' : 'すべて選択'}
-                </Button>
-                <div className="w-px h-4 bg-border mx-2" />
-                <Button size="sm" variant="ghost" className="h-8" onClick={handleBatchComplete}>
-                  完了にする
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-8 text-destructive hover:text-destructive"
-                  onClick={handleBatchDelete}
-                >
-                  削除
-                </Button>
-              </div>
+        {/* 選択アクションバー（画面下部にフローティング表示） */}
+        {selectedIds.size > 0 && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 p-3 rounded-full bg-foreground shadow-2xl text-background animate-in slide-in-from-bottom-5 fade-in min-w-[320px] justify-between border border-border/20">
+            <span className="text-sm font-bold pl-3">{selectedIds.size} 件選択中</span>
+            <div className="flex items-center gap-1">
+              <Button size="sm" variant="ghost" className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4" onClick={toggleSelectAll}>
+                {visibleTodos.length > 0 && selectedIds.size === visibleTodos.length ? '全解除' : 'すべて選択'}
+              </Button>
+              <div className="w-px h-5 bg-background/30 mx-1" />
+              <Button size="sm" variant="ghost" className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4" onClick={handleBatchComplete}>
+                一括完了
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-9 text-red-400 hover:text-red-300 hover:bg-red-400/20 rounded-full px-4"
+                onClick={handleBatchDelete}
+              >
+                削除
+              </Button>
             </div>
-          ) : (
+          </div>
+        )}
+
+        <div className="flex items-center justify-end min-h-[40px] mb-4">
+          {selectedIds.size === 0 && (
             <Button
               variant="ghost"
               size="sm"
