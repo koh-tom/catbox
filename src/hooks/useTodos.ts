@@ -4,6 +4,7 @@ import type { Tag, Todo, SubTask } from '@/types/todo';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { calcNextRecurrenceDate } from '@/lib/date-utils';
 
 // DBからの変換ヘルパー
 const mapTodoFromDB = (row: any, subtasksMap: Record<string, SubTask[]>): Todo => ({
@@ -142,25 +143,67 @@ export function useTodos() {
   };
 
   const toggleTodo = (id: string) => {
-    let completed = false;
-    let completedAt: number | undefined;
-    setTodos((prev) =>
-      prev.map((todo) => {
+    const todoToToggle = todos.find((t) => t.id === id);
+    if (!todoToToggle) return;
+
+    const isCompleting = !todoToToggle.completed;
+    const now = Date.now();
+    let newRecurringTodo: Todo | null = null;
+
+    if (isCompleting && todoToToggle.recurrenceRule && user) {
+      const nextDeadline = calcNextRecurrenceDate(todoToToggle.deadlineDate, todoToToggle.recurrenceRule);
+      if (nextDeadline) {
+        newRecurringTodo = {
+          ...todoToToggle,
+          id: crypto.randomUUID(),
+          completed: false,
+          completedAt: undefined,
+          createdAt: now,
+          deadlineDate: nextDeadline,
+          order: todos.length > 0 ? Math.min(...todos.map((t) => t.order)) - 1 : 0,
+        };
+      }
+    }
+
+    setTodos((prev) => {
+      const updatedTodos = prev.map((todo) => {
         if (todo.id === id) {
-          completed = !todo.completed;
-          completedAt = completed ? Date.now() : undefined;
-          return { ...todo, completed, completedAt };
+          return { ...todo, completed: isCompleting, completedAt: isCompleting ? now : undefined };
         }
         return todo;
-      }),
-    );
+      });
+      return newRecurringTodo ? [newRecurringTodo, ...updatedTodos] : updatedTodos;
+    });
+
     supabase
       .from('todos')
-      .update({ completed, completed_at: completedAt })
+      .update({ completed: isCompleting, completed_at: isCompleting ? now : null })
       .eq('id', id)
       .then(({ error }) => {
         if (error) toast.error('更新に失敗: ' + error.message);
       });
+
+    if (newRecurringTodo && user) {
+      supabase
+        .from('todos')
+        .insert({
+          id: newRecurringTodo.id,
+          user_id: user.id,
+          title: newRecurringTodo.title,
+          completed: newRecurringTodo.completed,
+          created_at: newRecurringTodo.createdAt,
+          deadline_date: newRecurringTodo.deadlineDate,
+          priority: newRecurringTodo.priority,
+          tags: newRecurringTodo.tags,
+          description: newRecurringTodo.description,
+          order_index: newRecurringTodo.order,
+          estimated_hours: newRecurringTodo.estimatedHours,
+          recurrence_rule: newRecurringTodo.recurrenceRule,
+        })
+        .then(({ error }) => {
+          if (error) toast.error('繰り返しタスクの作成に失敗: ' + error.message);
+        });
+    }
   };
 
   const deleteTodo = (id: string) => {
@@ -282,20 +325,74 @@ export function useTodos() {
 
   const completeTodos = (ids: string[]) => {
     const idSet = new Set(ids);
+    const selectedTodos = todos.filter((t) => idSet.has(t.id));
+    if (selectedTodos.length === 0) return;
+
+    // もしすべてが完了済みなら「未完了に戻す」、それ以外は「完了にする」
+    const allCompleted = selectedTodos.every((t) => t.completed);
+    const targetCompletedState = !allCompleted;
     const now = Date.now();
-    setTodos((prev) =>
-      prev.map((todo) =>
-        idSet.has(todo.id) ? { ...todo, completed: true, completedAt: now } : todo,
-      ),
-    );
+
+    const newRecurringTodos: Todo[] = [];
+    let currentOrder = todos.length > 0 ? Math.min(...todos.map((t) => t.order)) - 1 : 0;
+
+    // 未完了→完了 に変化するときのみ、繰り返しタスクを作成
+    if (targetCompletedState) {
+      selectedTodos.forEach((todo) => {
+        if (!todo.completed && todo.recurrenceRule && user) {
+          const nextDeadline = calcNextRecurrenceDate(todo.deadlineDate, todo.recurrenceRule);
+          if (nextDeadline) {
+            newRecurringTodos.push({
+              ...todo,
+              id: crypto.randomUUID(),
+              completed: false,
+              completedAt: undefined,
+              createdAt: now,
+              deadlineDate: nextDeadline,
+              order: currentOrder--,
+            });
+          }
+        }
+      });
+    }
+
+    setTodos((prev) => {
+      const updated = prev.map((todo) =>
+        idSet.has(todo.id) ? { ...todo, completed: targetCompletedState, completedAt: targetCompletedState ? now : undefined } : todo,
+      );
+      return [...newRecurringTodos, ...updated];
+    });
 
     supabase
       .from('todos')
-      .update({ completed: true, completed_at: now })
+      .update({ completed: targetCompletedState, completed_at: targetCompletedState ? now : null })
       .in('id', ids)
       .then(({ error }) => {
-        if (error) toast.error('一括完了に失敗: ' + error.message);
+        if (error) toast.error((targetCompletedState ? '一括完了' : '一括未完了') + 'に失敗: ' + error.message);
       });
+
+    if (newRecurringTodos.length > 0 && user) {
+      const inserts = newRecurringTodos.map((t) => ({
+        id: t.id,
+        user_id: user.id,
+        title: t.title,
+        completed: t.completed,
+        created_at: t.createdAt,
+        deadline_date: t.deadlineDate,
+        priority: t.priority,
+        tags: t.tags,
+        description: t.description,
+        order_index: t.order,
+        estimated_hours: t.estimatedHours,
+        recurrence_rule: t.recurrenceRule,
+      }));
+      supabase
+        .from('todos')
+        .insert(inserts)
+        .then(({ error }) => {
+          if (error) toast.error('繰り返しタスクの一括作成に失敗: ' + error.message);
+        });
+    }
   };
 
   const deleteTodos = (ids: string[]) => {

@@ -296,28 +296,34 @@ export function TodoList({
         </div>
 
         {/* 選択アクションバー（画面下部にフローティング表示） */}
-        {selectedIds.size > 0 && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 p-3 rounded-full bg-foreground shadow-2xl text-background animate-in slide-in-from-bottom-5 fade-in min-w-[320px] justify-between border border-border/20">
-            <span className="text-sm font-bold pl-3">{selectedIds.size} 件選択中</span>
-            <div className="flex items-center gap-1">
-              <Button size="sm" variant="ghost" className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4" onClick={toggleSelectAll}>
-                {visibleTodos.length > 0 && selectedIds.size === visibleTodos.length ? '全解除' : 'すべて選択'}
-              </Button>
-              <div className="w-px h-5 bg-background/30 mx-1" />
-              <Button size="sm" variant="ghost" className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4" onClick={handleBatchComplete}>
-                一括完了
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-9 text-red-400 hover:text-red-300 hover:bg-red-400/20 rounded-full px-4"
-                onClick={handleBatchDelete}
-              >
-                削除
-              </Button>
+        {selectedIds.size > 0 && (() => {
+          const allSelectedCompleted = Array.from(selectedIds).every(
+            (id) => visibleTodos.find((t) => t.id === id)?.completed ?? todos.find((t) => t.id === id)?.completed
+          );
+
+          return (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 p-3 rounded-full bg-foreground shadow-2xl text-background animate-in slide-in-from-bottom-5 fade-in min-w-[320px] justify-between border border-border/20">
+              <span className="text-sm font-bold pl-3">{selectedIds.size} 件選択中</span>
+              <div className="flex items-center gap-1">
+                <Button size="sm" variant="ghost" className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4" onClick={toggleSelectAll}>
+                  {visibleTodos.length > 0 && selectedIds.size === visibleTodos.length ? '全解除' : 'すべて選択'}
+                </Button>
+                <div className="w-px h-5 bg-background/30 mx-1" />
+                <Button size="sm" variant="ghost" className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4" onClick={handleBatchComplete}>
+                  {allSelectedCompleted ? '未完了に戻す' : '一括完了'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-9 text-red-400 hover:text-red-300 hover:bg-red-400/20 rounded-full px-4"
+                  onClick={handleBatchDelete}
+                >
+                  削除
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div className="flex items-center justify-end min-h-[40px] mb-4">
           {selectedIds.size === 0 && (
