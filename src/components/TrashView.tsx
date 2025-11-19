@@ -1,6 +1,5 @@
 import { FaTrashAlt } from 'react-icons/fa';
 import { MdDeleteForever, MdRestoreFromTrash } from 'react-icons/md';
-import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,

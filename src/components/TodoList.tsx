@@ -2,7 +2,6 @@ import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-p
 import { useMemo, useState } from 'react';
 import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSort, FaSortAmountDown } from 'react-icons/fa';
 import { MdDeleteSweep } from 'react-icons/md';
-import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import { isOverdue, isTodayTask, parseTodoDate } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import type { Tag, Todo } from '@/types/todo';
@@ -72,8 +72,6 @@ export function TodoList({
     });
   };
 
-
-
   const handleBatchComplete = () => {
     if (onCompleteTodos && selectedIds.size > 0) {
       onCompleteTodos(Array.from(selectedIds));
@@ -90,92 +88,97 @@ export function TodoList({
     }
   };
 
-  const { overdueTodos, todayTodos, activeTodos, completedTodos, manualTodos, visibleTodos } = useMemo(() => {
-    let filteredTodos = todos;
+  const { overdueTodos, todayTodos, activeTodos, completedTodos, manualTodos, visibleTodos } =
+    useMemo(() => {
+      let filteredTodos = todos;
 
-    // 検索フィルター適用
-    const query = searchQuery.trim().toLowerCase();
-    if (query) {
-      filteredTodos = filteredTodos.filter(
-        (todo) =>
-          todo.title.toLowerCase().includes(query) ||
-          todo.description?.toLowerCase().includes(query),
-      );
-    }
-
-    // タグフィルター適用 (OR条件)
-    if (filterTags.length > 0) {
-      filteredTodos = filteredTodos.filter((todo) =>
-        todo.tags?.some((tag) => filterTags.includes(tag)),
-      );
-    }
-
-    // 優先度による比較
-    const comparePriority = (a: Todo, b: Todo) => {
-      return (b.priority ?? 1) - (a.priority ?? 1);
-    };
-
-    const compareDeadline = (a: Todo, b: Todo) => {
-      const dateA = parseTodoDate(a.deadlineDate);
-      const dateB = parseTodoDate(b.deadlineDate);
-      if (dateA && dateB) return dateA.getTime() - dateB.getTime();
-      if (dateA) return -1;
-      if (dateB) return 1;
-      return 0;
-    };
-
-    const compareCreated = (a: Todo, b: Todo) => a.createdAt - b.createdAt;
-
-    // ソート: 第一キーが同じ(0)なら第二キーで比較
-    const sortCreated = (a: Todo, b: Todo) => compareCreated(a, b) || comparePriority(a, b);
-    const sortPriority = (a: Todo, b: Todo) => comparePriority(a, b) || compareDeadline(a, b);
-    const sortDeadline = (a: Todo, b: Todo) => compareDeadline(a, b) || comparePriority(a, b);
-
-    const sortFn = (() => {
-      switch (sortKey) {
-        case 'created':
-          return sortCreated;
-        case 'priority':
-          return sortPriority;
-        case 'manual':
-          return () => 0;
-        default:
-          return sortDeadline;
+      // 検索フィルター適用
+      const query = searchQuery.trim().toLowerCase();
+      if (query) {
+        filteredTodos = filteredTodos.filter(
+          (todo) =>
+            todo.title.toLowerCase().includes(query) ||
+            todo.description?.toLowerCase().includes(query),
+        );
       }
-    })();
 
-    // manual用の全件リスト (ソートなし、フィルタのみ)
-    const isManualMode = sortKey === 'manual' && filterTags.length === 0;
+      // タグフィルター適用 (OR条件)
+      if (filterTags.length > 0) {
+        filteredTodos = filteredTodos.filter((todo) =>
+          todo.tags?.some((tag) => filterTags.includes(tag)),
+        );
+      }
 
-    const incomplete = filteredTodos.filter((todo) => !todo.completed).sort(sortFn);
-    const completed = filteredTodos.filter((todo) => todo.completed).sort(sortFn);
+      // 優先度による比較
+      const comparePriority = (a: Todo, b: Todo) => {
+        return (b.priority ?? 1) - (a.priority ?? 1);
+      };
 
-    const notOverdue = incomplete.filter((todo) => !isOverdue(todo.deadlineDate));
+      const compareDeadline = (a: Todo, b: Todo) => {
+        const dateA = parseTodoDate(a.deadlineDate);
+        const dateB = parseTodoDate(b.deadlineDate);
+        if (dateA && dateB) return dateA.getTime() - dateB.getTime();
+        if (dateA) return -1;
+        if (dateB) return 1;
+        return 0;
+      };
 
-    return {
-      overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
-      todayTodos: notOverdue.filter((todo) => isTodayTask(todo.deadlineDate)),
-      activeTodos: notOverdue.filter((todo) => !isTodayTask(todo.deadlineDate)),
-      completedTodos: completed,
-      manualTodos: isManualMode ? filteredTodos : [], // manualモード用
-      visibleTodos: filteredTodos,
-    };
-  }, [todos, sortKey, filterTags, searchQuery]);
+      const compareCreated = (a: Todo, b: Todo) => a.createdAt - b.createdAt;
+
+      // ソート: 第一キーが同じ(0)なら第二キーで比較
+      const sortCreated = (a: Todo, b: Todo) => compareCreated(a, b) || comparePriority(a, b);
+      const sortPriority = (a: Todo, b: Todo) => comparePriority(a, b) || compareDeadline(a, b);
+      const sortDeadline = (a: Todo, b: Todo) => compareDeadline(a, b) || comparePriority(a, b);
+
+      const sortFn = (() => {
+        switch (sortKey) {
+          case 'created':
+            return sortCreated;
+          case 'priority':
+            return sortPriority;
+          case 'manual':
+            return () => 0;
+          default:
+            return sortDeadline;
+        }
+      })();
+
+      // manual用の全件リスト (ソートなし、フィルタのみ)
+      const isManualMode = sortKey === 'manual' && filterTags.length === 0;
+
+      const incomplete = filteredTodos.filter((todo) => !todo.completed).sort(sortFn);
+      const completed = filteredTodos.filter((todo) => todo.completed).sort(sortFn);
+
+      const notOverdue = incomplete.filter((todo) => !isOverdue(todo.deadlineDate));
+
+      return {
+        overdueTodos: incomplete.filter((todo) => isOverdue(todo.deadlineDate)),
+        todayTodos: notOverdue.filter((todo) => isTodayTask(todo.deadlineDate)),
+        activeTodos: notOverdue.filter((todo) => !isTodayTask(todo.deadlineDate)),
+        completedTodos: completed,
+        manualTodos: isManualMode ? filteredTodos : [], // manualモード用
+        visibleTodos: filteredTodos,
+      };
+    }, [todos, sortKey, filterTags, searchQuery]);
 
   const toggleSelectAll = () => {
     if (visibleTodos.length === 0) return;
 
     // 現在画面に見えているもの全てが選択済みかどうか
-    const allVisibleSelected = visibleTodos.every(t => selectedIds.has(t.id));
+    const allVisibleSelected = visibleTodos.every((t) => selectedIds.has(t.id));
 
     setSelectedIds((prev) => {
       const newSet = new Set(prev);
       if (allVisibleSelected) {
         // 全て選択済みの場合は、画面に見えているものだけを選択解除
-        visibleTodos.forEach((t) => newSet.delete(t.id));
+        visibleTodos.forEach((t) => {
+          newSet.delete(t.id);
+        });
       } else {
         // それ以外の場合は、画面に見えているものを全て選択状態にする
-        visibleTodos.forEach((t) => newSet.add(t.id));
+        visibleTodos.forEach((t) => {
+          newSet.add(t.id);
+        });
       }
       return newSet;
     });
@@ -296,34 +299,49 @@ export function TodoList({
         </div>
 
         {/* 選択アクションバー（画面下部にフローティング表示） */}
-        {selectedIds.size > 0 && (() => {
-          const allSelectedCompleted = Array.from(selectedIds).every(
-            (id) => visibleTodos.find((t) => t.id === id)?.completed ?? todos.find((t) => t.id === id)?.completed
-          );
+        {selectedIds.size > 0 &&
+          (() => {
+            const allSelectedCompleted = Array.from(selectedIds).every(
+              (id) =>
+                visibleTodos.find((t) => t.id === id)?.completed ??
+                todos.find((t) => t.id === id)?.completed,
+            );
 
-          return (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 p-3 rounded-full bg-foreground shadow-2xl text-background animate-in slide-in-from-bottom-5 fade-in min-w-[320px] justify-between border border-border/20">
-              <span className="text-sm font-bold pl-3">{selectedIds.size} 件選択中</span>
-              <div className="flex items-center gap-1">
-                <Button size="sm" variant="ghost" className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4" onClick={toggleSelectAll}>
-                  {visibleTodos.length > 0 && selectedIds.size === visibleTodos.length ? '全解除' : 'すべて選択'}
-                </Button>
-                <div className="w-px h-5 bg-background/30 mx-1" />
-                <Button size="sm" variant="ghost" className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4" onClick={handleBatchComplete}>
-                  {allSelectedCompleted ? '未完了に戻す' : '一括完了'}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-9 text-red-400 hover:text-red-300 hover:bg-red-400/20 rounded-full px-4"
-                  onClick={handleBatchDelete}
-                >
-                  削除
-                </Button>
+            return (
+              <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 p-3 rounded-full bg-foreground shadow-2xl text-background animate-in slide-in-from-bottom-5 fade-in min-w-[320px] justify-between border border-border/20">
+                <span className="text-sm font-bold pl-3">{selectedIds.size} 件選択中</span>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4"
+                    onClick={toggleSelectAll}
+                  >
+                    {visibleTodos.length > 0 && selectedIds.size === visibleTodos.length
+                      ? '全解除'
+                      : 'すべて選択'}
+                  </Button>
+                  <div className="w-px h-5 bg-background/30 mx-1" />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4"
+                    onClick={handleBatchComplete}
+                  >
+                    {allSelectedCompleted ? '未完了に戻す' : '一括完了'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-9 text-red-400 hover:text-red-300 hover:bg-red-400/20 rounded-full px-4"
+                    onClick={handleBatchDelete}
+                  >
+                    削除
+                  </Button>
+                </div>
               </div>
-            </div>
-          );
-        })()}
+            );
+          })()}
 
         <div className="flex items-center justify-end min-h-[40px] mb-4">
           {selectedIds.size === 0 && (

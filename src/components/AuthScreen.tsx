@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { APP_NAME } from '@/lib/constants';
-import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 export function AuthScreen() {
   const [email, setEmail] = useState('');
@@ -34,8 +34,8 @@ export function AuthScreen() {
         if (error) throw error;
         toast.success('ログインしました');
       }
-    } catch (error: any) {
-      toast.error(error.message || '認証エラーが発生しました');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '認証エラーが発生しました');
     } finally {
       setIsLoading(false);
     }

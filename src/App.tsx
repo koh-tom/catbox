@@ -2,8 +2,8 @@ import { useRef, useState } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { MdAdd, MdHelpOutline, MdLogout, MdSearch } from 'react-icons/md';
 import { toast } from 'sonner';
-import { AuthScreen } from '@/components/AuthScreen';
 import { AboutModal } from '@/components/AboutModal';
+import { AuthScreen } from '@/components/AuthScreen';
 import { CalendarView } from '@/components/CalendarView';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -19,7 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAppShortcuts } from '@/hooks/useAppShortcuts';
 import { useTodos } from '@/hooks/useTodos';
 import { APP_NAME } from '@/lib/constants';
-import type { Todo, RecurrenceRule } from '@/types/todo';
+import type { RecurrenceRule, Todo } from '@/types/todo';
 
 function App() {
   const { user, isLoading, signOut } = useAuth();
@@ -71,7 +71,15 @@ function App() {
     recurrenceRule?: RecurrenceRule,
   ) => {
     if (editingTodoId) {
-      editTodo(editingTodoId, { title, deadlineDate, priority, tags, description, estimatedHours, recurrenceRule });
+      editTodo(editingTodoId, {
+        title,
+        deadlineDate,
+        priority,
+        tags,
+        description,
+        estimatedHours,
+        recurrenceRule,
+      });
     } else {
       addTodo(title, deadlineDate, priority, tags, description, estimatedHours, recurrenceRule);
     }

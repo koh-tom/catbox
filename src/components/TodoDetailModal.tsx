@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaRegClock, FaRegStickyNote } from 'react-icons/fa';
-import { MdAdd, MdCheck, MdDelete, MdTitle, MdRepeat } from 'react-icons/md';
+import { MdAdd, MdCheck, MdDelete, MdRepeat, MdTitle } from 'react-icons/md';
 import { VscListSelection } from 'react-icons/vsc';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -23,7 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { Tag, Todo, RecurrenceRule } from '@/types/todo';
+import { Textarea } from '@/components/ui/textarea';
+import type { RecurrenceRule, Tag, Todo } from '@/types/todo';
 
 interface TodoDetailModalProps {
   todo: Todo | null;
@@ -89,7 +89,16 @@ export function TodoDetailModal({
   const handleSave = () => {
     if (title.trim()) {
       const parsedHours = estimatedHours ? parseFloat(estimatedHours) : undefined;
-      onSave(todo ? todo.id : '', title, deadlineDate, priority, tags, description, isNaN(parsedHours!) ? undefined : parsedHours, recurrenceRule);
+      onSave(
+        todo ? todo.id : '',
+        title,
+        deadlineDate,
+        priority,
+        tags,
+        description,
+        parsedHours === undefined || Number.isNaN(parsedHours) ? undefined : parsedHours,
+        recurrenceRule,
+      );
       onClose();
     }
   };
@@ -162,7 +171,11 @@ export function TodoDetailModal({
               </div>
               <Select
                 value={recurrenceRule || 'none'}
-                onValueChange={(val: string) => setRecurrenceRule(val === 'none' ? undefined : (val as NonNullable<RecurrenceRule>))}
+                onValueChange={(val: string) =>
+                  setRecurrenceRule(
+                    val === 'none' ? undefined : (val as NonNullable<RecurrenceRule>),
+                  )
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="なし" />
@@ -229,8 +242,9 @@ export function TodoDetailModal({
                       />
                       <label
                         htmlFor={`subtask-${st.id}`}
-                        className={`text-sm flex-1 cursor-pointer ${st.completed ? 'line-through text-muted-foreground' : ''
-                          }`}
+                        className={`text-sm flex-1 cursor-pointer ${
+                          st.completed ? 'line-through text-muted-foreground' : ''
+                        }`}
                       >
                         {st.title}
                       </label>

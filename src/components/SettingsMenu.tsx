@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { FaTag } from 'react-icons/fa';
 import { MdAdd, MdClose, MdColorLens, MdSettings } from 'react-icons/md';
 import { TagBadge } from '@/components/TagBadge';
-import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TAG_COLORS } from '@/lib/constants';

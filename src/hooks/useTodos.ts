@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DEFAULT_PRIORITY, TRASH_LIMIT } from '@/lib/constants';
-import type { Tag, Todo, SubTask } from '@/types/todo';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { DEFAULT_PRIORITY, TRASH_LIMIT } from '@/lib/constants';
 import { calcNextRecurrenceDate } from '@/lib/date-utils';
+import { supabase } from '@/lib/supabase';
+import type { SubTask, Tag, Todo } from '@/types/todo';
 
 // DBからの変換ヘルパー
+// biome-ignore lint/suspicious/noExplicitAny: DB row data
 const mapTodoFromDB = (row: any, subtasksMap: Record<string, SubTask[]>): Todo => ({
   id: row.id,
   title: row.title,
@@ -23,6 +24,7 @@ const mapTodoFromDB = (row: any, subtasksMap: Record<string, SubTask[]>): Todo =
   recurrenceRule: row.recurrence_rule || undefined,
 });
 
+// biome-ignore lint/suspicious/noExplicitAny: DB row data
 const mapSubtaskFromDB = (row: any): SubTask => ({
   id: row.id,
   title: row.title,
@@ -76,8 +78,10 @@ export function useTodos() {
       const allTodos = (todosRes.data || []).map((row) => mapTodoFromDB(row, subtasksMap));
       setTodos(allTodos.filter((t) => !t.deletedAt));
       setTrashedTodos(allTodos.filter((t) => !!t.deletedAt));
-    } catch (err: any) {
-      toast.error('データの取得に失敗しました: ' + err.message);
+    } catch (err) {
+      toast.error(
+        `データの取得に失敗しました: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }, [user]);
 
@@ -138,7 +142,7 @@ export function useTodos() {
         recurrence_rule: newTodo.recurrenceRule,
       })
       .then(({ error }) => {
-        if (error) toast.error('追加に失敗: ' + error.message);
+        if (error) toast.error(`追加に失敗: ${error.message}`);
       });
   };
 
@@ -151,7 +155,10 @@ export function useTodos() {
     let newRecurringTodo: Todo | null = null;
 
     if (isCompleting && todoToToggle.recurrenceRule && user) {
-      const nextDeadline = calcNextRecurrenceDate(todoToToggle.deadlineDate, todoToToggle.recurrenceRule);
+      const nextDeadline = calcNextRecurrenceDate(
+        todoToToggle.deadlineDate,
+        todoToToggle.recurrenceRule,
+      );
       if (nextDeadline) {
         newRecurringTodo = {
           ...todoToToggle,
@@ -180,7 +187,7 @@ export function useTodos() {
       .update({ completed: isCompleting, completed_at: isCompleting ? now : null })
       .eq('id', id)
       .then(({ error }) => {
-        if (error) toast.error('更新に失敗: ' + error.message);
+        if (error) toast.error(`更新に失敗: ${error.message}`);
       });
 
     if (newRecurringTodo && user) {
@@ -201,7 +208,7 @@ export function useTodos() {
           recurrence_rule: newRecurringTodo.recurrenceRule,
         })
         .then(({ error }) => {
-          if (error) toast.error('繰り返しタスクの作成に失敗: ' + error.message);
+          if (error) toast.error(`繰り返しタスクの作成に失敗: ${error.message}`);
         });
     }
   };
@@ -219,7 +226,7 @@ export function useTodos() {
       .update({ deleted_at: now })
       .eq('id', id)
       .then(({ error }) => {
-        if (error) toast.error('削除に失敗: ' + error.message);
+        if (error) toast.error(`削除に失敗: ${error.message}`);
       });
   };
 
@@ -234,7 +241,7 @@ export function useTodos() {
       .from('saved_tags')
       .insert({ id, user_id: user.id, name: trimmed, color })
       .then(({ error }) => {
-        if (error) toast.error('タグ追加に失敗: ' + error.message);
+        if (error) toast.error(`タグ追加に失敗: ${error.message}`);
       });
   };
 
@@ -245,7 +252,7 @@ export function useTodos() {
       .delete()
       .eq('id', id)
       .then(({ error }) => {
-        if (error) toast.error('タグ削除に失敗: ' + error.message);
+        if (error) toast.error(`タグ削除に失敗: ${error.message}`);
       });
   };
 
@@ -263,23 +270,24 @@ export function useTodos() {
       }),
     );
 
-    const dbUpdates: any = {
+    const dbUpdates: Record<string, unknown> = {
       title: updates.title?.trim(),
       deadline_date: updates.deadlineDate?.trim() || null,
       priority: updates.priority,
       tags: updates.tags,
       description: updates.description,
-      estimated_hours: updates.estimatedHours,
       recurrence_rule: updates.recurrenceRule,
     };
-    Object.keys(dbUpdates).forEach((k) => dbUpdates[k] === undefined && delete dbUpdates[k]);
+    Object.keys(dbUpdates).forEach((k) => {
+      if (dbUpdates[k] === undefined) delete dbUpdates[k];
+    });
 
     supabase
       .from('todos')
       .update(dbUpdates)
       .eq('id', id)
       .then(({ error }) => {
-        if (error) toast.error('更新に失敗: ' + error.message);
+        if (error) toast.error(`更新に失敗: ${error.message}`);
       });
   };
 
@@ -319,7 +327,7 @@ export function useTodos() {
       .update({ deleted_at: now })
       .in('id', ids)
       .then(({ error }) => {
-        if (error) toast.error('一括削除に失敗: ' + error.message);
+        if (error) toast.error(`一括削除に失敗: ${error.message}`);
       });
   };
 
@@ -358,7 +366,13 @@ export function useTodos() {
 
     setTodos((prev) => {
       const updated = prev.map((todo) =>
-        idSet.has(todo.id) ? { ...todo, completed: targetCompletedState, completedAt: targetCompletedState ? now : undefined } : todo,
+        idSet.has(todo.id)
+          ? {
+              ...todo,
+              completed: targetCompletedState,
+              completedAt: targetCompletedState ? now : undefined,
+            }
+          : todo,
       );
       return [...newRecurringTodos, ...updated];
     });
@@ -368,7 +382,10 @@ export function useTodos() {
       .update({ completed: targetCompletedState, completed_at: targetCompletedState ? now : null })
       .in('id', ids)
       .then(({ error }) => {
-        if (error) toast.error((targetCompletedState ? '一括完了' : '一括未完了') + 'に失敗: ' + error.message);
+        if (error)
+          toast.error(
+            `${targetCompletedState ? '一括完了' : '一括未完了'}に失敗: ${error.message}`,
+          );
       });
 
     if (newRecurringTodos.length > 0 && user) {
@@ -390,7 +407,7 @@ export function useTodos() {
         .from('todos')
         .insert(inserts)
         .then(({ error }) => {
-          if (error) toast.error('繰り返しタスクの一括作成に失敗: ' + error.message);
+          if (error) toast.error(`繰り返しタスクの一括作成に失敗: ${error.message}`);
         });
     }
   };
@@ -409,7 +426,7 @@ export function useTodos() {
       .update({ deleted_at: now })
       .in('id', ids)
       .then(({ error }) => {
-        if (error) toast.error('一括削除に失敗: ' + error.message);
+        if (error) toast.error(`一括削除に失敗: ${error.message}`);
       });
   };
 
@@ -454,7 +471,7 @@ export function useTodos() {
         recurrence_rule: newTodo.recurrenceRule,
       })
       .then(({ error }) => {
-        if (error) toast.error('複製に失敗: ' + error.message);
+        if (error) toast.error(`複製に失敗: ${error.message}`);
       });
   };
 
