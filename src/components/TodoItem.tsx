@@ -81,7 +81,7 @@ export function TodoItem({
       </div>
 
       <div className="flex flex-1 flex-col gap-2 min-w-0 h-full">
-        <div className="flex items-start justify-between gap-2 w-full">
+        <div className="flex items-start justify-between gap-2 w-full pr-24 lg:pr-0">
           <button
             type="button"
             onDoubleClick={() => onSelect?.(todo)}
@@ -162,7 +162,7 @@ export function TodoItem({
         </div>
       </div>
 
-      <div className="absolute top-2 right-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-card/95 backdrop-blur-sm rounded-md shadow-sm border p-0.5 z-10">
+      <div className="absolute top-2 right-2 flex items-center gap-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity bg-card/95 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none rounded-md lg:rounded-none shadow-sm lg:shadow-none border lg:border-none p-0.5 lg:p-0 z-10">
         <Button
           variant="ghost"
           size="icon"

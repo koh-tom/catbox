@@ -139,17 +139,17 @@ export function TodoDetailModal({
             />
           </div>
 
-          <div className="flex gap-4 items-center">
-            <div className="flex-1">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="w-full sm:flex-1">
               <DatePicker date={deadlineDate} setDate={setDeadlineDate} />
             </div>
-            <div className="flex items-center gap-2 border rounded-md px-3 h-10">
+            <div className="flex items-center justify-between sm:justify-start gap-2 border rounded-md px-3 h-10 w-full sm:w-auto">
               <span className="text-sm text-muted-foreground mr-1">優先度</span>
               <StarRating value={priority} onChange={setPriority} />
             </div>
           </div>
 
-          <div className="grid gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <FaRegClock className="w-4 h-4" /> 見積もり時間 (h)
