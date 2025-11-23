@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FaTag } from 'react-icons/fa';
-import { MdAdd, MdClose, MdColorLens, MdSettings } from 'react-icons/md';
+import { MdAdd, MdClose, MdColorLens, MdDownload, MdSettings } from 'react-icons/md';
 import { TagBadge } from '@/components/TagBadge';
 import {
   AlertDialog,
@@ -24,9 +24,15 @@ interface SettingsMenuProps {
   savedTags: Tag[];
   addSavedTag: (name: string, color: string) => void;
   deleteSavedTag: (id: string) => void;
+  onExportTodos: () => void;
 }
 
-export function SettingsMenu({ savedTags, addSavedTag, deleteSavedTag }: SettingsMenuProps) {
+export function SettingsMenu({
+  savedTags,
+  addSavedTag,
+  deleteSavedTag,
+  onExportTodos,
+}: SettingsMenuProps) {
   const [newTag, setNewTag] = useState('');
   const [selectedColor, setSelectedColor] = useState(TAG_COLORS[0].value);
 
@@ -168,6 +174,21 @@ export function SettingsMenu({ savedTags, addSavedTag, deleteSavedTag }: Setting
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="pt-3 border-t space-y-3">
+            <h5 className="text-sm font-medium flex items-center gap-1 text-muted-foreground">
+              データ管理
+            </h5>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full flex items-center justify-center gap-2 border-dashed hover:border-solid hover:bg-accent"
+              onClick={onExportTodos}
+            >
+              <MdDownload className="w-4 h-4" />
+              JSONとしてエクスポート
+            </Button>
           </div>
         </div>
       </PopoverContent>

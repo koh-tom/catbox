@@ -135,6 +135,24 @@ function App() {
     });
   };
 
+  const handleExportTodos = () => {
+    try {
+      const dataStr = JSON.stringify(todos, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `catbox-todos-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('データをエクスポートしました');
+    } catch {
+      toast.error('エクスポートに失敗しました');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -176,6 +194,7 @@ function App() {
                     savedTags={savedTags}
                     addSavedTag={addSavedTag}
                     deleteSavedTag={deleteSavedTag}
+                    onExportTodos={handleExportTodos}
                   />
                   <ThemeToggle />
                   <Button
