@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaTag, FaFileCsv } from 'react-icons/fa';
+import { FaFileCsv, FaTag } from 'react-icons/fa';
 import { MdAdd, MdClose, MdColorLens, MdDownload, MdSettings } from 'react-icons/md';
 import { TagBadge } from '@/components/TagBadge';
 import {

@@ -147,9 +147,22 @@ function App() {
         ext = 'json';
       } else {
         // CSVのヘッダー
-        const headers = ['ID', 'タイトル', '完了', '作成日', '完了日', '期限日', '優先度', '見積もり時間(h)', '繰り返し', 'サブタスク完了枠', 'タグ', 'メモ'];
+        const headers = [
+          'ID',
+          'タイトル',
+          '完了',
+          '作成日',
+          '完了日',
+          '期限日',
+          '優先度',
+          '見積もり時間(h)',
+          '繰り返し',
+          'サブタスク完了枠',
+          'タグ',
+          'メモ',
+        ];
         const csvRows = [headers.join(',')];
-        todos.forEach(todo => {
+        todos.forEach((todo) => {
           const values = [
             todo.id,
             `"${(todo.title || '').replace(/"/g, '""')}"`,
@@ -160,7 +173,9 @@ function App() {
             todo.priority || 1,
             todo.estimatedHours || '',
             todo.recurrenceRule || '',
-            todo.subtasks?.length ? `${todo.subtasks.filter(s => s.completed).length}/${todo.subtasks.length}` : '',
+            todo.subtasks?.length
+              ? `${todo.subtasks.filter((s) => s.completed).length}/${todo.subtasks.length}`
+              : '',
             `"${(todo.tags || []).join(' ')}"`,
             `"${(todo.description || '').replace(/"/g, '""')}"`,
           ];
