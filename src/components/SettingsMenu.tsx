@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaTag } from 'react-icons/fa';
+import { FaTag, FaFileCsv } from 'react-icons/fa';
 import { MdAdd, MdClose, MdColorLens, MdDownload, MdSettings } from 'react-icons/md';
 import { TagBadge } from '@/components/TagBadge';
 import {
@@ -24,7 +24,7 @@ interface SettingsMenuProps {
   savedTags: Tag[];
   addSavedTag: (name: string, color: string) => void;
   deleteSavedTag: (id: string) => void;
-  onExportTodos: () => void;
+  onExportTodos: (format: 'json' | 'csv') => void;
 }
 
 export function SettingsMenu({
@@ -178,17 +178,30 @@ export function SettingsMenu({
 
           <div className="pt-3 border-t space-y-3">
             <h5 className="text-sm font-medium flex items-center gap-1 text-muted-foreground">
-              データ管理
+              データエクスポート
             </h5>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full flex items-center justify-center gap-2 border-dashed hover:border-solid hover:bg-accent"
-              onClick={onExportTodos}
-            >
-              <MdDownload className="w-4 h-4" />
-              JSONとしてエクスポート
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 flex items-center justify-center gap-1.5 border-dashed hover:border-solid hover:bg-accent px-2"
+                onClick={() => onExportTodos('json')}
+                title="JSONとしてエクスポート"
+              >
+                <MdDownload className="w-4 h-4 shrink-0" />
+                <span>JSON</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 flex items-center justify-center gap-1.5 border-dashed hover:border-solid hover:bg-accent px-2"
+                onClick={() => onExportTodos('csv')}
+                title="Excel/CSVとしてエクスポート"
+              >
+                <FaFileCsv className="w-4 h-4 shrink-0 text-green-600 dark:text-green-500" />
+                <span>CSV</span>
+              </Button>
+            </div>
           </div>
         </div>
       </PopoverContent>
