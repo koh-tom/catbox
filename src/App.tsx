@@ -183,7 +183,7 @@ function App() {
         });
         const csvContent = csvRows.join('\n');
         // Excelで文字化けしないようにUTF-8のBOMを付与
-        dataStr = '\uFEFF' + csvContent;
+        dataStr = `\uFEFF${csvContent}`;
         mimeType = 'text/csv;charset=utf-8;';
         ext = 'csv';
       }

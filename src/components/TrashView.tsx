@@ -80,9 +80,11 @@ export function TrashView({
 
         <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
           {trashedTodos.length === 0 ? (
-            <div className="text-center text-muted-foreground py-12">
-              <FaTrashAlt className="w-8 h-8 mx-auto mb-3 opacity-30" />
-              <p className="text-sm">ゴミ箱は空です</p>
+            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground animate-in fade-in duration-700">
+              <div className="text-5xl mb-4 opacity-40 grayscale hover:grayscale-0 transition-all duration-500 cursor-default">
+                🗑️🐈
+              </div>
+              <p className="text-sm font-medium">ゴミ箱は空です</p>
             </div>
           ) : (
             trashedTodos.map((todo) => (
@@ -92,9 +94,8 @@ export function TrashView({
               >
                 <div className="flex-1 min-w-0">
                   <p
-                    className={`text-sm truncate ${
-                      todo.completed ? 'line-through text-muted-foreground' : ''
-                    }`}
+                    className={`text-sm truncate ${todo.completed ? 'line-through text-muted-foreground' : ''
+                      }`}
                   >
                     {todo.title}
                   </p>

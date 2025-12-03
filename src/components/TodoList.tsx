@@ -81,10 +81,8 @@ export function TodoList({
 
   const handleBatchDelete = () => {
     if (onDeleteTodos && selectedIds.size > 0) {
-      if (confirm(`${selectedIds.size}件のタスクを削除してもよいですか？`)) {
-        onDeleteTodos(Array.from(selectedIds));
-        setSelectedIds(new Set());
-      }
+      onDeleteTodos(Array.from(selectedIds));
+      setSelectedIds(new Set());
     }
   };
 
@@ -186,9 +184,14 @@ export function TodoList({
 
   if (todos.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
-        <p className="text-lg mb-1">タスクがありません</p>
-        <span className="text-sm opacity-70">上の入力欄から追加</span>
+      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground animate-in fade-in slide-in-from-bottom-5 duration-700">
+        <div className="text-6xl mb-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 cursor-default">
+          🐱💤
+        </div>
+        <p className="text-lg font-bold mb-1">タスクがありません</p>
+        <span className="text-sm opacity-70">
+          上部の「新しいタスクを追加」から作成しましょう
+        </span>
       </div>
     );
   }
@@ -330,14 +333,34 @@ export function TodoList({
                   >
                     {allSelectedCompleted ? '未完了に戻す' : '一括完了'}
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-9 text-red-400 hover:text-red-300 hover:bg-red-400/20 rounded-full px-4"
-                    onClick={handleBatchDelete}
-                  >
-                    削除
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-9 text-red-500 hover:text-red-400 hover:bg-red-500/20 rounded-full px-4 font-semibold"
+                      >
+                        削除
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>{selectedIds.size}件のタスクを削除しますか？</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          選択したタスクをゴミ箱に移動します。
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="rounded-xl">キャンセル</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleBatchDelete}
+                          className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          削除する
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             );
