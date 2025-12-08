@@ -122,6 +122,7 @@ export function useTodos() {
       recurrenceRule,
     };
 
+    const previousTodos = todos;
     setTodos((prev) => [newTodo, ...prev]);
     setLastDeleted(null);
 
@@ -142,7 +143,10 @@ export function useTodos() {
         recurrence_rule: newTodo.recurrenceRule,
       })
       .then(({ error }) => {
-        if (error) toast.error(`追加に失敗: ${error.message}`);
+        if (error) {
+          setTodos(previousTodos);
+          toast.error(`追加に失敗: ${error.message}`);
+        }
       });
   };
 
@@ -172,6 +176,7 @@ export function useTodos() {
       }
     }
 
+    const previousTodos = todos;
     setTodos((prev) => {
       const updatedTodos = prev.map((todo) => {
         if (todo.id === id) {
@@ -187,7 +192,10 @@ export function useTodos() {
       .update({ completed: isCompleting, completed_at: isCompleting ? now : null })
       .eq('id', id)
       .then(({ error }) => {
-        if (error) toast.error(`更新に失敗: ${error.message}`);
+        if (error) {
+          setTodos(previousTodos);
+          toast.error(`更新に失敗: ${error.message}`);
+        }
       });
 
     if (newRecurringTodo && user) {
@@ -217,6 +225,8 @@ export function useTodos() {
     const todoToDelete = todos.find((t) => t.id === id);
     if (!todoToDelete) return;
     const now = Date.now();
+    const previousTodos = todos;
+    const previousTrashed = trashedTodos;
     setLastDeleted([todoToDelete]);
     addToTrash([{ ...todoToDelete, deletedAt: now }]);
     setTodos((prev) => prev.filter((t) => t.id !== id));
@@ -226,7 +236,11 @@ export function useTodos() {
       .update({ deleted_at: now })
       .eq('id', id)
       .then(({ error }) => {
-        if (error) toast.error(`削除に失敗: ${error.message}`);
+        if (error) {
+          setTodos(previousTodos);
+          setTrashedTodos(previousTrashed);
+          toast.error(`削除に失敗: ${error.message}`);
+        }
       });
   };
 
@@ -234,6 +248,7 @@ export function useTodos() {
     const trimmed = name.trim();
     if (!trimmed || savedTags.some((t) => t.name === trimmed) || !user) return;
     const id = crypto.randomUUID();
+    const previousTags = savedTags;
     const newTag = { id, name: trimmed, color };
     setSavedTags((prev) => [...prev, newTag]);
 
@@ -241,23 +256,31 @@ export function useTodos() {
       .from('saved_tags')
       .insert({ id, user_id: user.id, name: trimmed, color })
       .then(({ error }) => {
-        if (error) toast.error(`タグ追加に失敗: ${error.message}`);
+        if (error) {
+          setSavedTags(previousTags);
+          toast.error(`タグ追加に失敗: ${error.message}`);
+        }
       });
   };
 
   const deleteSavedTag = (id: string) => {
+    const previousTags = savedTags;
     setSavedTags((prev) => prev.filter((t) => t.id !== id));
     supabase
       .from('saved_tags')
       .delete()
       .eq('id', id)
       .then(({ error }) => {
-        if (error) toast.error(`タグ削除に失敗: ${error.message}`);
+        if (error) {
+          setSavedTags(previousTags);
+          toast.error(`タグ削除に失敗: ${error.message}`);
+        }
       });
   };
 
   const editTodo = (id: string, updates: Partial<Omit<Todo, 'id' | 'createdAt'>>) => {
     if (updates.title !== undefined && !updates.title.trim()) return;
+    const previousTodos = todos;
     setTodos((prev) =>
       prev.map((todo) => {
         if (todo.id !== id) return todo;
@@ -287,11 +310,15 @@ export function useTodos() {
       .update(dbUpdates)
       .eq('id', id)
       .then(({ error }) => {
-        if (error) toast.error(`更新に失敗: ${error.message}`);
+        if (error) {
+          setTodos(previousTodos);
+          toast.error(`更新に失敗: ${error.message}`);
+        }
       });
   };
 
   const reorderTodos = (startIndex: number, endIndex: number) => {
+    const previousTodos = todos;
     const result = Array.from(todos);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
@@ -305,18 +332,23 @@ export function useTodos() {
         supabase
           .from('todos')
           .update({ order_index: todo.order })
-          .eq('id', todo.id)
-          .then(({ error }) => {
-            if (error) console.error(error);
-          }),
+          .eq('id', todo.id),
       ),
-    );
+    ).then((results) => {
+      const firstError = results.find((r) => r.error);
+      if (firstError) {
+        setTodos(previousTodos);
+        toast.error(`並べ替えの保存に失敗しました`);
+      }
+    });
   };
 
   const deleteCompleted = () => {
     const completed = todos.filter((todo) => todo.completed);
     if (completed.length === 0) return;
     const now = Date.now();
+    const previousTodos = todos;
+    const previousTrashed = trashedTodos;
     const ids = completed.map((t) => t.id);
     setLastDeleted(completed);
     addToTrash(completed.map((t) => ({ ...t, deletedAt: now })));
@@ -327,7 +359,11 @@ export function useTodos() {
       .update({ deleted_at: now })
       .in('id', ids)
       .then(({ error }) => {
-        if (error) toast.error(`一括削除に失敗: ${error.message}`);
+        if (error) {
+          setTodos(previousTodos);
+          setTrashedTodos(previousTrashed);
+          toast.error(`一括削除に失敗: ${error.message}`);
+        }
       });
   };
 
@@ -364,6 +400,7 @@ export function useTodos() {
       });
     }
 
+    const previousTodos = todos;
     setTodos((prev) => {
       const updated = prev.map((todo) =>
         idSet.has(todo.id)
@@ -382,10 +419,12 @@ export function useTodos() {
       .update({ completed: targetCompletedState, completed_at: targetCompletedState ? now : null })
       .in('id', ids)
       .then(({ error }) => {
-        if (error)
+        if (error) {
+          setTodos(previousTodos);
           toast.error(
             `${targetCompletedState ? '一括完了' : '一括未完了'}に失敗: ${error.message}`,
           );
+        }
       });
 
     if (newRecurringTodos.length > 0 && user) {
@@ -417,6 +456,8 @@ export function useTodos() {
     const todosToDelete = todos.filter((todo) => idSet.has(todo.id));
     if (todosToDelete.length === 0) return;
     const now = Date.now();
+    const previousTodos = todos;
+    const previousTrashed = trashedTodos;
     setLastDeleted(todosToDelete);
     addToTrash(todosToDelete.map((t) => ({ ...t, deletedAt: now })));
     setTodos((prev) => prev.filter((t) => !idSet.has(t.id)));
@@ -426,7 +467,11 @@ export function useTodos() {
       .update({ deleted_at: now })
       .in('id', ids)
       .then(({ error }) => {
-        if (error) toast.error(`一括削除に失敗: ${error.message}`);
+        if (error) {
+          setTodos(previousTodos);
+          setTrashedTodos(previousTrashed);
+          toast.error(`一括削除に失敗: ${error.message}`);
+        }
       });
   };
 
@@ -451,6 +496,7 @@ export function useTodos() {
       order,
     };
 
+    const previousTodos = todos;
     setTodos((prev) => [newTodo, ...prev]);
     setLastDeleted(null);
 
@@ -471,7 +517,10 @@ export function useTodos() {
         recurrence_rule: newTodo.recurrenceRule,
       })
       .then(({ error }) => {
-        if (error) toast.error(`複製に失敗: ${error.message}`);
+        if (error) {
+          setTodos(previousTodos);
+          toast.error(`複製に失敗: ${error.message}`);
+        }
       });
   };
 
@@ -499,6 +548,8 @@ export function useTodos() {
   const restoreFromTrash = (id: string) => {
     const todoToRestore = trashedTodos.find((t) => t.id === id);
     if (!todoToRestore) return;
+    const previousTodos = todos;
+    const previousTrashed = trashedTodos;
     const { deletedAt: _, ...restoredTodo } = todoToRestore;
     setTodos((prev) => [restoredTodo, ...prev]);
     setTrashedTodos((prev) => prev.filter((t) => t.id !== id));
@@ -508,22 +559,31 @@ export function useTodos() {
       .update({ deleted_at: null })
       .eq('id', id)
       .then(({ error }) => {
-        if (error) console.error(error);
+        if (error) {
+          setTodos(previousTodos);
+          setTrashedTodos(previousTrashed);
+          console.error(error);
+        }
       });
   };
 
   const permanentlyDelete = (id: string) => {
+    const previousTrashed = trashedTodos;
     setTrashedTodos((prev) => prev.filter((t) => t.id !== id));
     supabase
       .from('todos')
       .delete()
       .eq('id', id)
       .then(({ error }) => {
-        if (error) console.error(error);
+        if (error) {
+          setTrashedTodos(previousTrashed);
+          console.error(error);
+        }
       });
   };
 
   const emptyTrash = () => {
+    const previousTrashed = trashedTodos;
     const ids = trashedTodos.map((t) => t.id);
     setTrashedTodos([]);
     if (ids.length > 0)
@@ -532,12 +592,16 @@ export function useTodos() {
         .delete()
         .in('id', ids)
         .then(({ error }) => {
-          if (error) console.error(error);
+          if (error) {
+            setTrashedTodos(previousTrashed);
+            console.error(error);
+          }
         });
   };
 
   const addSubTask = (todoId: string, title: string) => {
     if (!title.trim() || !user) return;
+    const previousTodos = todos;
     const id = crypto.randomUUID();
     let order = 0;
 
@@ -561,11 +625,15 @@ export function useTodos() {
         order_index: order,
       })
       .then(({ error }) => {
-        if (error) console.error(error);
+        if (error) {
+          setTodos(previousTodos);
+          console.error(error);
+        }
       });
   };
 
   const toggleSubTask = (todoId: string, subTaskId: string) => {
+    const previousTodos = todos;
     let completed = false;
     setTodos((prev) =>
       prev.map((todo) => {
@@ -587,11 +655,15 @@ export function useTodos() {
       .update({ completed })
       .eq('id', subTaskId)
       .then(({ error }) => {
-        if (error) console.error(error);
+        if (error) {
+          setTodos(previousTodos);
+          console.error(error);
+        }
       });
   };
 
   const deleteSubTask = (todoId: string, subTaskId: string) => {
+    const previousTodos = todos;
     setTodos((prev) =>
       prev.map((todo) => {
         if (todo.id !== todoId) return todo;
@@ -603,7 +675,10 @@ export function useTodos() {
       .delete()
       .eq('id', subTaskId)
       .then(({ error }) => {
-        if (error) console.error(error);
+        if (error) {
+          setTodos(previousTodos);
+          console.error(error);
+        }
       });
   };
 
