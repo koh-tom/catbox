@@ -7,6 +7,7 @@ import { AuthScreen } from '@/components/AuthScreen';
 import { CalendarView } from '@/components/CalendarView';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { PasswordUpdateScreen } from '@/components/PasswordUpdateScreen';
 import { TodoDetailModal } from '@/components/TodoDetailModal';
 import { TodoList } from '@/components/TodoList';
 import { TrashView } from '@/components/TrashView';
@@ -22,7 +23,7 @@ import { APP_NAME } from '@/lib/constants';
 import type { RecurrenceRule, Todo } from '@/types/todo';
 
 function App() {
-  const { user, isLoading, signOut } = useAuth();
+  const { user, isLoading, signOut, isPasswordRecovery } = useAuth();
 
   const {
     todos,
@@ -208,6 +209,15 @@ function App() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-muted-foreground">読み込み中...</p>
       </div>
+    );
+  }
+
+  if (isPasswordRecovery) {
+    return (
+      <>
+        <PasswordUpdateScreen />
+        <Toaster />
+      </>
     );
   }
 

@@ -7,6 +7,8 @@ interface AuthContextType {
   user: User | null;
   signOut: () => Promise<void>;
   isLoading: boolean;
+  isPasswordRecovery: boolean;
+  setIsPasswordRecovery: (val: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -14,6 +16,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   signOut: async () => {},
   isLoading: true,
+  isPasswordRecovery: false,
+  setIsPasswordRecovery: () => {},
 });
 
 export const useAuth = () => {
@@ -24,6 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   useEffect(() => {
     // 初回セッション取得
@@ -36,7 +41,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // ログイン状態の変化を購読
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true);
+      }
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -50,7 +58,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, signOut, isLoading }}>
+    <AuthContext.Provider
+      value={{
+        session,
+        user,
+        signOut,
+        isLoading,
+        isPasswordRecovery,
+        setIsPasswordRecovery,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
