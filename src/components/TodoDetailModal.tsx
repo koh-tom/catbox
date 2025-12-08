@@ -139,13 +139,16 @@ export function TodoDetailModal({
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <div className="w-full sm:flex-1">
-              <DatePicker date={deadlineDate} setDate={setDeadlineDate} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <span className="text-sm font-medium text-muted-foreground">期限</span>
+              <DatePicker date={deadlineDate} setDate={setDeadlineDate} placeholder="期限なし" className="w-full" />
             </div>
-            <div className="flex items-center justify-between sm:justify-start gap-2 border rounded-md px-3 h-10 w-full sm:w-auto">
-              <span className="text-sm text-muted-foreground mr-1">優先度</span>
-              <StarRating value={priority} onChange={setPriority} />
+            <div className="grid gap-2">
+              <span className="text-sm font-medium text-muted-foreground">優先度</span>
+              <div className="flex items-center border rounded-md px-3 h-10 w-full bg-background mt-1">
+                <StarRating value={priority} onChange={setPriority} />
+              </div>
             </div>
           </div>
 
@@ -263,23 +266,6 @@ export function TodoDetailModal({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <span className="text-sm font-medium text-muted-foreground">期限</span>
-              <DatePicker
-                date={deadlineDate}
-                setDate={setDeadlineDate}
-                placeholder="期限なし"
-                className="w-full"
-              />
-            </div>
-            <div className="grid gap-2">
-              <span className="text-sm font-medium text-muted-foreground">優先度</span>
-              <div className="pt-2">
-                <StarRating value={priority} onChange={setPriority} />
-              </div>
-            </div>
-          </div>
 
           <div className="grid gap-2">
             <span className="text-sm font-medium text-muted-foreground">タグ</span>
