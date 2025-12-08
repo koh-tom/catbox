@@ -11,7 +11,12 @@
     "format": "biome format --write .",
     "check": "biome check --write .",
     "prepare": "husky",
-    "cz": "cz"
+    "cz": "git-cz"
+  },
+  "config": {
+    "commitizen": {
+      "path": "git-cz"
+    }
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
