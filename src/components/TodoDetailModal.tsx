@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { FaRegClock, FaRegStickyNote } from 'react-icons/fa';
 import { MdAdd, MdCheck, MdDelete, MdRepeat, MdTitle } from 'react-icons/md';
 import { VscListSelection } from 'react-icons/vsc';
@@ -45,7 +45,7 @@ interface TodoDetailModalProps {
   onDeleteSubTask: (todoId: string, subTaskId: string) => void;
 }
 
-export function TodoDetailModal({
+export const TodoDetailModal = memo(function TodoDetailModal({
   todo,
   isOpen,
   onClose,
@@ -289,4 +289,4 @@ export function TodoDetailModal({
       </DialogContent>
     </Dialog>
   );
-}
+});

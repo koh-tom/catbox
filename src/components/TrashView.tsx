@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { MdDeleteForever, MdRestoreFromTrash } from 'react-icons/md';
 import {
@@ -32,7 +33,18 @@ interface TrashViewProps {
   trashStorageSizeKB: number;
 }
 
-export function TrashView({
+const formatDeletedDate = (deletedAt?: number) => {
+  if (!deletedAt) return '';
+  const date = new Date(deletedAt);
+  return date.toLocaleDateString('ja-JP', {
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  });
+};
+
+export const TrashView = memo(function TrashView({
   isOpen,
   onClose,
   trashedTodos,
@@ -42,17 +54,6 @@ export function TrashView({
   trashLimit,
   trashStorageSizeKB,
 }: TrashViewProps) {
-  const formatDeletedDate = (deletedAt?: number) => {
-    if (!deletedAt) return '';
-    const date = new Date(deletedAt);
-    return date.toLocaleDateString('ja-JP', {
-      month: 'numeric',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-    });
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px] max-h-[80vh] flex flex-col">
@@ -182,4 +183,4 @@ export function TrashView({
       </DialogContent>
     </Dialog>
   );
-}
+});

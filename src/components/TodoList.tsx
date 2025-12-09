@@ -1,5 +1,5 @@
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
-import { useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSort, FaSortAmountDown } from 'react-icons/fa';
 import { MdDeleteSweep } from 'react-icons/md';
 import {
@@ -36,7 +36,7 @@ interface TodoListProps {
 
 type SortKey = 'deadline' | 'created' | 'priority' | 'manual';
 
-export function TodoList({
+export const TodoList = memo(function TodoList({
   todos,
   onToggle,
   onDelete,
@@ -54,13 +54,13 @@ export function TodoList({
   const [filterTags, setFilterTags] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const toggleFilterTag = (tagName: string) => {
+  const toggleFilterTag = useCallback((tagName: string) => {
     setFilterTags((prev) =>
       prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName],
     );
-  };
+  }, []);
 
-  const toggleSelection = (id: string) => {
+  const toggleSelection = useCallback((id: string) => {
     setSelectedIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
@@ -70,21 +70,21 @@ export function TodoList({
       }
       return newSet;
     });
-  };
+  }, []);
 
-  const handleBatchComplete = () => {
+  const handleBatchComplete = useCallback(() => {
     if (onCompleteTodos && selectedIds.size > 0) {
       onCompleteTodos(Array.from(selectedIds));
       setSelectedIds(new Set());
     }
-  };
+  }, [onCompleteTodos, selectedIds]);
 
-  const handleBatchDelete = () => {
+  const handleBatchDelete = useCallback(() => {
     if (onDeleteTodos && selectedIds.size > 0) {
       onDeleteTodos(Array.from(selectedIds));
       setSelectedIds(new Set());
     }
-  };
+  }, [onDeleteTodos, selectedIds]);
 
   const { overdueTodos, todayTodos, activeTodos, completedTodos, manualTodos, visibleTodos } =
     useMemo(() => {
@@ -159,7 +159,7 @@ export function TodoList({
       };
     }, [todos, sortKey, filterTags, searchQuery]);
 
-  const toggleSelectAll = () => {
+  const toggleSelectAll = useCallback(() => {
     if (visibleTodos.length === 0) return;
 
     // 現在画面に見えているもの全てが選択済みかどうか
@@ -180,7 +180,7 @@ export function TodoList({
       }
       return newSet;
     });
-  };
+  }, [visibleTodos, selectedIds]);
 
   if (todos.length === 0) {
     return (
@@ -196,19 +196,22 @@ export function TodoList({
     );
   }
 
-  const toggleSort = () => {
+  const toggleSort = useCallback(() => {
     setSortKey((prev) => {
       if (prev === 'deadline') return 'created';
       if (prev === 'created') return 'priority';
       if (prev === 'priority') return 'manual';
       return 'deadline';
     });
-  };
+  }, []);
 
-  const onDragEnd = (result: DropResult) => {
-    if (!result.destination || !onReorder) return;
-    onReorder(result.source.index, result.destination.index);
-  };
+  const onDragEnd = useCallback(
+    (result: DropResult) => {
+      if (!result.destination || !onReorder) return;
+      onReorder(result.source.index, result.destination.index);
+    },
+    [onReorder],
+  );
 
   const isDragEnabled = sortKey === 'manual' && filterTags.length === 0 && !searchQuery;
 
@@ -587,4 +590,4 @@ export function TodoList({
       )}
     </div>
   );
-}
+});

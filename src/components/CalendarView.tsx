@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import type { DayProps } from 'react-day-picker';
 import { TodoItem } from '@/components/TodoItem';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +25,7 @@ const PRIORITY_COLORS: Record<number, string> = {
   5: 'bg-red-500',
 };
 
-export function CalendarView({
+export const CalendarView = memo(function CalendarView({
   todos,
   onToggle,
   onDelete,
@@ -211,4 +211,4 @@ export function CalendarView({
       </div>
     </div>
   );
-}
+});

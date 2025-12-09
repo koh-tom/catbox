@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,7 @@ interface AboutModalProps {
   onClose: () => void;
 }
 
-export function AboutModal({ isOpen, onClose }: AboutModalProps) {
+export const AboutModal = memo(function AboutModal({ isOpen, onClose }: AboutModalProps) {
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   return (
@@ -95,4 +95,4 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
       </DialogContent>
     </Dialog>
   );
-}
+});

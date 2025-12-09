@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { FaFileCsv, FaTag } from 'react-icons/fa';
 import { MdAdd, MdClose, MdColorLens, MdDownload, MdSettings } from 'react-icons/md';
 import { TagBadge } from '@/components/TagBadge';
@@ -27,7 +27,7 @@ interface SettingsMenuProps {
   onExportTodos: (format: 'json' | 'csv') => void;
 }
 
-export function SettingsMenu({
+export const SettingsMenu = memo(function SettingsMenu({
   savedTags,
   addSavedTag,
   deleteSavedTag,
@@ -207,4 +207,4 @@ export function SettingsMenu({
       </PopoverContent>
     </Popover>
   );
-}
+});

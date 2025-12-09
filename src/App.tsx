@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { MdAdd, MdHelpOutline, MdLogout, MdSearch } from 'react-icons/md';
 import { toast } from 'sonner';
@@ -59,64 +59,70 @@ function App() {
   const [isTrashOpen, setIsTrashOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const completedCount = todos.filter((t) => t.completed).length;
+  const completedCount = useMemo(() => todos.filter((t) => t.completed).length, [todos]);
 
-  const handleSaveDetail = (
-    _id: string,
-    title: string,
-    deadlineDate?: string,
-    priority?: number,
-    tags?: string[],
-    description?: string,
-    estimatedHours?: number,
-    recurrenceRule?: RecurrenceRule,
-  ) => {
-    if (editingTodoId) {
-      editTodo(editingTodoId, {
-        title,
-        deadlineDate,
-        priority,
-        tags,
-        description,
-        estimatedHours,
-        recurrenceRule,
-      });
-    } else {
-      addTodo(title, deadlineDate, priority, tags, description, estimatedHours, recurrenceRule);
-    }
-  };
+  const handleSaveDetail = useCallback(
+    (
+      _id: string,
+      title: string,
+      deadlineDate?: string,
+      priority?: number,
+      tags?: string[],
+      description?: string,
+      estimatedHours?: number,
+      recurrenceRule?: RecurrenceRule,
+    ) => {
+      if (editingTodoId) {
+        editTodo(editingTodoId, {
+          title,
+          deadlineDate,
+          priority,
+          tags,
+          description,
+          estimatedHours,
+          recurrenceRule,
+        });
+      } else {
+        addTodo(title, deadlineDate, priority, tags, description, estimatedHours, recurrenceRule);
+      }
+    },
+    [editingTodoId, editTodo, addTodo],
+  );
 
-  const handleOpenCreateModal = () => {
+  const handleOpenCreateModal = useCallback(() => {
     setEditingTodoId(null);
     setIsDetailOpen(true);
-  };
+  }, []);
 
   useAppShortcuts({
     onOpenSearch: () => searchInputRef.current?.focus(),
     onOpenCreateModal: handleOpenCreateModal,
   });
 
-  const handleOpenEditModal = (todo: Todo) => {
+  const handleOpenEditModal = useCallback((todo: Todo) => {
     setEditingTodoId(todo.id);
     setIsDetailOpen(true);
-  };
+  }, []);
 
-  const handleCloseDetail = () => {
+  const handleCloseDetail = useCallback(() => {
     setIsDetailOpen(false);
     setTimeout(() => setEditingTodoId(null), 300);
-  };
+  }, []);
 
-  const handleDeleteTodo = (id: string) => {
-    deleteTodo(id);
-    toast('タスクを削除しました', {
-      action: {
-        label: '元に戻す',
-        onClick: () => restoreDeleted(),
-      },
-    });
-  };
+  const handleDeleteTodo = useCallback(
+    (id: string) => {
+      deleteTodo(id);
+      toast('タスクを削除しました', {
+        action: {
+          label: '元に戻す',
+          onClick: () => restoreDeleted(),
+        },
+      });
+    },
+    [deleteTodo, restoreDeleted],
+  );
 
-  const handleDeleteCompleted = () => {
+  const handleDeleteCompleted = useCallback(() => {
     deleteCompleted();
     toast('完了済みタスクを削除しました', {
       action: {
@@ -124,85 +130,91 @@ function App() {
         onClick: () => restoreDeleted(),
       },
     });
-  };
+  }, [deleteCompleted, restoreDeleted]);
 
-  const handleDeleteTodos = (ids: string[]) => {
-    deleteTodos(ids);
-    toast(`${ids.length}件のタスクを削除しました`, {
-      action: {
-        label: '元に戻す',
-        onClick: () => restoreDeleted(),
-      },
-    });
-  };
+  const handleDeleteTodos = useCallback(
+    (ids: string[]) => {
+      deleteTodos(ids);
+      toast(`${ids.length}件のタスクを削除しました`, {
+        action: {
+          label: '元に戻す',
+          onClick: () => restoreDeleted(),
+        },
+      });
+    },
+    [deleteTodos, restoreDeleted],
+  );
 
-  const handleExportTodos = (format: 'json' | 'csv') => {
-    try {
-      let dataStr = '';
-      let mimeType = '';
-      let ext = '';
+  const handleExportTodos = useCallback(
+    (format: 'json' | 'csv') => {
+      try {
+        let dataStr = '';
+        let mimeType = '';
+        let ext = '';
 
-      if (format === 'json') {
-        dataStr = JSON.stringify(todos, null, 2);
-        mimeType = 'application/json';
-        ext = 'json';
-      } else {
-        // CSVのヘッダー
-        const headers = [
-          'ID',
-          'タイトル',
-          '完了',
-          '作成日',
-          '完了日',
-          '期限日',
-          '優先度',
-          '見積もり時間(h)',
-          '繰り返し',
-          'サブタスク完了枠',
-          'タグ',
-          'メモ',
-        ];
-        const csvRows = [headers.join(',')];
-        todos.forEach((todo) => {
-          const values = [
-            todo.id,
-            `"${(todo.title || '').replace(/"/g, '""')}"`,
-            todo.completed ? '完了' : '未完了',
-            todo.createdAt ? new Date(todo.createdAt).toLocaleDateString('ja-JP') : '',
-            todo.completedAt ? new Date(todo.completedAt).toLocaleDateString('ja-JP') : '',
-            todo.deadlineDate || '',
-            todo.priority || 1,
-            todo.estimatedHours || '',
-            todo.recurrenceRule || '',
-            todo.subtasks?.length
-              ? `${todo.subtasks.filter((s) => s.completed).length}/${todo.subtasks.length}`
-              : '',
-            `"${(todo.tags || []).join(' ')}"`,
-            `"${(todo.description || '').replace(/"/g, '""')}"`,
+        if (format === 'json') {
+          dataStr = JSON.stringify(todos, null, 2);
+          mimeType = 'application/json';
+          ext = 'json';
+        } else {
+          // CSVのヘッダー
+          const headers = [
+            'ID',
+            'タイトル',
+            '完了',
+            '作成日',
+            '完了日',
+            '期限日',
+            '優先度',
+            '見積もり時間(h)',
+            '繰り返し',
+            'サブタスク完了枠',
+            'タグ',
+            'メモ',
           ];
-          csvRows.push(values.join(','));
-        });
-        const csvContent = csvRows.join('\n');
-        // Excelで文字化けしないようにUTF-8のBOMを付与
-        dataStr = `\uFEFF${csvContent}`;
-        mimeType = 'text/csv;charset=utf-8;';
-        ext = 'csv';
-      }
+          const csvRows = [headers.join(',')];
+          todos.forEach((todo) => {
+            const values = [
+              todo.id,
+              `"${(todo.title || '').replace(/"/g, '""')}"`,
+              todo.completed ? '完了' : '未完了',
+              todo.createdAt ? new Date(todo.createdAt).toLocaleDateString('ja-JP') : '',
+              todo.completedAt ? new Date(todo.completedAt).toLocaleDateString('ja-JP') : '',
+              todo.deadlineDate || '',
+              todo.priority || 1,
+              todo.estimatedHours || '',
+              todo.recurrenceRule || '',
+              todo.subtasks?.length
+                ? `${todo.subtasks.filter((s) => s.completed).length}/${todo.subtasks.length}`
+                : '',
+              `"${(todo.tags || []).join(' ')}"`,
+              `"${(todo.description || '').replace(/"/g, '""')}"`,
+            ];
+            csvRows.push(values.join(','));
+          });
+          const csvContent = csvRows.join('\n');
+          // Excelで文字化けしないようにUTF-8のBOMを付与
+          dataStr = `\uFEFF${csvContent}`;
+          mimeType = 'text/csv;charset=utf-8;';
+          ext = 'csv';
+        }
 
-      const blob = new Blob([dataStr], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `catbox-todos-${new Date().toISOString().split('T')[0]}.${ext}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      toast.success(`${ext.toUpperCase()}でエクスポートしました`);
-    } catch {
-      toast.error('エクスポートに失敗しました');
-    }
-  };
+        const blob = new Blob([dataStr], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `catbox-todos-${new Date().toISOString().split('T')[0]}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success(`${ext.toUpperCase()}でエクスポートしました`);
+      } catch {
+        toast.error('エクスポートに失敗しました');
+      }
+    },
+    [todos],
+  );
 
   if (isLoading) {
     return (

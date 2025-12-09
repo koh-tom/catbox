@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
@@ -30,7 +31,7 @@ interface TodoItemProps {
   onDuplicate?: (id: string) => void;
 }
 
-export function TodoItem({
+export const TodoItem = memo(function TodoItem({
   todo,
   onToggle,
   onDelete,
@@ -219,4 +220,4 @@ export function TodoItem({
       </div>
     </li>
   );
-}
+});
