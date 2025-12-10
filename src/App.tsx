@@ -1,6 +1,13 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { MdAdd, MdHelpOutline, MdLogout, MdSearch } from 'react-icons/md';
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { toast } from 'sonner';
 import { AboutModal } from '@/components/AboutModal';
 import { AuthScreen } from '@/components/AuthScreen';
@@ -15,11 +22,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/sonner';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppShortcuts } from '@/hooks/useAppShortcuts';
 import { useTodos } from '@/hooks/useTodos';
 import { APP_NAME } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 import type { RecurrenceRule, Todo } from '@/types/todo';
 
 function App() {
@@ -51,13 +59,31 @@ function App() {
     trashLimit,
   } = useTodos();
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
   const editingTodo = editingTodoId ? (todos.find((t) => t.id === editingTodoId) ?? null) : null;
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  const [isTrashOpen, setIsTrashOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // 現在のパスに基づいてタブやモードを選択
+  const currentPath = location.pathname;
+  const activeTab = currentPath.startsWith('/calendar') ? 'calendar' : 'list';
+  const isTrashOpen = currentPath === '/trash';
+
+  // タイトルをルーティングに合わせて更新 (SEO/UX)
+  useEffect(() => {
+    const titles: Record<string, string> = {
+      '/': 'タスク一覧',
+      '/calendar': 'カレンダー',
+      '/trash': 'ゴミ箱',
+    };
+    const currentTitle = titles[location.pathname] || '';
+    document.title = currentTitle ? `${currentTitle} | ${APP_NAME}` : APP_NAME;
+  }, [location.pathname]);
 
   const completedCount = useMemo(() => todos.filter((t) => t.completed).length, [todos]);
 
@@ -272,9 +298,12 @@ function App() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="shrink-0 relative"
+                    className={cn(
+                      "shrink-0 relative",
+                      isTrashOpen && "bg-accent text-accent-foreground"
+                    )}
                     title="ゴミ箱"
-                    onClick={() => setIsTrashOpen(true)}
+                    onClick={() => navigate('/trash')}
                   >
                     <FaTrashAlt className="h-4 w-4" />
                     {trashedTodos.length > 0 && (
@@ -317,38 +346,74 @@ function App() {
               </Button>
             </div>
 
-            <Tabs defaultValue="list" className="mt-2 flex-1 flex flex-col">
+            <Tabs 
+              value={activeTab} 
+              onValueChange={(val) => navigate(val === 'calendar' ? '/calendar' : '/')}
+              className="mt-2 flex-1 flex flex-col"
+            >
               <div className="shrink-0 flex items-center justify-between">
                 <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
                   <TabsTrigger value="list">リスト</TabsTrigger>
                   <TabsTrigger value="calendar">カレンダー</TabsTrigger>
                 </TabsList>
               </div>
-              <TabsContent value="list" className="mt-4 flex-1 outline-none">
-                <TodoList
-                  todos={todos}
-                  onToggle={toggleTodo}
-                  onDelete={handleDeleteTodo}
-                  onReorder={reorderTodos}
-                  onDeleteCompleted={handleDeleteCompleted}
-                  onCompleteTodos={completeTodos}
-                  onDeleteTodos={handleDeleteTodos}
-                  onDuplicate={duplicateTodo}
-                  savedTags={savedTags}
-                  onSelectTodo={handleOpenEditModal}
-                  searchQuery={searchQuery}
-                  completedCount={completedCount}
-                />
-              </TabsContent>
-              <TabsContent value="calendar" className="mt-4 flex-1 outline-none">
-                <CalendarView
-                  todos={todos}
-                  onToggle={toggleTodo}
-                  onDelete={handleDeleteTodo}
-                  savedTags={savedTags}
-                  onSelectTodo={handleOpenEditModal}
-                />
-              </TabsContent>
+              
+              <div className="mt-4 flex-1 outline-none">
+                <Routes>
+                  <Route 
+                    path="/" 
+                    element={
+                      <TodoList
+                        todos={todos}
+                        onToggle={toggleTodo}
+                        onDelete={handleDeleteTodo}
+                        onReorder={reorderTodos}
+                        onDeleteCompleted={handleDeleteCompleted}
+                        onCompleteTodos={completeTodos}
+                        onDeleteTodos={handleDeleteTodos}
+                        onDuplicate={duplicateTodo}
+                        savedTags={savedTags}
+                        onSelectTodo={handleOpenEditModal}
+                        searchQuery={searchQuery}
+                        completedCount={completedCount}
+                      />
+                    } 
+                  />
+                  <Route 
+                    path="/trash" 
+                    element={
+                      <TodoList
+                        todos={todos}
+                        onToggle={toggleTodo}
+                        onDelete={handleDeleteTodo}
+                        onReorder={reorderTodos}
+                        onDeleteCompleted={handleDeleteCompleted}
+                        onCompleteTodos={completeTodos}
+                        onDeleteTodos={handleDeleteTodos}
+                        onDuplicate={duplicateTodo}
+                        savedTags={savedTags}
+                        onSelectTodo={handleOpenEditModal}
+                        searchQuery={searchQuery}
+                        completedCount={completedCount}
+                      />
+                    } 
+                  />
+                  <Route 
+                    path="/calendar" 
+                    element={
+                      <CalendarView
+                        todos={todos}
+                        onToggle={toggleTodo}
+                        onDelete={handleDeleteTodo}
+                        savedTags={savedTags}
+                        onSelectTodo={handleOpenEditModal}
+                      />
+                    } 
+                  />
+                  {/* 未定義のパスはトップにリダイレクト */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </div>
             </Tabs>
           </CardContent>
         </Card>
@@ -368,7 +433,7 @@ function App() {
 
         <TrashView
           isOpen={isTrashOpen}
-          onClose={() => setIsTrashOpen(false)}
+          onClose={() => navigate(-1)}
           trashedTodos={trashedTodos}
           onRestore={restoreFromTrash}
           onPermanentlyDelete={permanentlyDelete}

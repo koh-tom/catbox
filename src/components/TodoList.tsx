@@ -182,19 +182,6 @@ export const TodoList = memo(function TodoList({
     });
   }, [visibleTodos, selectedIds]);
 
-  if (todos.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground animate-in fade-in slide-in-from-bottom-5 duration-700">
-        <div className="text-6xl mb-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 cursor-default">
-          🐱💤
-        </div>
-        <p className="text-lg font-bold mb-1">タスクがありません</p>
-        <span className="text-sm opacity-70">
-          上部の「新しいタスクを追加」から作成しましょう
-        </span>
-      </div>
-    );
-  }
 
   const toggleSort = useCallback(() => {
     setSortKey((prev) => {
@@ -214,6 +201,20 @@ export const TodoList = memo(function TodoList({
   );
 
   const isDragEnabled = sortKey === 'manual' && filterTags.length === 0 && !searchQuery;
+
+  if (todos.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground animate-in fade-in slide-in-from-bottom-5 duration-700">
+        <div className="text-6xl mb-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 cursor-default">
+          🐱💤
+        </div>
+        <p className="text-lg font-bold mb-1">タスクがありません</p>
+        <span className="text-sm opacity-70">
+          上部の「新しいタスクを追加」から作成しましょう
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
