@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md';
+import { MdKeyboard, MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -23,7 +23,8 @@ export const AboutModal = memo(function AboutModal({ isOpen, onClose }: AboutMod
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            {APP_NAME} について
+            <img src="/icon.png" alt="Catbox Icon" className="w-6 h-6 rounded shadow-sm" />
+            <span>{APP_NAME} について</span>
           </DialogTitle>
           <DialogDescription>シンプルで高機能なタスク管理アプリケーション</DialogDescription>
         </DialogHeader>
@@ -43,7 +44,9 @@ export const AboutModal = memo(function AboutModal({ isOpen, onClose }: AboutMod
               onClick={() => setShowShortcuts(!showShortcuts)}
               className="w-full justify-between"
             >
-              <span className="flex items-center gap-2">🎹 キーボードショートカット</span>
+              <span className="flex items-center gap-2">
+                <MdKeyboard className="h-4 w-4" /> キーボードショートカット
+              </span>
               {showShortcuts ? (
                 <MdKeyboardArrowDown className="h-4 w-4" />
               ) : (

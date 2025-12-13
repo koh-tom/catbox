@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FaTrashAlt } from 'react-icons/fa';
+import { FaCat, FaTrashAlt } from 'react-icons/fa';
+import { LuBox } from 'lucide-react';
 import { MdAdd, MdHelpOutline, MdLogout, MdSearch } from 'react-icons/md';
 import {
   Navigate,

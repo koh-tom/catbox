@@ -1,4 +1,4 @@
-export const APP_NAME = '😺📦 Catbox';
+export const APP_NAME = 'Catbox';
 
 export const STORAGE_KEYS = {
   TODOS: 'catbox-todos',

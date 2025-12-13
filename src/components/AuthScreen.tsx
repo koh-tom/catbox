@@ -50,7 +50,10 @@ export function AuthScreen() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">{APP_NAME}</CardTitle>
+          <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
+            <img src="/icon.png" alt="Catbox Icon" className="w-8 h-8 rounded-lg shadow-sm" />
+            <span>{APP_NAME}</span>
+          </CardTitle>
           <CardDescription>
             {mode === 'signup' && '新しいアカウントを作成'}
             {mode === 'login' && 'アカウントにログイン'}

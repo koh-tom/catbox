@@ -1,7 +1,7 @@
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { memo, useCallback, useMemo, useState } from 'react';
-import { FaFlag, FaRegCalendarAlt, FaRegClock, FaSort, FaSortAmountDown } from 'react-icons/fa';
-import { MdDeleteSweep } from 'react-icons/md';
+import { FaCat, FaFlag, FaRegCalendarAlt, FaRegClock, FaSort, FaSortAmountDown } from 'react-icons/fa';
+import { MdCheckCircle, MdDeleteSweep, MdPendingActions, MdStar, MdTaskAlt, MdWarning } from 'react-icons/md';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -205,8 +205,8 @@ export const TodoList = memo(function TodoList({
   if (todos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-muted-foreground animate-in fade-in slide-in-from-bottom-5 duration-700">
-        <div className="text-6xl mb-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 cursor-default">
-          🐱💤
+        <div className="text-6xl mb-4 opacity-20 transition-all duration-500 cursor-default flex items-center justify-center">
+          <FaCat className="w-16 h-16" />
         </div>
         <p className="text-lg font-bold mb-1">タスクがありません</p>
         <span className="text-sm opacity-70">
@@ -425,8 +425,8 @@ export const TodoList = memo(function TodoList({
           {todayTodos.length > 0 && (
             <div className="flex flex-col gap-3 bg-yellow-500/10 dark:bg-yellow-500/15 p-3 sm:p-4 rounded-xl border border-yellow-500/30 w-full shrink-0">
               <div className="flex items-center justify-between shrink-0">
-                <h3 className="text-sm font-semibold text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
-                  ⭐ 今日のタスク
+                <h3 className="text-sm font-bold text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
+                  <MdStar className="w-4 h-4" /> 今日のタスク
                 </h3>
                 <span className="bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 px-2.5 py-0.5 rounded-full text-xs font-bold">
                   {todayTodos.length}
@@ -454,8 +454,8 @@ export const TodoList = memo(function TodoList({
             {/* 期限切れカラム */}
             <div className="flex flex-col gap-3 bg-red-500/5 dark:bg-red-500/10 p-3 sm:p-4 rounded-xl border border-red-500/20 max-h-[calc(100vh-14rem)] overflow-hidden">
               <div className="flex items-center justify-between shrink-0">
-                <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-2">
-                  🚨 期限切れ
+                <h3 className="text-sm font-bold text-red-600 dark:text-red-400 flex items-center gap-2">
+                  <MdWarning className="w-4 h-4" /> 期限切れ
                 </h3>
                 <span className="bg-red-500/10 text-red-600 dark:text-red-400 px-2.5 py-0.5 rounded-full text-xs font-bold">
                   {overdueTodos.length}
@@ -486,8 +486,8 @@ export const TodoList = memo(function TodoList({
             {/* 進行中カラム */}
             <div className="flex flex-col gap-3 bg-card p-3 sm:p-4 rounded-xl border shadow-sm max-h-[calc(100vh-14rem)] overflow-hidden">
               <div className="flex items-center justify-between shrink-0">
-                <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                  🔄 進行中
+                <h3 className="text-sm font-bold flex items-center gap-2 text-foreground">
+                  <MdPendingActions className="w-4 h-4" /> 進行中
                 </h3>
                 <span className="bg-primary/10 text-primary px-2.5 py-0.5 rounded-full text-xs font-bold">
                   {activeTodos.length}
@@ -518,8 +518,8 @@ export const TodoList = memo(function TodoList({
             {/* 完了済みカラム */}
             <div className="flex flex-col gap-3 bg-muted/30 p-3 sm:p-4 rounded-xl border border-transparent max-h-[calc(100vh-14rem)] overflow-hidden">
               <div className="flex items-center justify-between shrink-0">
-                <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
-                  ✅ 完了済み
+                <h3 className="text-sm font-bold flex items-center gap-2 text-muted-foreground">
+                  <MdCheckCircle className="w-4 h-4" /> 完了済み
                 </h3>
                 <span className="bg-muted-foreground/15 text-muted-foreground px-2.5 py-0.5 rounded-full text-xs font-bold">
                   {completedTodos.length}

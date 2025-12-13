@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { FaTrashAlt } from 'react-icons/fa';
+import { FaCat, FaTrashAlt } from 'react-icons/fa';
 import { MdDeleteForever, MdRestoreFromTrash } from 'react-icons/md';
 import {
   AlertDialog,
@@ -59,7 +59,8 @@ export const TrashView = memo(function TrashView({
       <DialogContent className="sm:max-w-[500px] max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <FaTrashAlt className="w-4 h-4" /> ゴミ箱
+            <img src="/icon.png" alt="Catbox Icon" className="w-5 h-5 rounded shadow-sm" />
+            <FaTrashAlt className="w-4 h-4 opacity-70" /> <span>ゴミ箱</span>
           </DialogTitle>
           <DialogDescription>削除したタスクは復元または完全削除できます</DialogDescription>
         </DialogHeader>
@@ -82,8 +83,8 @@ export const TrashView = memo(function TrashView({
         <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
           {trashedTodos.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground animate-in fade-in duration-700">
-              <div className="text-5xl mb-4 opacity-40 grayscale hover:grayscale-0 transition-all duration-500 cursor-default">
-                🗑️🐈
+              <div className="text-5xl mb-4 opacity-20 transition-all duration-500 cursor-default flex items-center justify-center">
+                <FaCat className="w-12 h-12" />
               </div>
               <p className="text-sm font-medium">ゴミ箱は空です</p>
             </div>
