@@ -27,12 +27,23 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppShortcuts } from '@/hooks/useAppShortcuts';
 import { useTodos } from '@/hooks/useTodos';
-import { APP_NAME } from '@/lib/constants';
+import { APP_NAME, CAT_BREED_STORAGE_KEY, CAT_BREEDS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import type { RecurrenceRule, Todo } from '@/types/todo';
+import type { CatBreed, RecurrenceRule, Todo } from '@/types/todo';
 
 function App() {
   const { user, isLoading, signOut, isPasswordRecovery } = useAuth();
+  const [breed, setBreed] = useState<CatBreed>(() => {
+    const saved = localStorage.getItem(CAT_BREED_STORAGE_KEY);
+    return (saved as CatBreed) || 'classic';
+  });
+
+  // 保存用
+  useEffect(() => {
+    localStorage.setItem(CAT_BREED_STORAGE_KEY, breed);
+    // documentElementに属性を付加（ポータル内のコンポーネントにも適用されるようにする）
+    document.documentElement.setAttribute('data-breed', breed);
+  }, [breed]);
 
   const {
     todos,
@@ -270,9 +281,9 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-0 sm:p-4">
+    <div className="min-h-screen bg-background p-0 sm:p-4" data-breed={breed}>
       <div className="w-full mx-auto flex flex-col min-h-screen sm:min-h-[calc(100vh-2rem)]">
-        <Card className="flex-1 border-0 sm:border rounded-none sm:rounded-xl shadow-none sm:shadow-sm flex flex-col">
+        <Card className="flex-1 border-0 sm:border rounded-none sm:rounded-lg shadow-warm flex flex-col bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <CardTitle className="text-2xl font-bold flex items-center gap-2">
@@ -297,6 +308,8 @@ function App() {
                     addSavedTag={addSavedTag}
                     deleteSavedTag={deleteSavedTag}
                     onExportTodos={handleExportTodos}
+                    currentBreed={breed}
+                    onBreedChange={setBreed}
                   />
                   <ThemeToggle />
                   <Button
@@ -343,10 +356,10 @@ function App() {
               <Button
                 onClick={handleOpenCreateModal}
                 variant="outline"
-                className="w-full h-14 border-2 border-dashed bg-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground rounded-xl flex items-center justify-center gap-2 transition-all hover:border-solid hover:border-primary/50"
+                className="w-full h-16 border-2 border-dashed bg-background text-muted-foreground hover:bg-primary/5 hover:text-primary rounded-lg flex items-center justify-center gap-2 transition-all hover:border-solid hover:border-primary/50 btn-bounce shadow-sm"
               >
-                <MdAdd className="w-6 h-6" />
-                <span className="font-medium text-base">新しいタスクを追加</span>
+                <MdAdd className="w-7 h-7" />
+                <span className="font-bold text-lg">新しいタスクを追加</span>
               </Button>
             </div>
 

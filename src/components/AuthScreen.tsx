@@ -48,22 +48,22 @@ export function AuthScreen() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
-            <img src="/icon.png" alt="Catbox Icon" className="w-8 h-8 rounded-lg shadow-sm" />
-            <span>{APP_NAME}</span>
+      <Card className="w-full max-w-sm rounded-xl shadow-warm border-none bg-card/60 backdrop-blur-md">
+        <CardHeader className="text-center pb-2">
+          <CardTitle className="text-3xl font-black flex items-center justify-center gap-3 mb-2">
+            <img src="/icon.png" alt="Catbox Icon" className="w-10 h-10 rounded-lg shadow-md rotate-[-5deg]" />
+            <span className="tracking-tight text-primary">{APP_NAME}</span>
           </CardTitle>
-          <CardDescription>
-            {mode === 'signup' && '新しいアカウントを作成'}
-            {mode === 'login' && 'アカウントにログイン'}
-            {mode === 'reset' && 'パスワードを再設定'}
+          <CardDescription className="text-sm font-medium">
+            {mode === 'signup' && '新しいアカウントを作成しましょう 🐾'}
+            {mode === 'login' && 'おかえりなさい！ログインしてください 🐈'}
+            {mode === 'reset' && 'パスワードをリセットします'}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
+          <form onSubmit={handleAuth} className="space-y-5 pt-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="email">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1" htmlFor="email">
                 メールアドレス
               </label>
               <Input
@@ -72,22 +72,23 @@ export function AuthScreen() {
                 placeholder="m@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="h-11 rounded-md bg-background/50 border-muted-foreground/20 focus:ring-primary/30"
                 required
               />
             </div>
             {mode !== 'reset' && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium" htmlFor="password">
+                <div className="flex items-center justify-between ml-1">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground" htmlFor="password">
                     パスワード
                   </label>
                   {mode === 'login' && (
                     <button
                       type="button"
                       onClick={() => setMode('reset')}
-                      className="text-xs text-muted-foreground hover:text-primary underline"
+                      className="text-[10px] font-bold text-muted-foreground hover:text-primary underline uppercase tracking-tighter"
                     >
-                      パスワードを忘れた場合
+                      パスワードを忘れた？
                     </button>
                   )}
                 </div>
@@ -96,14 +97,15 @@ export function AuthScreen() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="h-11 rounded-md bg-background/50 border-muted-foreground/20 focus:ring-primary/30"
                   required
                 />
               </div>
             )}
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? '処理中...' : 
-                mode === 'signup' ? '登録する' : 
-                mode === 'login' ? 'ログイン' : '再設定メールを送信'}
+            <Button type="submit" className="w-full h-12 rounded-md font-bold text-base shadow-md btn-bounce mt-2" disabled={isLoading}>
+              {isLoading ? '準備中...' : 
+                mode === 'signup' ? '登録を開始する' : 
+                mode === 'login' ? 'ログインする' : '再設定メールを送る'}
             </Button>
           </form>
 

@@ -52,10 +52,10 @@ export const TodoItem = memo(function TodoItem({
       {...draggableProps}
       style={draggableProps?.style}
       className={cn(
-        'group flex items-start gap-3 p-3 lg:p-4 rounded-xl border bg-card transition-all hover:bg-accent/50 h-full relative',
-        todo.completed ? 'opacity-60' : '',
-        isSelected ? 'bg-primary/5 border-primary/30' : '',
-        isDragging && 'shadow-xl ring-2 ring-primary/20 scale-[1.01] bg-accent z-50',
+        'group flex items-start gap-4 p-4 lg:p-5 rounded-lg border border-muted bg-card/60 transition-all hover:bg-accent/40 hover:shadow-md h-full relative',
+        todo.completed ? 'opacity-50 grayscale-[0.3]' : '',
+        isSelected ? 'bg-primary/10 border-primary/30 ring-1 ring-primary/20' : '',
+        isDragging && 'shadow-2xl ring-2 ring-primary/40 scale-[1.02] bg-card z-50',
       )}
     >
       <div className="flex items-center gap-2 pt-0.5 shrink-0">

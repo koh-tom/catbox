@@ -121,10 +121,11 @@ export const TodoDetailModal = memo(function TodoDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] border-none rounded-xl shadow-warm bg-card/80 backdrop-blur-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {todo ? '詳細編集' : '新規タスク作成'}
+          <DialogTitle className="flex items-center gap-3 text-xl font-black text-primary">
+            <img src="/icon.png" alt="Catbox" className="w-8 h-8 rounded-md shadow-sm" />
+            <span>{todo ? '詳細を編集する 🐾' : '新しいタスクを作る 🐈'}</span>
           </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -277,13 +278,13 @@ export const TodoDetailModal = memo(function TodoDetailModal({
             />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} type="button">
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button variant="ghost" onClick={onClose} type="button" className="rounded-md font-bold">
             キャンセル
           </Button>
-          <Button onClick={handleSave} disabled={isSaveDisabled} type="button">
-            <MdCheck className="w-4 h-4 mr-2" />
-            保存
+          <Button onClick={handleSave} disabled={isSaveDisabled} type="button" className="rounded-md font-bold btn-bounce shadow-md px-6">
+            <MdCheck className="w-5 h-5 mr-2" />
+            保存する
           </Button>
         </DialogFooter>
       </DialogContent>

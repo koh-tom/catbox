@@ -20,7 +20,7 @@ export const AboutModal = memo(function AboutModal({ isOpen, onClose }: AboutMod
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[80vh] flex flex-col border-none rounded-xl shadow-warm bg-card/80 backdrop-blur-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             <img src="/icon.png" alt="Catbox Icon" className="w-6 h-6 rounded shadow-sm" />

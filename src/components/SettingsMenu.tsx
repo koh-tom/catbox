@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { FaFileCsv, FaTag } from 'react-icons/fa';
+import { FaCat, FaFileCsv, FaTag } from 'react-icons/fa';
 import { MdAdd, MdClose, MdColorLens, MdDownload, MdSettings } from 'react-icons/md';
 import { TagBadge } from '@/components/TagBadge';
 import {
@@ -16,15 +16,17 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { TAG_COLORS } from '@/lib/constants';
+import { CAT_BREEDS, TAG_COLORS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import type { Tag } from '@/types/todo';
+import type { CatBreed, Tag } from '@/types/todo';
 
 interface SettingsMenuProps {
   savedTags: Tag[];
   addSavedTag: (name: string, color: string) => void;
   deleteSavedTag: (id: string) => void;
   onExportTodos: (format: 'json' | 'csv') => void;
+  currentBreed: CatBreed;
+  onBreedChange: (breed: CatBreed) => void;
 }
 
 export const SettingsMenu = memo(function SettingsMenu({
@@ -32,6 +34,8 @@ export const SettingsMenu = memo(function SettingsMenu({
   addSavedTag,
   deleteSavedTag,
   onExportTodos,
+  currentBreed,
+  onBreedChange,
 }: SettingsMenuProps) {
   const [newTag, setNewTag] = useState('');
   const [selectedColor, setSelectedColor] = useState(TAG_COLORS[0].value);
@@ -172,6 +176,34 @@ export const SettingsMenu = memo(function SettingsMenu({
                     </AlertDialogContent>
                   </AlertDialog>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t space-y-3">
+            <h5 className="text-sm font-medium flex items-center gap-2 text-primary">
+              <FaCat className="w-3.5 h-3.5" /> 猫種テーマ設定
+            </h5>
+            <div className="grid grid-cols-1 gap-2">
+              {CAT_BREEDS.map((breed_item) => (
+                <button
+                  key={breed_item.id}
+                  type="button"
+                  onClick={() => onBreedChange(breed_item.id as CatBreed)}
+                  className={cn(
+                    'flex flex-col items-start p-2.5 rounded-lg border text-left transition-all btn-bounce',
+                    currentBreed === breed_item.id
+                      ? 'bg-primary/10 border-primary ring-1 ring-primary/20'
+                      : 'bg-background hover:bg-accent border-muted hover:border-muted-foreground/30',
+                  )}
+                >
+                  <span className="text-xs font-bold leading-none mb-1">
+                    {breed_item.name}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground leading-tight">
+                    {breed_item.description}
+                  </span>
+                </button>
               ))}
             </div>
           </div>
