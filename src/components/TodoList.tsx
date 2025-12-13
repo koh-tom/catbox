@@ -53,38 +53,7 @@ export const TodoList = memo(function TodoList({
   const [sortKey, setSortKey] = useState<SortKey>('deadline');
   const [filterTags, setFilterTags] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
-  const toggleFilterTag = useCallback((tagName: string) => {
-    setFilterTags((prev) =>
-      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName],
-    );
-  }, []);
-
-  const toggleSelection = useCallback((id: string) => {
-    setSelectedIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  }, []);
-
-  const handleBatchComplete = useCallback(() => {
-    if (onCompleteTodos && selectedIds.size > 0) {
-      onCompleteTodos(Array.from(selectedIds));
-      setSelectedIds(new Set());
-    }
-  }, [onCompleteTodos, selectedIds]);
-
-  const handleBatchDelete = useCallback(() => {
-    if (onDeleteTodos && selectedIds.size > 0) {
-      onDeleteTodos(Array.from(selectedIds));
-      setSelectedIds(new Set());
-    }
-  }, [onDeleteTodos, selectedIds]);
+  const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
 
   const { overdueTodos, todayTodos, activeTodos, completedTodos, manualTodos, visibleTodos } =
     useMemo(() => {
@@ -158,6 +127,59 @@ export const TodoList = memo(function TodoList({
         visibleTodos: filteredTodos,
       };
     }, [todos, sortKey, filterTags, searchQuery]);
+
+  const toggleFilterTag = useCallback((tagName: string) => {
+    setFilterTags((prev) =>
+      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName],
+    );
+  }, []);
+
+  const toggleSelection = useCallback((id: string, shiftKey: boolean) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      const currentIdx = visibleTodos.findIndex(t => t.id === id);
+      
+      if (shiftKey && currentIdx !== -1) {
+        let lastIdx = 0;
+        if (lastSelectedId && prev.has(lastSelectedId)) {
+          lastIdx = visibleTodos.findIndex(t => t.id === lastSelectedId);
+          if (lastIdx === -1) lastIdx = 0;
+        }
+        
+        const start = Math.min(lastIdx, currentIdx);
+        const end = Math.max(lastIdx, currentIdx);
+        
+        for (let i = start; i <= end; i++) {
+          newSet.add(visibleTodos[i].id);
+        }
+        setTimeout(() => setLastSelectedId(id), 0);
+        return newSet;
+      }
+
+      if (newSet.has(id)) {
+        newSet.delete(id);
+        setTimeout(() => setLastSelectedId(null), 0);
+      } else {
+        newSet.add(id);
+        setTimeout(() => setLastSelectedId(id), 0);
+      }
+      return newSet;
+    });
+  }, [lastSelectedId, visibleTodos]);
+
+  const handleBatchComplete = useCallback(() => {
+    if (onCompleteTodos && selectedIds.size > 0) {
+      onCompleteTodos(Array.from(selectedIds));
+      setSelectedIds(new Set());
+    }
+  }, [onCompleteTodos, selectedIds]);
+
+  const handleBatchDelete = useCallback(() => {
+    if (onDeleteTodos && selectedIds.size > 0) {
+      onDeleteTodos(Array.from(selectedIds));
+      setSelectedIds(new Set());
+    }
+  }, [onDeleteTodos, selectedIds]);
 
   const toggleSelectAll = useCallback(() => {
     if (visibleTodos.length === 0) return;

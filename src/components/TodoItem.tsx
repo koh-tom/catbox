@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { } from 'react'; // または単に削除
 import type {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
@@ -27,11 +27,11 @@ interface TodoItemProps {
   isDraggable?: boolean;
   isDragging?: boolean;
   isSelected?: boolean;
-  onToggleSelect?: (id: string) => void;
+  onToggleSelect?: (id: string, shiftKey: boolean) => void;
   onDuplicate?: (id: string) => void;
 }
 
-export const TodoItem = memo(function TodoItem({
+export function TodoItem({
   todo,
   onToggle,
   onDelete,
@@ -72,12 +72,20 @@ export const TodoItem = memo(function TodoItem({
         )}
 
         {onToggleSelect && (
-          <Checkbox
-            checked={isSelected}
-            onCheckedChange={() => onToggleSelect(todo.id)}
-            className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
-            aria-label="選択"
-          />
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSelect(todo.id, e.shiftKey);
+            }}
+            className="flex items-center justify-center p-1 -m-1 cursor-pointer"
+          >
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={() => {}} // 親のdivでイベントを拾う
+              className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 pointer-events-none"
+              aria-label="選択"
+            />
+          </div>
         )}
       </div>
 
@@ -220,4 +228,4 @@ export const TodoItem = memo(function TodoItem({
       </div>
     </li>
   );
-});
+}
