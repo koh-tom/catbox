@@ -274,7 +274,10 @@ function App() {
         <Card className="flex-1 border-0 sm:border rounded-none sm:rounded-xl shadow-none sm:shadow-sm flex flex-col">
           <CardHeader className="pb-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <CardTitle className="text-2xl font-semibold">{APP_NAME}</CardTitle>
+              <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                <img src="/icon.png" alt="Catbox Icon" className="w-8 h-8 rounded-lg shadow-sm" />
+                <span>{APP_NAME}</span>
+              </CardTitle>
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <div className="relative flex-1 sm:w-64">
                   <MdSearch className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
