@@ -13,7 +13,7 @@ export interface SubTask {
 
 export type RecurrenceRule = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly';
 
-export type CatBreed = 'classic' | 'scottish' | 'black';
+export type CatBreed = 'classic' | 'scottish' | 'black' | 'white';
 
 export interface Todo {
   id: string;

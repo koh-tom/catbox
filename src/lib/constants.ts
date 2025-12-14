@@ -28,6 +28,7 @@ export const CAT_BREEDS = [
   { id: 'classic', name: 'きじとら (Classic)', description: '温かみのある標準テーマ' },
   { id: 'scottish', name: 'スコティッシュ (Blue)', description: '落ち着いた青灰色と折れ耳' },
   { id: 'black', name: 'くろねこ (Black)', description: '都会的でクールな黒と金' },
+  { id: 'white', name: 'しろねこ (Basic White)', description: '清潔感のあるミニマルな白' },
 ] as const;
 
 export const CAT_BREED_STORAGE_KEY = 'catbox-breed';
