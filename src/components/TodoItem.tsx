@@ -51,6 +51,8 @@ export function TodoItem({
       ref={innerRef}
       {...draggableProps}
       style={draggableProps?.style}
+      data-lasso-item
+      data-todo-id={todo.id}
       className={cn(
         'group flex items-start gap-4 p-4 lg:p-5 rounded-lg border border-muted bg-card/60 transition-all hover:bg-accent/40 hover:shadow-md h-full relative',
         todo.completed ? 'opacity-50 grayscale-[0.3]' : '',

@@ -1,5 +1,5 @@
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaCat, FaFlag, FaRegCalendarAlt, FaRegClock, FaSort, FaSortAmountDown } from 'react-icons/fa';
 import { MdCheckCircle, MdDeleteSweep, MdPendingActions, MdStar, MdTaskAlt, MdWarning } from 'react-icons/md';
 import {
@@ -54,6 +54,84 @@ export const TodoList = memo(function TodoList({
   const [filterTags, setFilterTags] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [lasso, setLasso] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
+
+  // ラッソ選択のイベントハンドラ
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // ボタン、入力フォーム、リンクなどは除外
+      if (target.closest('button') || target.closest('input') || target.closest('a') || target.closest('[role="button"]')) return;
+      
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      setLasso({ start: { x, y }, end: { x, y } });
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!lasso) return;
+      
+      const rect = container.getBoundingClientRect();
+      const currentX = e.clientX - rect.left;
+      const currentY = e.clientY - rect.top;
+      
+      setLasso((prev) => prev ? { ...prev, end: { x: currentX, y: currentY } } : null);
+
+      // 交差判定
+      const lassoRect = {
+        left: Math.min(lasso.start.x, currentX) + rect.left,
+        top: Math.min(lasso.start.y, currentY) + rect.top,
+        right: Math.max(lasso.start.x, currentX) + rect.left,
+        bottom: Math.max(lasso.start.y, currentY) + rect.top,
+      };
+
+      const items = container.querySelectorAll('[data-lasso-item]');
+      const newSelected = new Set(e.shiftKey ? selectedIds : []);
+
+      items.forEach((item) => {
+        const itemRect = item.getBoundingClientRect();
+        const id = item.getAttribute('data-todo-id');
+        
+        const isIntersecting = !(
+          itemRect.left > lassoRect.right ||
+          itemRect.right < lassoRect.left ||
+          itemRect.top > lassoRect.bottom ||
+          itemRect.bottom < lassoRect.top
+        );
+
+        if (id && isIntersecting) {
+          newSelected.add(id);
+        }
+      });
+
+      if (newSelected.size !== selectedIds.size || Array.from(newSelected).some(id => !selectedIds.has(id))) {
+        setSelectedIds(newSelected);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setLasso(null);
+    };
+
+    if (lasso) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      container.addEventListener('mousedown', handleMouseDown);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      container.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, [lasso, selectedIds]);
 
   const { overdueTodos, todayTodos, activeTodos, completedTodos, manualTodos, visibleTodos } =
     useMemo(() => {
@@ -239,7 +317,19 @@ export const TodoList = memo(function TodoList({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative" ref={containerRef}>
+      {/* ラッソ選択ボックス */}
+      {lasso && (
+        <div
+          className="absolute z-50 border border-primary bg-primary/10 pointer-events-none transition-none"
+          style={{
+            left: Math.min(lasso.start.x, lasso.end.x),
+            top: Math.min(lasso.start.y, lasso.end.y),
+            width: Math.abs(lasso.start.x - lasso.end.x),
+            height: Math.abs(lasso.start.y - lasso.end.y),
+          }}
+        />
+      )}
       <div className="flex flex-col gap-4">
         {/* 上部コントロールバー */}
         <div className="flex justify-between items-center pb-2 border-b border-border/40 min-h-[40px]">
