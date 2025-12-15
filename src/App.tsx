@@ -304,68 +304,75 @@ function App() {
     <div className="min-h-screen bg-background p-0 sm:p-4 pb-16 sm:pb-4" data-breed={breed}>
       <div className="w-full mx-auto flex flex-col min-h-screen sm:min-h-[calc(100vh-2rem)]">
         <Card className="flex-1 border-0 sm:border rounded-none sm:rounded-lg shadow-warm flex flex-col bg-card/50 backdrop-blur-sm overflow-hidden mb-safe">
-          <CardHeader className="pb-4 sm:flex hidden">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                <img src="/icon.png" alt="Catbox Icon" className="w-8 h-8 rounded-lg shadow-sm" />
-                <span>{APP_NAME}</span>
+          <CardHeader className="py-2.5 px-4 border-b border-border/10 bg-background/30 backdrop-blur-md sticky top-0 z-40">
+            <div className="flex items-center justify-between gap-4">
+              <CardTitle className="text-xl font-black flex items-center gap-2 shrink-0">
+                <img src="/icon.png" alt="Catbox Icon" className="w-6 h-6 rounded-md shadow-sm" />
+                <span className="hidden sm:inline tracking-tight">{APP_NAME}</span>
               </CardTitle>
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <div className="relative flex-1 sm:w-64">
-                  <MdSearch className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              
+              <div className="flex-1 flex items-center justify-end gap-2 sm:gap-4">
+                <div className="relative max-w-[140px] sm:max-w-xs w-full group">
+                  <MdSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <Input
                     ref={searchInputRef}
                     type="search"
-                    placeholder="タスクを検索... (⌘K)"
+                    placeholder="検索..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 h-9"
+                    className="pl-8 h-8 text-xs bg-muted/50 border-none focus-visible:ring-1 focus-visible:bg-background transition-all rounded-full"
                   />
                 </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <SettingsMenu
-                    savedTags={savedTags}
-                    addSavedTag={addSavedTag}
-                    deleteSavedTag={deleteSavedTag}
-                    onExportTodos={handleExportTodos}
-                    currentBreed={breed}
-                    onBreedChange={setBreed}
-                  />
-                  <ThemeToggle />
+                
+                <div className="flex items-center gap-0.5 sm:gap-1">
+                  <div className="hidden sm:flex items-center gap-1">
+                    <SettingsMenu
+                      savedTags={savedTags}
+                      addSavedTag={addSavedTag}
+                      deleteSavedTag={deleteSavedTag}
+                      onExportTodos={handleExportTodos}
+                      currentBreed={breed}
+                      onBreedChange={setBreed}
+                    />
+                    <ThemeToggle />
+                  </div>
+                  
                   <Button
                     variant="ghost"
                     size="icon"
                     className={cn(
-                      "shrink-0 relative",
+                      "h-8 w-8 relative sm:flex hidden",
                       isTrashOpen && "bg-accent text-accent-foreground"
                     )}
                     title="ゴミ箱"
                     onClick={() => navigate('/trash')}
                   >
-                    <FaTrashAlt className="h-4 w-4" />
+                    <FaTrashAlt className="h-3.5 w-3.5" />
                     {trashedTodos.length > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                      <span className="absolute top-0.5 right-0.5 bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full min-w-[14px] h-3.5 flex items-center justify-center px-0.5">
                         {trashedTodos.length}
                       </span>
                     )}
                   </Button>
+                  
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="shrink-0"
+                    className="h-8 w-8 sm:flex hidden"
                     title="ヘルプ"
                     onClick={() => setIsAboutOpen(true)}
                   >
-                    <MdHelpOutline className="h-5 w-5" />
+                    <MdHelpOutline className="h-4 w-4 text-muted-foreground" />
                   </Button>
+                  
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="shrink-0"
+                    className="h-8 w-8 hover:text-destructive transition-colors"
                     title="ログアウト"
                     onClick={() => signOut()}
                   >
-                    <MdLogout className="h-5 w-5" />
+                    <MdLogout className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
