@@ -24,12 +24,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/sonner';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BottomNav } from '@/components/BottomNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppShortcuts } from '@/hooks/useAppShortcuts';
 import { useTodos } from '@/hooks/useTodos';
 import { APP_NAME, CAT_BREED_STORAGE_KEY, CAT_BREEDS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import type { CatBreed, RecurrenceRule, Todo } from '@/types/todo';
+import type { AppTab, CatBreed, RecurrenceRule, Todo } from '@/types/todo';
 
 function App() {
   const { user, isLoading, signOut, isPasswordRecovery } = useAuth();
@@ -81,21 +82,40 @@ function App() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 現在のパスに基づいてタブやモードを選択
+  // 現在のパスに基づいてタブを決定
   const currentPath = location.pathname;
+  const currentTab = useMemo((): AppTab => {
+    if (currentPath.startsWith('/trash')) return 'trash';
+    if (currentPath.startsWith('/portal')) return 'portal';
+    if (currentPath.startsWith('/settings')) return 'settings';
+    return 'todo';
+  }, [currentPath]);
+
   const activeTab = currentPath.startsWith('/calendar') ? 'calendar' : 'list';
-  const isTrashOpen = currentPath === '/trash';
+  const isTrashOpen = currentTab === 'trash';
 
   // タイトルをルーティングに合わせて更新 (SEO/UX)
   useEffect(() => {
     const titles: Record<string, string> = {
       '/': 'タスク一覧',
       '/calendar': 'カレンダー',
+      '/portal': 'ポータル',
       '/trash': 'ゴミ箱',
+      '/settings': '設定',
     };
     const currentTitle = titles[location.pathname] || '';
     document.title = currentTitle ? `${currentTitle} | ${APP_NAME}` : APP_NAME;
   }, [location.pathname]);
+
+  const handleTabChange = useCallback((tab: AppTab) => {
+    const paths: Record<AppTab, string> = {
+      todo: '/',
+      portal: '/portal',
+      trash: '/trash',
+      settings: '/settings',
+    };
+    navigate(paths[tab]);
+  }, [navigate]);
 
   const completedCount = useMemo(() => todos.filter((t) => t.completed).length, [todos]);
 
@@ -281,10 +301,10 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-0 sm:p-4" data-breed={breed}>
+    <div className="min-h-screen bg-background p-0 sm:p-4 pb-16 sm:pb-4" data-breed={breed}>
       <div className="w-full mx-auto flex flex-col min-h-screen sm:min-h-[calc(100vh-2rem)]">
-        <Card className="flex-1 border-0 sm:border rounded-none sm:rounded-lg shadow-warm flex flex-col bg-card/50 backdrop-blur-sm">
-          <CardHeader className="pb-4">
+        <Card className="flex-1 border-0 sm:border rounded-none sm:rounded-lg shadow-warm flex flex-col bg-card/50 backdrop-blur-sm overflow-hidden mb-safe">
+          <CardHeader className="pb-4 sm:flex hidden">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <CardTitle className="text-2xl font-bold flex items-center gap-2">
                 <img src="/icon.png" alt="Catbox Icon" className="w-8 h-8 rounded-lg shadow-sm" />
@@ -351,89 +371,147 @@ function App() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col">
-            <div className="mb-6 shrink-0">
+          <CardContent className="flex-1 flex flex-col px-0 pt-2 sm:pt-4">
+            <div className="px-4 mb-4 mt-2 shrink-0">
               <Button
                 onClick={handleOpenCreateModal}
                 variant="outline"
-                className="w-full h-16 border-2 border-dashed bg-background text-muted-foreground hover:bg-primary/5 hover:text-primary rounded-lg flex items-center justify-center gap-2 transition-all hover:border-solid hover:border-primary/50 btn-bounce shadow-sm"
+                className="w-full h-14 border-2 border-dashed bg-background/50 text-muted-foreground hover:bg-primary/5 hover:text-primary rounded-xl flex items-center justify-center gap-2 transition-all hover:border-solid hover:border-primary/50 btn-bounce shadow-[0_2px_8px_oklch(0_0_0/0.05)]"
               >
-                <MdAdd className="w-7 h-7" />
-                <span className="font-bold text-lg">新しいタスクを追加</span>
+                <MdAdd className="w-6 h-6" />
+                <span className="font-bold">新しいタスクを追加</span>
               </Button>
             </div>
 
-            <Tabs 
-              value={activeTab} 
-              onValueChange={(val) => navigate(val === 'calendar' ? '/calendar' : '/')}
-              className="mt-2 flex-1 flex flex-col"
-            >
-              <div className="shrink-0 flex items-center justify-between">
-                <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-                  <TabsTrigger value="list">リスト</TabsTrigger>
-                  <TabsTrigger value="calendar">カレンダー</TabsTrigger>
-                </TabsList>
-              </div>
-              
-              <div className="mt-4 flex-1 outline-none">
-                <Routes>
-                  <Route 
-                    path="/" 
-                    element={
-                      <TodoList
-                        todos={todos}
-                        onToggle={toggleTodo}
-                        onDelete={handleDeleteTodo}
-                        onReorder={reorderTodos}
-                        onDeleteCompleted={handleDeleteCompleted}
-                        onCompleteTodos={completeTodos}
-                        onDeleteTodos={handleDeleteTodos}
-                        onDuplicate={duplicateTodo}
-                        savedTags={savedTags}
-                        onSelectTodo={handleOpenEditModal}
-                        searchQuery={searchQuery}
-                        completedCount={completedCount}
+            <div className="flex-1 flex flex-col min-h-0 relative">
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <div className="flex-1 flex flex-col min-h-0 p-3 sm:px-6 sm:pb-6 overflow-hidden">
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                        <Tabs
+                          value={activeTab}
+                          onValueChange={(v) => navigate(v === 'calendar' ? '/calendar' : '/')}
+                          className="w-full sm:w-auto"
+                        >
+                          <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="list">リスト</TabsTrigger>
+                            <TabsTrigger value="calendar">カレンダー</TabsTrigger>
+                          </TabsList>
+                        </Tabs>
+                        {/* 小さいボタンはここから削除（またはスマホ時のみ表示） */}
+                      </div>
+
+                      <div className="flex-1 overflow-auto min-h-0 pr-1 -mr-1 scrollbar-thin">
+                        <TodoList
+                          todos={todos}
+                          onToggle={toggleTodo}
+                          onDelete={handleDeleteTodo}
+                          savedTags={savedTags}
+                          onSelectTodo={handleOpenEditModal}
+                          onReorder={reorderTodos}
+                          onDeleteCompleted={handleDeleteCompleted}
+                          onCompleteTodos={completeTodos}
+                          onDeleteTodos={handleDeleteTodos}
+                          onDuplicate={duplicateTodo}
+                          searchQuery={searchQuery}
+                          completedCount={completedCount}
+                        />
+                      </div>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/calendar"
+                  element={
+                    <div className="flex-1 min-h-0 p-3 sm:p-6 overflow-auto scrollbar-thin">
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                        <Tabs
+                          value={activeTab}
+                          onValueChange={(v) => navigate(v === 'calendar' ? '/calendar' : '/')}
+                          className="w-full sm:w-auto"
+                        >
+                          <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="list">リスト</TabsTrigger>
+                            <TabsTrigger value="calendar">カレンダー</TabsTrigger>
+                          </TabsList>
+                        </Tabs>
+                      </div>
+                      <CalendarView todos={todos} onSelectTodo={handleOpenEditModal} />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/portal"
+                  element={
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-accent/5">
+                      <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 shadow-sm rotate-3">
+                        <FaCat className="w-10 h-10 text-primary" />
+                      </div>
+                      <h2 className="text-2xl font-bold mb-3">ポータル（ダッシュボード）</h2>
+                      <p className="text-muted-foreground max-w-sm font-medium leading-relaxed">
+                        ここには、1日の概要、天気、習慣トラッカーなどが集約される予定です。<br />
+                        現在丹精込めて開発中... 🐾
+                      </p>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/trash"
+                  element={
+                    <div className="flex-1 p-3 sm:p-6 overflow-hidden">
+                      <TrashView
+                        trashedTodos={trashedTodos}
+                        onRestore={restoreFromTrash}
+                        onDeletePermanent={permanentlyDelete}
+                        onEmptyTrash={emptyTrash}
+                        storageSize={trashStorageSizeKB}
+                        limit={trashLimit}
                       />
-                    } 
-                  />
-                  <Route 
-                    path="/trash" 
-                    element={
-                      <TodoList
-                        todos={todos}
-                        onToggle={toggleTodo}
-                        onDelete={handleDeleteTodo}
-                        onReorder={reorderTodos}
-                        onDeleteCompleted={handleDeleteCompleted}
-                        onCompleteTodos={completeTodos}
-                        onDeleteTodos={handleDeleteTodos}
-                        onDuplicate={duplicateTodo}
-                        savedTags={savedTags}
-                        onSelectTodo={handleOpenEditModal}
-                        searchQuery={searchQuery}
-                        completedCount={completedCount}
-                      />
-                    } 
-                  />
-                  <Route 
-                    path="/calendar" 
-                    element={
-                      <CalendarView
-                        todos={todos}
-                        onToggle={toggleTodo}
-                        onDelete={handleDeleteTodo}
-                        savedTags={savedTags}
-                        onSelectTodo={handleOpenEditModal}
-                      />
-                    } 
-                  />
-                  {/* 未定義のパスはトップにリダイレクト */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </div>
-            </Tabs>
+                    </div>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <div className="flex-1 p-4 sm:p-6 overflow-auto">
+                      <div className="max-w-md mx-auto space-y-8 py-4">
+                        <div className="text-center space-y-2">
+                          <h2 className="text-2xl font-bold">モバイル設定</h2>
+                          <p className="text-sm text-muted-foreground">テーマやタグの管理を行います</p>
+                        </div>
+                        <div className="bg-card border rounded-2xl p-6 shadow-sm">
+                          <SettingsMenu
+                            savedTags={savedTags}
+                            addSavedTag={addSavedTag}
+                            deleteSavedTag={deleteSavedTag}
+                            onExportTodos={handleExportTodos}
+                            currentBreed={breed}
+                            onBreedChange={setBreed}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-3">
+                          <Button variant="outline" className="w-full gap-2 rounded-xl h-12" onClick={() => setIsAboutOpen(true)}>
+                            <MdHelpOutline className="w-5 h-5 text-muted-foreground" />
+                            Catboxについて
+                          </Button>
+                          <Button variant="ghost" className="w-full gap-2 rounded-xl h-12 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => signOut()}>
+                            <MdLogout className="w-5 h-5" />
+                            ログアウト
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </div>
           </CardContent>
         </Card>
+
+        <BottomNav currentTab={currentTab} onTabChange={handleTabChange} />
 
         <TodoDetailModal
           todo={editingTodo}

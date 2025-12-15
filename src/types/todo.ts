@@ -14,6 +14,7 @@ export interface SubTask {
 export type RecurrenceRule = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly';
 
 export type CatBreed = 'classic' | 'scottish' | 'black' | 'white';
+export type AppTab = 'todo' | 'portal' | 'trash' | 'settings';
 
 export interface Todo {
   id: string;
