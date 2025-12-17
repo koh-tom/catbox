@@ -520,6 +520,18 @@ function App() {
 
         <BottomNav currentTab={currentTab} onTabChange={handleTabChange} />
 
+        {/* モバイル用フローティングアクションボタン (FAB) */}
+        {!isTrashOpen && currentTab === 'todo' && (
+          <Button
+            onClick={handleOpenCreateModal}
+            size="icon"
+            className="fixed bottom-20 right-4 w-14 h-14 rounded-2xl shadow-lg bg-primary text-primary-foreground sm:hidden z-40 btn-bounce active:scale-90 transition-transform flex items-center justify-center border-2 border-background"
+            aria-label="新しく追加"
+          >
+            <MdAdd className="w-8 h-8" />
+          </Button>
+        )}
+
         <TodoDetailModal
           todo={editingTodo}
           isOpen={isDetailOpen}
