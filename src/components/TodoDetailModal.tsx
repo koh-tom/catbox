@@ -10,7 +10,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -24,26 +23,230 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { RecurrenceRule, Tag, Todo } from '@/types/todo';
+import { Drawer } from 'vaul';
 
-interface TodoDetailModalProps {
+// フォームの内容を共通化
+interface TodoDetailContentProps {
   todo: Todo | null;
-  isOpen: boolean;
+  title: string;
+  setTitle: (v: string) => void;
+  description: string;
+  setDescription: (v: string) => void;
+  deadlineDate?: string;
+  setDeadlineDate: (v: string | undefined) => void;
+  priority: number;
+  setPriority: (v: number) => void;
+  tags: string[];
+  setTags: (v: string[]) => void;
+  estimatedHours: string;
+  setEstimatedHours: (v: string) => void;
+  subTaskTitle: string;
+  setSubTaskTitle: (v: string) => void;
+  recurrenceRule?: RecurrenceRule;
+  setRecurrenceRule: (v: RecurrenceRule | undefined) => void;
+  handleSave: () => void;
   onClose: () => void;
-  onSave: (
-    id: string,
-    title: string,
-    deadlineDate?: string,
-    priority?: number,
-    tags?: string[],
-    description?: string,
-    estimatedHours?: number,
-    recurrenceRule?: RecurrenceRule,
-  ) => void;
+  isSaveDisabled: boolean;
   savedTags: Tag[];
   onAddSubTask: (todoId: string, title: string) => void;
   onToggleSubTask: (todoId: string, subTaskId: string) => void;
   onDeleteSubTask: (todoId: string, subTaskId: string) => void;
+  handleSubTaskKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  handleAddSubTask: () => void;
 }
+
+const TodoDetailContent = ({
+  todo,
+  title,
+  setTitle,
+  description,
+  setDescription,
+  deadlineDate,
+  setDeadlineDate,
+  priority,
+  setPriority,
+  tags,
+  setTags,
+  estimatedHours,
+  setEstimatedHours,
+  subTaskTitle,
+  setSubTaskTitle,
+  recurrenceRule,
+  setRecurrenceRule,
+  handleSave,
+  onClose,
+  isSaveDisabled,
+  savedTags,
+  onAddSubTask,
+  onToggleSubTask,
+  onDeleteSubTask,
+  handleSubTaskKeyDown,
+  handleAddSubTask,
+}: TodoDetailContentProps) => (
+  <>
+    <div className="grid gap-5 py-4 px-1">
+      <div className="grid gap-2">
+        <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          <MdTitle className="w-4 h-4 text-primary" /> タイトル
+        </label>
+        <Input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="タスクのタイトル"
+          className="text-lg font-medium border-x-0 border-t-0 border-b-2 rounded-none focus-visible:ring-0 focus-visible:border-primary bg-transparent px-0 transition-colors"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-2">
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">期限</span>
+          <DatePicker date={deadlineDate} setDate={setDeadlineDate} placeholder="期限なし" className="w-full bg-muted/30" />
+        </div>
+        <div className="grid gap-2">
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">優先度</span>
+          <div className="flex items-center border rounded-xl px-3 h-10 w-full bg-muted/30">
+            <StarRating value={priority} onChange={setPriority} />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-2">
+          <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            <FaRegClock className="w-4 h-4 text-primary" /> 見積もり (h)
+          </label>
+          <Input
+            type="number"
+            min="0"
+            step="0.5"
+            value={estimatedHours}
+            onChange={(e) => setEstimatedHours(e.target.value)}
+            placeholder="0.0"
+            className="w-full bg-muted/30 rounded-xl"
+          />
+        </div>
+
+        <div className="grid gap-2">
+          <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            <MdRepeat className="w-4 h-4 text-primary" /> 繰り返し
+          </label>
+          <Select
+            value={recurrenceRule || 'none'}
+            onValueChange={(val: string) =>
+              setRecurrenceRule(
+                val === 'none' ? undefined : (val as NonNullable<RecurrenceRule>),
+              )
+            }
+          >
+            <SelectTrigger className="w-full bg-muted/30 rounded-xl border-none">
+              <SelectValue placeholder="なし" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="none">なし</SelectItem>
+              <SelectItem value="daily">毎日</SelectItem>
+              <SelectItem value="weekly">毎週</SelectItem>
+              <SelectItem value="biweekly">2週</SelectItem>
+              <SelectItem value="monthly">毎月</SelectItem>
+              <SelectItem value="yearly">毎年</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid gap-2">
+        <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          <FaRegStickyNote className="w-4 h-4 text-primary" /> メモ
+        </label>
+        <Textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="詳細やメモを入力..."
+          className="min-h-[80px] bg-muted/30 rounded-xl resize-none"
+        />
+      </div>
+
+      {todo && (
+        <div className="grid gap-3">
+          <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            <VscListSelection className="w-4 h-4 text-primary" /> サブタスク
+          </label>
+          <div className="flex gap-2">
+            <Input
+              value={subTaskTitle}
+              onChange={(e) => setSubTaskTitle(e.target.value)}
+              onKeyDown={handleSubTaskKeyDown}
+              placeholder="サブタスクを追加..."
+              className="flex-1 bg-muted/30 rounded-xl border-none"
+            />
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={handleAddSubTask}
+              disabled={!subTaskTitle.trim()}
+              type="button"
+              className="rounded-xl shrink-0"
+            >
+              <MdAdd className="w-5 h-5" />
+            </Button>
+          </div>
+
+          {todo.subtasks && todo.subtasks.length > 0 && (
+            <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1 scrollbar-thin">
+              {todo.subtasks.map((st) => (
+                <div
+                  key={st.id}
+                  className="flex items-center gap-3 p-3 rounded-xl border bg-card/40 group hover:border-primary/30 transition-all"
+                >
+                  <Checkbox
+                    checked={st.completed}
+                    onCheckedChange={() => onToggleSubTask(todo.id, st.id)}
+                    id={`subtask-${st.id}`}
+                  />
+                  <label
+                    htmlFor={`subtask-${st.id}`}
+                    className={`text-sm flex-1 cursor-pointer font-medium ${
+                      st.completed ? 'line-through text-muted-foreground/50' : ''
+                    }`}
+                  >
+                    {st.title}
+                  </label>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => onDeleteSubTask(todo.id, st.id)}
+                  >
+                    <MdDelete className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="grid gap-2">
+        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">タグ</span>
+        <TagSelector
+          savedTags={savedTags}
+          selectedTags={tags}
+          onChange={setTags}
+          className="w-full justify-between bg-muted/30 rounded-xl border-none h-10 px-4"
+        />
+      </div>
+    </div>
+
+    <div className="flex flex-col sm:flex-row gap-3 pt-4 sm:border-t mt-4">
+      <Button onClick={handleSave} disabled={isSaveDisabled} type="button" className="w-full sm:flex-1 h-12 rounded-xl font-black text-base shadow-lg shadow-primary/20 btn-bounce order-1 sm:order-2">
+        <MdCheck className="w-6 h-6 mr-2" />
+        {todo ? '保存する' : '作成する'}
+      </Button>
+      <Button variant="ghost" onClick={onClose} type="button" className="w-full sm:w-auto h-12 rounded-xl font-bold text-muted-foreground order-2 sm:order-1 sm:px-8">
+        キャンセル
+      </Button>
+    </div>
+  </>
+);
 
 export const TodoDetailModal = memo(function TodoDetailModal({
   todo,
@@ -63,6 +266,14 @@ export const TodoDetailModal = memo(function TodoDetailModal({
   const [estimatedHours, setEstimatedHours] = useState<string>('');
   const [subTaskTitle, setSubTaskTitle] = useState('');
   const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | undefined>(undefined);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -119,175 +330,46 @@ export const TodoDetailModal = memo(function TodoDetailModal({
 
   const isSaveDisabled = !title.trim();
 
+  const contentProps = {
+    todo, title, setTitle, description, setDescription, deadlineDate, setDeadlineDate,
+    priority, setPriority, tags, setTags, estimatedHours, setEstimatedHours,
+    subTaskTitle, setSubTaskTitle, recurrenceRule, setRecurrenceRule,
+    handleSave, onClose, isSaveDisabled, savedTags, onAddSubTask,
+    onToggleSubTask, onDeleteSubTask, handleSubTaskKeyDown, handleAddSubTask
+  };
+
+  if (isMobile) {
+    return (
+      <Drawer.Root open={isOpen} onOpenChange={(open) => !open && onClose()} shouldScaleBackground>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 z-[70] bg-card flex flex-col rounded-t-[32px] outline-none max-h-[94vh]">
+            <div className="flex-1 overflow-y-auto p-6 scrollbar-none">
+              <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-6" />
+              <Drawer.Title className="flex items-center gap-3 text-2xl font-black text-primary mb-2">
+                <img src="/icon.png" alt="Catbox" className="w-10 h-10 rounded-xl shadow-md rotate-3" />
+                <span>{todo ? '編集する 🐾' : '新規作成 🐈'}</span>
+              </Drawer.Title>
+              <TodoDetailContent {...contentProps} />
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px] border-none rounded-xl shadow-warm bg-card/80 backdrop-blur-md">
+      <DialogContent className="sm:max-w-[480px] border-none rounded-[24px] shadow-2xl bg-card p-8">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 text-xl font-black text-primary">
-            <img src="/icon.png" alt="Catbox" className="w-8 h-8 rounded-md shadow-sm" />
-            <span>{todo ? '詳細を編集する 🐾' : '新しいタスクを作る 🐈'}</span>
+          <DialogTitle className="flex items-center gap-4 text-2xl font-black text-primary mb-2">
+            <img src="/icon.png" alt="Catbox" className="w-10 h-10 rounded-xl shadow-md" />
+            <span>{todo ? 'タスクの詳細 🐾' : '新しいタスク 🐈'}</span>
           </DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <MdTitle className="w-4 h-4" /> タイトル
-            </div>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="タスクのタイトル"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <span className="text-sm font-medium text-muted-foreground">期限</span>
-              <DatePicker date={deadlineDate} setDate={setDeadlineDate} placeholder="期限なし" className="w-full" />
-            </div>
-            <div className="grid gap-2">
-              <span className="text-sm font-medium text-muted-foreground">優先度</span>
-              <div className="flex items-center border rounded-md px-3 h-10 w-full bg-background mt-1">
-                <StarRating value={priority} onChange={setPriority} />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <FaRegClock className="w-4 h-4" /> 見積もり時間 (h)
-              </div>
-              <Input
-                type="number"
-                min="0"
-                step="0.5"
-                value={estimatedHours}
-                onChange={(e) => setEstimatedHours(e.target.value)}
-                placeholder="例: 0.5"
-                className="w-full"
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <MdRepeat className="w-4 h-4" /> 繰り返し
-              </div>
-              <Select
-                value={recurrenceRule || 'none'}
-                onValueChange={(val: string) =>
-                  setRecurrenceRule(
-                    val === 'none' ? undefined : (val as NonNullable<RecurrenceRule>),
-                  )
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="なし" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">なし</SelectItem>
-                  <SelectItem value="daily">毎日</SelectItem>
-                  <SelectItem value="weekly">毎週</SelectItem>
-                  <SelectItem value="biweekly">2週</SelectItem>
-                  <SelectItem value="monthly">毎月</SelectItem>
-                  <SelectItem value="yearly">毎年</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <FaRegStickyNote className="w-4 h-4" /> メモ
-            </div>
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="詳細やメモを入力..."
-              className="min-h-[100px]"
-            />
-          </div>
-
-          {todo && (
-            <div className="grid gap-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <VscListSelection className="w-4 h-4" /> サブタスク
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  value={subTaskTitle}
-                  onChange={(e) => setSubTaskTitle(e.target.value)}
-                  onKeyDown={handleSubTaskKeyDown}
-                  placeholder="サブタスクを追加..."
-                  className="flex-1"
-                />
-                <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={handleAddSubTask}
-                  disabled={!subTaskTitle.trim()}
-                  type="button"
-                >
-                  <MdAdd className="w-4 h-4" />
-                </Button>
-              </div>
-
-              {todo.subtasks && todo.subtasks.length > 0 && (
-                <div className="space-y-2 mt-1">
-                  {todo.subtasks.map((st) => (
-                    <div
-                      key={st.id}
-                      className="flex items-center gap-2 p-2 rounded-md border bg-muted/40 group"
-                    >
-                      <Checkbox
-                        checked={st.completed}
-                        onCheckedChange={() => onToggleSubTask(todo.id, st.id)}
-                        id={`subtask-${st.id}`}
-                      />
-                      <label
-                        htmlFor={`subtask-${st.id}`}
-                        className={`text-sm flex-1 cursor-pointer ${
-                          st.completed ? 'line-through text-muted-foreground' : ''
-                        }`}
-                      >
-                        {st.title}
-                      </label>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => onDeleteSubTask(todo.id, st.id)}
-                      >
-                        <MdDelete className="w-3 h-3 text-muted-foreground hover:text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-
-          <div className="grid gap-2">
-            <span className="text-sm font-medium text-muted-foreground">タグ</span>
-            <TagSelector
-              savedTags={savedTags}
-              selectedTags={tags}
-              onChange={setTags}
-              className="w-full justify-between"
-            />
-          </div>
-        </div>
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="ghost" onClick={onClose} type="button" className="rounded-md font-bold">
-            キャンセル
-          </Button>
-          <Button onClick={handleSave} disabled={isSaveDisabled} type="button" className="rounded-md font-bold btn-bounce shadow-md px-6">
-            <MdCheck className="w-5 h-5 mr-2" />
-            保存する
-          </Button>
-        </DialogFooter>
+        <TodoDetailContent {...contentProps} />
       </DialogContent>
     </Dialog>
   );
 });
+
