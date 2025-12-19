@@ -441,7 +441,13 @@ function App() {
                           </TabsList>
                         </Tabs>
                       </div>
-                      <CalendarView todos={todos} onSelectTodo={handleOpenEditModal} />
+                      <CalendarView
+                        todos={todos}
+                        onToggle={toggleTodo}
+                        onDelete={handleDeleteTodo}
+                        savedTags={savedTags}
+                        onSelectTodo={handleOpenEditModal}
+                      />
                     </div>
                   }
                 />
@@ -468,7 +474,7 @@ function App() {
                       <TrashView
                         trashedTodos={trashedTodos}
                         onRestore={restoreFromTrash}
-                        onDeletePermanent={permanentlyDelete}
+                        onPermanentlyDelete={permanentlyDelete}
                         onEmptyTrash={emptyTrash}
                         storageSize={trashStorageSizeKB}
                         limit={trashLimit}
@@ -528,7 +534,7 @@ function App() {
         <BottomNav currentTab={currentTab} onTabChange={handleTabChange} />
 
         {/* モバイル用フローティングアクションボタン (FAB) */}
-        {!isTrashOpen && currentTab === 'todo' && (
+        {currentTab === 'todo' && (
           <Button
             onClick={handleOpenCreateModal}
             size="icon"
@@ -551,17 +557,6 @@ function App() {
         />
 
         <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
-
-        <TrashView
-          isOpen={isTrashOpen}
-          onClose={() => navigate(-1)}
-          trashedTodos={trashedTodos}
-          onRestore={restoreFromTrash}
-          onPermanentlyDelete={permanentlyDelete}
-          onEmptyTrash={emptyTrash}
-          trashLimit={trashLimit}
-          trashStorageSizeKB={trashStorageSizeKB}
-        />
       </div>
 
       <Toaster />

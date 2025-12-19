@@ -282,6 +282,26 @@ const TodoDetailContent = ({
   </>
 );
 
+interface TodoDetailModalProps {
+  todo: Todo | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (
+    id: string,
+    title: string,
+    deadlineDate?: string,
+    priority?: number,
+    tags?: string[],
+    description?: string,
+    estimatedHours?: number,
+    recurrenceRule?: RecurrenceRule,
+  ) => void;
+  savedTags: Tag[];
+  onAddSubTask: (todoId: string, title: string) => void;
+  onToggleSubTask: (todoId: string, subTaskId: string) => void;
+  onDeleteSubTask: (todoId: string, subTaskId: string) => void;
+}
+
 export const TodoDetailModal = memo(function TodoDetailModal({
   todo,
   isOpen,
