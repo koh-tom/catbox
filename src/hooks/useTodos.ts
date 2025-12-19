@@ -352,10 +352,7 @@ export function useTodos() {
 
       Promise.all(
         updatedTodos.map((todo) =>
-          supabase
-            .from('todos')
-            .update({ order_index: todo.order })
-            .eq('id', todo.id),
+          supabase.from('todos').update({ order_index: todo.order }).eq('id', todo.id),
         ),
       ).then((results) => {
         const firstError = results.find((r) => r.error);

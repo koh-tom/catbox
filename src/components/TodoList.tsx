@@ -1,7 +1,14 @@
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FaCat, FaFlag, FaRegCalendarAlt, FaRegClock, FaSort, FaSortAmountDown } from 'react-icons/fa';
-import { MdCheckCircle, MdDeleteSweep, MdPendingActions, MdStar, MdTaskAlt, MdWarning } from 'react-icons/md';
+import {
+  FaCat,
+  FaFlag,
+  FaRegCalendarAlt,
+  FaRegClock,
+  FaSort,
+  FaSortAmountDown,
+} from 'react-icons/fa';
+import { MdCheckCircle, MdDeleteSweep, MdPendingActions, MdStar, MdWarning } from 'react-icons/md';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,7 +62,10 @@ export const TodoList = memo(function TodoList({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [lasso, setLasso] = useState<{ start: { x: number; y: number }; end: { x: number; y: number } } | null>(null);
+  const [lasso, setLasso] = useState<{
+    start: { x: number; y: number };
+    end: { x: number; y: number };
+  } | null>(null);
 
   // ラッソ選択のイベントハンドラ
   useEffect(() => {
@@ -65,23 +75,29 @@ export const TodoList = memo(function TodoList({
     const handleMouseDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       // ボタン、入力フォーム、リンクなどは除外
-      if (target.closest('button') || target.closest('input') || target.closest('a') || target.closest('[role="button"]')) return;
-      
+      if (
+        target.closest('button') ||
+        target.closest('input') ||
+        target.closest('a') ||
+        target.closest('[role="button"]')
+      )
+        return;
+
       const rect = container.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
+
       setLasso({ start: { x, y }, end: { x, y } });
     };
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!lasso) return;
-      
+
       const rect = container.getBoundingClientRect();
       const currentX = e.clientX - rect.left;
       const currentY = e.clientY - rect.top;
-      
-      setLasso((prev) => prev ? { ...prev, end: { x: currentX, y: currentY } } : null);
+
+      setLasso((prev) => (prev ? { ...prev, end: { x: currentX, y: currentY } } : null));
 
       // 交差判定
       const lassoRect = {
@@ -97,7 +113,7 @@ export const TodoList = memo(function TodoList({
       items.forEach((item) => {
         const itemRect = item.getBoundingClientRect();
         const id = item.getAttribute('data-todo-id');
-        
+
         const isIntersecting = !(
           itemRect.left > lassoRect.right ||
           itemRect.right < lassoRect.left ||
@@ -110,7 +126,10 @@ export const TodoList = memo(function TodoList({
         }
       });
 
-      if (newSelected.size !== selectedIds.size || Array.from(newSelected).some(id => !selectedIds.has(id))) {
+      if (
+        newSelected.size !== selectedIds.size ||
+        Array.from(newSelected).some((id) => !selectedIds.has(id))
+      ) {
         setSelectedIds(newSelected);
       }
     };
@@ -212,38 +231,41 @@ export const TodoList = memo(function TodoList({
     );
   }, []);
 
-  const toggleSelection = useCallback((id: string, shiftKey: boolean) => {
-    setSelectedIds((prev) => {
-      const newSet = new Set(prev);
-      const currentIdx = visibleTodos.findIndex(t => t.id === id);
-      
-      if (shiftKey && currentIdx !== -1) {
-        let lastIdx = 0;
-        if (lastSelectedId && prev.has(lastSelectedId)) {
-          lastIdx = visibleTodos.findIndex(t => t.id === lastSelectedId);
-          if (lastIdx === -1) lastIdx = 0;
-        }
-        
-        const start = Math.min(lastIdx, currentIdx);
-        const end = Math.max(lastIdx, currentIdx);
-        
-        for (let i = start; i <= end; i++) {
-          newSet.add(visibleTodos[i].id);
-        }
-        setTimeout(() => setLastSelectedId(id), 0);
-        return newSet;
-      }
+  const toggleSelection = useCallback(
+    (id: string, shiftKey: boolean) => {
+      setSelectedIds((prev) => {
+        const newSet = new Set(prev);
+        const currentIdx = visibleTodos.findIndex((t) => t.id === id);
 
-      if (newSet.has(id)) {
-        newSet.delete(id);
-        setTimeout(() => setLastSelectedId(null), 0);
-      } else {
-        newSet.add(id);
-        setTimeout(() => setLastSelectedId(id), 0);
-      }
-      return newSet;
-    });
-  }, [lastSelectedId, visibleTodos]);
+        if (shiftKey && currentIdx !== -1) {
+          let lastIdx = 0;
+          if (lastSelectedId && prev.has(lastSelectedId)) {
+            lastIdx = visibleTodos.findIndex((t) => t.id === lastSelectedId);
+            if (lastIdx === -1) lastIdx = 0;
+          }
+
+          const start = Math.min(lastIdx, currentIdx);
+          const end = Math.max(lastIdx, currentIdx);
+
+          for (let i = start; i <= end; i++) {
+            newSet.add(visibleTodos[i].id);
+          }
+          setTimeout(() => setLastSelectedId(id), 0);
+          return newSet;
+        }
+
+        if (newSet.has(id)) {
+          newSet.delete(id);
+          setTimeout(() => setLastSelectedId(null), 0);
+        } else {
+          newSet.add(id);
+          setTimeout(() => setLastSelectedId(id), 0);
+        }
+        return newSet;
+      });
+    },
+    [lastSelectedId, visibleTodos],
+  );
 
   const handleBatchComplete = useCallback(() => {
     if (onCompleteTodos && selectedIds.size > 0) {
@@ -282,7 +304,6 @@ export const TodoList = memo(function TodoList({
     });
   }, [visibleTodos, selectedIds]);
 
-
   const toggleSort = useCallback(() => {
     setSortKey((prev) => {
       if (prev === 'deadline') return 'created';
@@ -309,9 +330,7 @@ export const TodoList = memo(function TodoList({
           <FaCat className="w-16 h-16" />
         </div>
         <p className="text-lg font-bold mb-1">タスクがありません</p>
-        <span className="text-sm opacity-70">
-          上部の「新しいタスクを追加」から作成しましょう
-        </span>
+        <span className="text-sm opacity-70">上部の「新しいタスクを追加」から作成しましょう</span>
       </div>
     );
   }
@@ -461,7 +480,9 @@ export const TodoList = memo(function TodoList({
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>{selectedIds.size}件のタスクを削除しますか？</AlertDialogTitle>
+                        <AlertDialogTitle>
+                          {selectedIds.size}件のタスクを削除しますか？
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
                           選択したタスクをゴミ箱に移動します。
                         </AlertDialogDescription>

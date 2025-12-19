@@ -2,17 +2,13 @@ import { memo, useEffect, useState } from 'react';
 import { FaRegClock, FaRegStickyNote } from 'react-icons/fa';
 import { MdAdd, MdCheck, MdDelete, MdRepeat, MdTitle } from 'react-icons/md';
 import { VscListSelection } from 'react-icons/vsc';
+import { Drawer } from 'vaul';
 import { DatePicker } from '@/components/DatePicker';
 import { StarRating } from '@/components/StarRating';
 import { TagSelector } from '@/components/TagSelector';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -23,7 +19,6 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import type { RecurrenceRule, Tag, Todo } from '@/types/todo';
-import { Drawer } from 'vaul';
 
 // フォームの内容を共通化
 interface TodoDetailContentProps {
@@ -48,11 +43,10 @@ interface TodoDetailContentProps {
   onClose: () => void;
   isSaveDisabled: boolean;
   savedTags: Tag[];
-  onAddSubTask: (todoId: string, title: string) => void;
-  onToggleSubTask: (todoId: string, subTaskId: string) => void;
-  onDeleteSubTask: (todoId: string, subTaskId: string) => void;
   handleSubTaskKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   handleAddSubTask: () => void;
+  onToggleSubTask: (todoId: string, subTaskId: string) => void;
+  onDeleteSubTask: (todoId: string, subTaskId: string) => void;
 }
 
 const TodoDetailContent = ({
@@ -77,19 +71,22 @@ const TodoDetailContent = ({
   onClose,
   isSaveDisabled,
   savedTags,
-  onAddSubTask,
-  onToggleSubTask,
-  onDeleteSubTask,
   handleSubTaskKeyDown,
   handleAddSubTask,
+  onToggleSubTask,
+  onDeleteSubTask,
 }: TodoDetailContentProps) => (
   <>
     <div className="grid gap-5 py-4 px-1">
       <div className="grid gap-2">
-        <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor="todo-title"
+          className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider"
+        >
           <MdTitle className="w-4 h-4 text-primary" /> タイトル
         </label>
         <Input
+          id="todo-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="タスクのタイトル"
@@ -99,11 +96,20 @@ const TodoDetailContent = ({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="grid gap-2">
-          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">期限</span>
-          <DatePicker date={deadlineDate} setDate={setDeadlineDate} placeholder="期限なし" className="w-full bg-muted/30" />
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            期限
+          </span>
+          <DatePicker
+            date={deadlineDate}
+            setDate={setDeadlineDate}
+            placeholder="期限なし"
+            className="w-full bg-muted/30"
+          />
         </div>
         <div className="grid gap-2">
-          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">優先度</span>
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            優先度
+          </span>
           <div className="flex items-center border rounded-xl px-3 h-10 w-full bg-muted/30">
             <StarRating value={priority} onChange={setPriority} />
           </div>
@@ -112,10 +118,14 @@ const TodoDetailContent = ({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="grid gap-2">
-          <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          <label
+            htmlFor="todo-estimate"
+            className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider"
+          >
             <FaRegClock className="w-4 h-4 text-primary" /> 見積もり (h)
           </label>
           <Input
+            id="todo-estimate"
             type="number"
             min="0"
             step="0.5"
@@ -127,18 +137,22 @@ const TodoDetailContent = ({
         </div>
 
         <div className="grid gap-2">
-          <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          <label
+            htmlFor="todo-recurrence"
+            className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider"
+          >
             <MdRepeat className="w-4 h-4 text-primary" /> 繰り返し
           </label>
           <Select
             value={recurrenceRule || 'none'}
             onValueChange={(val: string) =>
-              setRecurrenceRule(
-                val === 'none' ? undefined : (val as NonNullable<RecurrenceRule>),
-              )
+              setRecurrenceRule(val === 'none' ? undefined : (val as NonNullable<RecurrenceRule>))
             }
           >
-            <SelectTrigger className="w-full bg-muted/30 rounded-xl border-none">
+            <SelectTrigger
+              id="todo-recurrence"
+              className="w-full bg-muted/30 rounded-xl border-none"
+            >
               <SelectValue placeholder="なし" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
@@ -154,10 +168,14 @@ const TodoDetailContent = ({
       </div>
 
       <div className="grid gap-2">
-        <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+        <label
+          htmlFor="todo-memo"
+          className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider"
+        >
           <FaRegStickyNote className="w-4 h-4 text-primary" /> メモ
         </label>
         <Textarea
+          id="todo-memo"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="詳細やメモを入力..."
@@ -167,11 +185,15 @@ const TodoDetailContent = ({
 
       {todo && (
         <div className="grid gap-3">
-          <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          <label
+            htmlFor="todo-subtask"
+            className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider"
+          >
             <VscListSelection className="w-4 h-4 text-primary" /> サブタスク
           </label>
           <div className="flex gap-2">
             <Input
+              id="todo-subtask"
               value={subTaskTitle}
               onChange={(e) => setSubTaskTitle(e.target.value)}
               onKeyDown={handleSubTaskKeyDown}
@@ -226,7 +248,9 @@ const TodoDetailContent = ({
       )}
 
       <div className="grid gap-2">
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">タグ</span>
+        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          タグ
+        </span>
         <TagSelector
           savedTags={savedTags}
           selectedTags={tags}
@@ -237,11 +261,21 @@ const TodoDetailContent = ({
     </div>
 
     <div className="flex flex-col sm:flex-row gap-3 pt-4 sm:border-t mt-4">
-      <Button onClick={handleSave} disabled={isSaveDisabled} type="button" className="w-full sm:flex-1 h-12 rounded-xl font-black text-base shadow-lg shadow-primary/20 btn-bounce order-1 sm:order-2">
+      <Button
+        onClick={handleSave}
+        disabled={isSaveDisabled}
+        type="button"
+        className="w-full sm:flex-1 h-12 rounded-xl font-black text-base shadow-lg shadow-primary/20 btn-bounce order-1 sm:order-2"
+      >
         <MdCheck className="w-6 h-6 mr-2" />
         {todo ? '保存する' : '作成する'}
       </Button>
-      <Button variant="ghost" onClick={onClose} type="button" className="w-full sm:w-auto h-12 rounded-xl font-bold text-muted-foreground order-2 sm:order-1 sm:px-8">
+      <Button
+        variant="ghost"
+        onClick={onClose}
+        type="button"
+        className="w-full sm:w-auto h-12 rounded-xl font-bold text-muted-foreground order-2 sm:order-1 sm:px-8"
+      >
         キャンセル
       </Button>
     </div>
@@ -331,11 +365,32 @@ export const TodoDetailModal = memo(function TodoDetailModal({
   const isSaveDisabled = !title.trim();
 
   const contentProps = {
-    todo, title, setTitle, description, setDescription, deadlineDate, setDeadlineDate,
-    priority, setPriority, tags, setTags, estimatedHours, setEstimatedHours,
-    subTaskTitle, setSubTaskTitle, recurrenceRule, setRecurrenceRule,
-    handleSave, onClose, isSaveDisabled, savedTags, onAddSubTask,
-    onToggleSubTask, onDeleteSubTask, handleSubTaskKeyDown, handleAddSubTask
+    todo,
+    title,
+    setTitle,
+    description,
+    setDescription,
+    deadlineDate,
+    setDeadlineDate,
+    priority,
+    setPriority,
+    tags,
+    setTags,
+    estimatedHours,
+    setEstimatedHours,
+    subTaskTitle,
+    setSubTaskTitle,
+    recurrenceRule,
+    setRecurrenceRule,
+    handleSave,
+    onClose,
+    isSaveDisabled,
+    savedTags,
+    onAddSubTask,
+    onToggleSubTask,
+    onDeleteSubTask,
+    handleSubTaskKeyDown,
+    handleAddSubTask,
   };
 
   if (isMobile) {
@@ -347,7 +402,11 @@ export const TodoDetailModal = memo(function TodoDetailModal({
             <div className="flex-1 overflow-y-auto p-6 scrollbar-none">
               <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-6" />
               <Drawer.Title className="flex items-center gap-3 text-2xl font-black text-primary mb-2">
-                <img src="/icon.png" alt="Catbox" className="w-10 h-10 rounded-xl shadow-md rotate-3" />
+                <img
+                  src="/icon.png"
+                  alt="Catbox"
+                  className="w-10 h-10 rounded-xl shadow-md rotate-3"
+                />
                 <span>{todo ? '編集する 🐾' : '新規作成 🐈'}</span>
               </Drawer.Title>
               <TodoDetailContent {...contentProps} />
@@ -372,4 +431,3 @@ export const TodoDetailModal = memo(function TodoDetailModal({
     </Dialog>
   );
 });
-

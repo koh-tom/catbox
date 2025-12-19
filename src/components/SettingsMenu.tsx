@@ -197,9 +197,7 @@ export const SettingsMenu = memo(function SettingsMenu({
                       : 'bg-background hover:bg-accent border-muted hover:border-muted-foreground/30',
                   )}
                 >
-                  <span className="text-xs font-bold leading-none mb-1">
-                    {breed_item.name}
-                  </span>
+                  <span className="text-xs font-bold leading-none mb-1">{breed_item.name}</span>
                   <span className="text-[10px] text-muted-foreground leading-tight">
                     {breed_item.description}
                   </span>

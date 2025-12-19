@@ -1,4 +1,3 @@
-import { } from 'react'; // または単に削除
 import type {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
@@ -74,20 +73,28 @@ export function TodoItem({
         )}
 
         {onToggleSelect && (
-          <div
+          <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onToggleSelect(todo.id, e.shiftKey);
             }}
-            className="flex items-center justify-center p-1 -m-1 cursor-pointer"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onToggleSelect(todo.id, e.shiftKey);
+              }
+            }}
+            className="flex items-center justify-center p-1 -m-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary rounded bg-transparent border-none"
+            aria-label="選択"
           >
             <Checkbox
               checked={isSelected}
-              onCheckedChange={() => {}} // 親のdivでイベントを拾う
+              onCheckedChange={() => {}} // 親のbuttonでイベントを拾う
               className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 pointer-events-none"
-              aria-label="選択"
+              aria-label="選択チェックボックス"
             />
-          </div>
+          </button>
         )}
       </div>
 

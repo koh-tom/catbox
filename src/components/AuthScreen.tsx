@@ -51,7 +51,11 @@ export function AuthScreen() {
       <Card className="w-full max-w-sm rounded-xl shadow-warm border-none bg-card/60 backdrop-blur-md">
         <CardHeader className="text-center pb-2">
           <CardTitle className="text-3xl font-black flex items-center justify-center gap-3 mb-2">
-            <img src="/icon.png" alt="Catbox Icon" className="w-10 h-10 rounded-lg shadow-md rotate-[-5deg]" />
+            <img
+              src="/icon.png"
+              alt="Catbox Icon"
+              className="w-10 h-10 rounded-lg shadow-md rotate-[-5deg]"
+            />
             <span className="tracking-tight text-primary">{APP_NAME}</span>
           </CardTitle>
           <CardDescription className="text-sm font-medium">
@@ -63,7 +67,10 @@ export function AuthScreen() {
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-5 pt-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1" htmlFor="email">
+              <label
+                className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1"
+                htmlFor="email"
+              >
                 メールアドレス
               </label>
               <Input
@@ -79,7 +86,10 @@ export function AuthScreen() {
             {mode !== 'reset' && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between ml-1">
-                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground" htmlFor="password">
+                  <label
+                    className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                    htmlFor="password"
+                  >
                     パスワード
                   </label>
                   {mode === 'login' && (
@@ -102,10 +112,18 @@ export function AuthScreen() {
                 />
               </div>
             )}
-            <Button type="submit" className="w-full h-12 rounded-md font-bold text-base shadow-md btn-bounce mt-2" disabled={isLoading}>
-              {isLoading ? '準備中...' : 
-                mode === 'signup' ? '登録を開始する' : 
-                mode === 'login' ? 'ログインする' : '再設定メールを送る'}
+            <Button
+              type="submit"
+              className="w-full h-12 rounded-md font-bold text-base shadow-md btn-bounce mt-2"
+              disabled={isLoading}
+            >
+              {isLoading
+                ? '準備中...'
+                : mode === 'signup'
+                  ? '登録を開始する'
+                  : mode === 'login'
+                    ? 'ログインする'
+                    : '再設定メールを送る'}
             </Button>
           </form>
 

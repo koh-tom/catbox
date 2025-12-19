@@ -1,21 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaCat, FaTrashAlt } from 'react-icons/fa';
-import { LuBox } from 'lucide-react';
 import { MdAdd, MdHelpOutline, MdLogout, MdSearch } from 'react-icons/md';
-import {
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AboutModal } from '@/components/AboutModal';
 import { AuthScreen } from '@/components/AuthScreen';
+import { BottomNav } from '@/components/BottomNav';
 import { CalendarView } from '@/components/CalendarView';
+import { PasswordUpdateScreen } from '@/components/PasswordUpdateScreen';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { PasswordUpdateScreen } from '@/components/PasswordUpdateScreen';
 import { TodoDetailModal } from '@/components/TodoDetailModal';
 import { TodoList } from '@/components/TodoList';
 import { TrashView } from '@/components/TrashView';
@@ -24,11 +18,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Toaster } from '@/components/ui/sonner';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BottomNav } from '@/components/BottomNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppShortcuts } from '@/hooks/useAppShortcuts';
 import { useTodos } from '@/hooks/useTodos';
-import { APP_NAME, CAT_BREED_STORAGE_KEY, CAT_BREEDS } from '@/lib/constants';
+import { APP_NAME, CAT_BREED_STORAGE_KEY } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { AppTab, CatBreed, RecurrenceRule, Todo } from '@/types/todo';
 
@@ -107,15 +100,18 @@ function App() {
     document.title = currentTitle ? `${currentTitle} | ${APP_NAME}` : APP_NAME;
   }, [location.pathname]);
 
-  const handleTabChange = useCallback((tab: AppTab) => {
-    const paths: Record<AppTab, string> = {
-      todo: '/',
-      portal: '/portal',
-      trash: '/trash',
-      settings: '/settings',
-    };
-    navigate(paths[tab]);
-  }, [navigate]);
+  const handleTabChange = useCallback(
+    (tab: AppTab) => {
+      const paths: Record<AppTab, string> = {
+        todo: '/',
+        portal: '/portal',
+        trash: '/trash',
+        settings: '/settings',
+      };
+      navigate(paths[tab]);
+    },
+    [navigate],
+  );
 
   const completedCount = useMemo(() => todos.filter((t) => t.completed).length, [todos]);
 
@@ -310,7 +306,7 @@ function App() {
                 <img src="/icon.png" alt="Catbox Icon" className="w-6 h-6 rounded-md shadow-sm" />
                 <span className="hidden sm:inline tracking-tight">{APP_NAME}</span>
               </CardTitle>
-              
+
               <div className="flex-1 flex items-center justify-end gap-2 sm:gap-4">
                 <div className="relative max-w-[140px] sm:max-w-xs w-full group">
                   <MdSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -323,7 +319,7 @@ function App() {
                     className="pl-8 h-8 text-xs bg-muted/50 border-none focus-visible:ring-1 focus-visible:bg-background transition-all rounded-full"
                   />
                 </div>
-                
+
                 <div className="flex items-center gap-0.5 sm:gap-1">
                   <div className="hidden sm:flex items-center gap-1">
                     <SettingsMenu
@@ -336,13 +332,13 @@ function App() {
                     />
                     <ThemeToggle />
                   </div>
-                  
+
                   <Button
                     variant="ghost"
                     size="icon"
                     className={cn(
-                      "h-8 w-8 relative sm:flex hidden",
-                      isTrashOpen && "bg-accent text-accent-foreground"
+                      'h-8 w-8 relative sm:flex hidden',
+                      isTrashOpen && 'bg-accent text-accent-foreground',
                     )}
                     title="ゴミ箱"
                     onClick={() => navigate('/trash')}
@@ -354,7 +350,7 @@ function App() {
                       </span>
                     )}
                   </Button>
-                  
+
                   <Button
                     variant="ghost"
                     size="icon"
@@ -364,7 +360,7 @@ function App() {
                   >
                     <MdHelpOutline className="h-4 w-4 text-muted-foreground" />
                   </Button>
-                  
+
                   <Button
                     variant="ghost"
                     size="icon"
@@ -458,7 +454,8 @@ function App() {
                       </div>
                       <h2 className="text-2xl font-bold mb-3">ポータル（ダッシュボード）</h2>
                       <p className="text-muted-foreground max-w-sm font-medium leading-relaxed">
-                        ここには、1日の概要、天気、習慣トラッカーなどが集約される予定です。<br />
+                        ここには、1日の概要、天気、習慣トラッカーなどが集約される予定です。
+                        <br />
                         現在丹精込めて開発中... 🐾
                       </p>
                     </div>
@@ -486,7 +483,9 @@ function App() {
                       <div className="max-w-md mx-auto space-y-8 py-4">
                         <div className="text-center space-y-2">
                           <h2 className="text-2xl font-bold">モバイル設定</h2>
-                          <p className="text-sm text-muted-foreground">テーマやタグの管理を行います</p>
+                          <p className="text-sm text-muted-foreground">
+                            テーマやタグの管理を行います
+                          </p>
                         </div>
                         <div className="bg-card border rounded-2xl p-6 shadow-sm">
                           <SettingsMenu
@@ -499,11 +498,19 @@ function App() {
                           />
                         </div>
                         <div className="flex flex-col gap-3">
-                          <Button variant="outline" className="w-full gap-2 rounded-xl h-12" onClick={() => setIsAboutOpen(true)}>
+                          <Button
+                            variant="outline"
+                            className="w-full gap-2 rounded-xl h-12"
+                            onClick={() => setIsAboutOpen(true)}
+                          >
                             <MdHelpOutline className="w-5 h-5 text-muted-foreground" />
                             Catboxについて
                           </Button>
-                          <Button variant="ghost" className="w-full gap-2 rounded-xl h-12 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => signOut()}>
+                          <Button
+                            variant="ghost"
+                            className="w-full gap-2 rounded-xl h-12 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            onClick={() => signOut()}
+                          >
                             <MdLogout className="w-5 h-5" />
                             ログアウト
                           </Button>

@@ -96,8 +96,9 @@ export const TrashView = memo(function TrashView({
               >
                 <div className="flex-1 min-w-0">
                   <p
-                    className={`text-sm truncate ${todo.completed ? 'line-through text-muted-foreground' : ''
-                      }`}
+                    className={`text-sm truncate ${
+                      todo.completed ? 'line-through text-muted-foreground' : ''
+                    }`}
                   >
                     {todo.title}
                   </p>
