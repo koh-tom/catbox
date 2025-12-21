@@ -38,6 +38,12 @@ ALTER TABLE todos ADD COLUMN order_index INTEGER DEFAULT 0;
 ALTER TABLE todos ADD COLUMN estimated_hours NUMERIC(5,2);
 ALTER TABLE todos ADD COLUMN recurrence_rule TEXT;
 
+-- データ容量の安全性確保（バリデーション制約）
+ALTER TABLE todos ADD CONSTRAINT title_length CHECK (char_length(title) <= 255);
+ALTER TABLE todos ADD CONSTRAINT desc_length CHECK (char_length(description) <= 10000);
+ALTER TABLE subtasks ADD CONSTRAINT subtask_title_length CHECK (char_length(title) <= 255);
+ALTER TABLE saved_tags ADD CONSTRAINT tag_name_length CHECK (char_length(name) <= 50);
+
 -- 4. RLS (Row Level Security) の有効化
 ALTER TABLE todos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subtasks ENABLE ROW LEVEL SECURITY;
