@@ -57,5 +57,15 @@
     "typescript": "~5.9.3",
     "vite": "^7.2.4",
     "vite-plugin-pwa": "^1.2.0"
+  },
+  "overrides": {
+    "tmp": "^0.2.5",
+    "serialize-javascript": "^7.0.5",
+    "lodash": "^4.17.24"
+  },
+  "resolutions": {
+    "tmp": "^0.2.5",
+    "serialize-javascript": "^7.0.5",
+    "lodash": "^4.17.24"
   }
 }
