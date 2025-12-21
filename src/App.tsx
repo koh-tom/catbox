@@ -25,8 +25,8 @@ import { APP_NAME, CAT_BREED_STORAGE_KEY } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { AppTab, CatBreed, RecurrenceRule, Todo } from '@/types/todo';
 
-function App() {
-  const { user, isLoading, signOut, isPasswordRecovery } = useAuth();
+function AuthenticatedApp() {
+  const { signOut } = useAuth();
   const [breed, setBreed] = useState<CatBreed>(() => {
     const saved = localStorage.getItem(CAT_BREED_STORAGE_KEY);
     return (saved as CatBreed) || 'classic';
@@ -269,32 +269,6 @@ function App() {
     },
     [todos],
   );
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">読み込み中...</p>
-      </div>
-    );
-  }
-
-  if (isPasswordRecovery) {
-    return (
-      <>
-        <PasswordUpdateScreen />
-        <Toaster />
-      </>
-    );
-  }
-
-  if (!user) {
-    return (
-      <>
-        <AuthScreen />
-        <Toaster />
-      </>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background p-0 sm:p-4 pb-16 sm:pb-4" data-breed={breed}>
@@ -562,6 +536,43 @@ function App() {
       <Toaster />
     </div>
   );
+}
+
+function App() {
+  const { user, isLoading, isPasswordRecovery } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 shadow-sm rotate-3 animate-pulse">
+          <FaCat className="w-8 h-8 text-primary animate-bounce shadow-sm" />
+        </div>
+        <p className="text-muted-foreground font-bold tracking-widest text-sm animate-pulse">
+          LOADING...
+        </p>
+      </div>
+    );
+  }
+
+  if (isPasswordRecovery) {
+    return (
+      <>
+        <PasswordUpdateScreen />
+        <Toaster />
+      </>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <AuthScreen />
+        <Toaster />
+      </>
+    );
+  }
+
+  return <AuthenticatedApp />;
 }
 
 export default App;
