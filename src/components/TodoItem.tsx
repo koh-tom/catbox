@@ -3,6 +3,7 @@ import type {
   DraggableProvidedDragHandleProps,
 } from '@hello-pangea/dnd';
 import { format } from 'date-fns';
+import { motion } from 'framer-motion';
 import { FaRegClock } from 'react-icons/fa';
 import { MdCheck, MdClose, MdContentCopy, MdDragIndicator, MdEdit, MdUndo } from 'react-icons/md';
 import { VscListSelection } from 'react-icons/vsc';
@@ -46,14 +47,20 @@ export function TodoItem({
   onDuplicate,
 }: TodoItemProps) {
   return (
-    <li
+    <motion.li
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+      whileTap={{ scale: 0.98 }}
       ref={innerRef}
       {...draggableProps}
       style={draggableProps?.style}
       data-lasso-item
       data-todo-id={todo.id}
       className={cn(
-        'group flex items-start gap-4 p-4 lg:p-5 rounded-lg border border-muted bg-card/60 transition-all hover:bg-accent/40 hover:shadow-md h-full relative',
+        'group flex items-start gap-4 p-4 lg:p-5 rounded-lg border border-muted bg-card/60 transition-colors hover:bg-accent/40 hover:shadow-md h-full relative',
         todo.completed ? 'opacity-50 grayscale-[0.3]' : '',
         isSelected ? 'bg-primary/10 border-primary/30 ring-1 ring-primary/20' : '',
         isDragging && 'shadow-2xl ring-2 ring-primary/40 scale-[1.02] bg-card z-50',
@@ -235,6 +242,6 @@ export function TodoItem({
           <MdClose className="h-4 w-4" />
         </Button>
       </div>
-    </li>
+    </motion.li>
   );
 }

@@ -1,4 +1,5 @@
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
+import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FaCat,
@@ -360,7 +361,10 @@ export const TodoList = memo(function TodoList({
                 {savedTags.map((tag) => {
                   const isSelected = filterTags.includes(tag.name);
                   return (
-                    <button
+                    <motion.button
+                      layout
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       type="button"
                       key={tag.id}
                       onClick={() => toggleFilterTag(tag.name)}
@@ -378,7 +382,7 @@ export const TodoList = memo(function TodoList({
                         )}
                       />
                       #{tag.name}
-                    </button>
+                    </motion.button>
                   );
                 })}
                 {filterTags.length > 0 && (
@@ -405,7 +409,7 @@ export const TodoList = memo(function TodoList({
               variant="ghost"
               size="sm"
               onClick={toggleSort}
-              className="text-muted-foreground hover:text-foreground gap-2 h-8 px-2"
+              className="text-muted-foreground hover:text-foreground gap-2 h-8 px-2 btn-bounce"
             >
               <FaSortAmountDown className="w-3 h-3" />
               {sortKey === 'deadline' && (
@@ -436,72 +440,79 @@ export const TodoList = memo(function TodoList({
           </div>
         </div>
 
-        {/* 選択アクションバー（画面下部にフローティング表示） */}
-        {selectedIds.size > 0 &&
-          (() => {
-            const allSelectedCompleted = Array.from(selectedIds).every(
-              (id) =>
-                visibleTodos.find((t) => t.id === id)?.completed ??
-                todos.find((t) => t.id === id)?.completed,
-            );
+        {/* 選択アクションバー */}
+        <AnimatePresence>
+          {selectedIds.size > 0 &&
+            (() => {
+              const allSelectedCompleted = Array.from(selectedIds).every(
+                (id) =>
+                  visibleTodos.find((t) => t.id === id)?.completed ??
+                  todos.find((t) => t.id === id)?.completed,
+              );
 
-            return (
-              <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 p-3 rounded-full bg-foreground shadow-2xl text-background animate-in slide-in-from-bottom-5 fade-in min-w-[320px] justify-between border border-border/20">
-                <span className="text-sm font-bold pl-3">{selectedIds.size} 件選択中</span>
-                <div className="flex items-center gap-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4"
-                    onClick={toggleSelectAll}
-                  >
-                    {visibleTodos.length > 0 && selectedIds.size === visibleTodos.length
-                      ? '全解除'
-                      : 'すべて選択'}
-                  </Button>
-                  <div className="w-px h-5 bg-background/30 mx-1" />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4"
-                    onClick={handleBatchComplete}
-                  >
-                    {allSelectedCompleted ? '未完了に戻す' : '一括完了'}
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-9 text-red-500 hover:text-red-400 hover:bg-red-500/20 rounded-full px-4 font-semibold"
-                      >
-                        削除
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          {selectedIds.size}件のタスクを削除しますか？
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          選択したタスクをゴミ箱に移動します。
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="rounded-xl">キャンセル</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleBatchDelete}
-                          className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 50, scale: 0.9, x: '-50%' }}
+                  animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+                  exit={{ opacity: 0, y: 50, scale: 0.9, x: '-50%' }}
+                  className="fixed bottom-6 left-1/2 z-50 flex items-center gap-4 p-3 rounded-full bg-foreground shadow-2xl text-background min-w-[320px] justify-between border border-border/20"
+                >
+                  <span className="text-sm font-bold pl-3">{selectedIds.size} 件選択中</span>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4"
+                      onClick={toggleSelectAll}
+                    >
+                      {visibleTodos.length > 0 && selectedIds.size === visibleTodos.length
+                        ? '全解除'
+                        : 'すべて選択'}
+                    </Button>
+                    <div className="w-px h-5 bg-background/30 mx-1" />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-9 hover:bg-background/20 hover:text-background rounded-full px-4"
+                      onClick={handleBatchComplete}
+                    >
+                      {allSelectedCompleted ? '未完了に戻す' : '一括完了'}
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-9 text-red-500 hover:text-red-400 hover:bg-red-500/20 rounded-full px-4 font-semibold"
                         >
-                          削除する
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
-            );
-          })()}
+                          削除
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            {selectedIds.size}件のタスクを削除しますか？
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            選択したタスクをゴミ箱に移動します。
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="rounded-xl">キャンセル</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleBatchDelete}
+                            className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            削除する
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </motion.div>
+              );
+            })()}
+        </AnimatePresence>
 
         <div className="flex items-center justify-end min-h-[40px] mb-4">
           {selectedIds.size === 0 && (
@@ -526,27 +537,29 @@ export const TodoList = memo(function TodoList({
                 {...provided.droppableProps}
                 className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3"
               >
-                {manualTodos.map((todo, index) => (
-                  <Draggable key={todo.id} draggableId={todo.id} index={index}>
-                    {(provided, snapshot) => (
-                      <TodoItem
-                        innerRef={provided.innerRef}
-                        draggableProps={provided.draggableProps}
-                        dragHandleProps={provided.dragHandleProps}
-                        todo={todo}
-                        onToggle={onToggle}
-                        onDelete={onDelete}
-                        onDuplicate={onDuplicate}
-                        savedTags={savedTags}
-                        onSelect={onSelectTodo}
-                        isDraggable
-                        isDragging={snapshot.isDragging}
-                        isSelected={selectedIds.has(todo.id)}
-                        onToggleSelect={toggleSelection}
-                      />
-                    )}
-                  </Draggable>
-                ))}
+                <AnimatePresence>
+                  {manualTodos.map((todo, index) => (
+                    <Draggable key={todo.id} draggableId={todo.id} index={index}>
+                      {(provided, snapshot) => (
+                        <TodoItem
+                          innerRef={provided.innerRef}
+                          draggableProps={provided.draggableProps}
+                          dragHandleProps={provided.dragHandleProps}
+                          todo={todo}
+                          onToggle={onToggle}
+                          onDelete={onDelete}
+                          onDuplicate={onDuplicate}
+                          savedTags={savedTags}
+                          onSelect={onSelectTodo}
+                          isDraggable
+                          isDragging={snapshot.isDragging}
+                          isSelected={selectedIds.has(todo.id)}
+                          onToggleSelect={toggleSelection}
+                        />
+                      )}
+                    </Draggable>
+                  ))}
+                </AnimatePresence>
                 {provided.placeholder}
               </ul>
             )}
@@ -554,9 +567,12 @@ export const TodoList = memo(function TodoList({
         </DragDropContext>
       ) : (
         <div className="flex flex-col gap-4 lg:gap-6 h-full pb-4">
-          {/* 今日のタスク (上部カンバン) */}
+          {/* 今日のタスク */}
           {todayTodos.length > 0 && (
-            <div className="flex flex-col gap-3 bg-yellow-500/10 dark:bg-yellow-500/15 p-3 sm:p-4 rounded-xl border border-yellow-500/30 w-full shrink-0">
+            <motion.div
+              layout
+              className="flex flex-col gap-3 bg-yellow-500/10 dark:bg-yellow-500/15 p-3 sm:p-4 rounded-xl border border-yellow-500/30 w-full shrink-0"
+            >
               <div className="flex items-center justify-between shrink-0">
                 <h3 className="text-sm font-bold text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
                   <MdStar className="w-4 h-4" /> 今日のタスク
@@ -566,26 +582,31 @@ export const TodoList = memo(function TodoList({
                 </span>
               </div>
               <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-h-[40vh] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-yellow-500/30">
-                {todayTodos.map((todo) => (
-                  <TodoItem
-                    key={todo.id}
-                    todo={todo}
-                    onToggle={onToggle}
-                    onDelete={onDelete}
-                    onDuplicate={onDuplicate}
-                    savedTags={savedTags}
-                    onSelect={onSelectTodo}
-                    isSelected={selectedIds.has(todo.id)}
-                    onToggleSelect={toggleSelection}
-                  />
-                ))}
+                <AnimatePresence>
+                  {todayTodos.map((todo) => (
+                    <TodoItem
+                      key={todo.id}
+                      todo={todo}
+                      onToggle={onToggle}
+                      onDelete={onDelete}
+                      onDuplicate={onDuplicate}
+                      savedTags={savedTags}
+                      onSelect={onSelectTodo}
+                      isSelected={selectedIds.has(todo.id)}
+                      onToggleSelect={toggleSelection}
+                    />
+                  ))}
+                </AnimatePresence>
               </ul>
-            </div>
+            </motion.div>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-start flex-1 min-h-0">
             {/* 期限切れカラム */}
-            <div className="flex flex-col gap-3 bg-red-500/5 dark:bg-red-500/10 p-3 sm:p-4 rounded-xl border border-red-500/20 max-h-[calc(100vh-14rem)] overflow-hidden">
+            <motion.div
+              layout
+              className="flex flex-col gap-3 bg-red-500/5 dark:bg-red-500/10 p-3 sm:p-4 rounded-xl border border-red-500/20 max-h-[calc(100vh-14rem)] overflow-hidden"
+            >
               <div className="flex items-center justify-between shrink-0">
                 <h3 className="text-sm font-bold text-red-600 dark:text-red-400 flex items-center gap-2">
                   <MdWarning className="w-4 h-4" /> 期限切れ
@@ -595,29 +616,34 @@ export const TodoList = memo(function TodoList({
                 </span>
               </div>
               <ul className="space-y-3 overflow-y-auto pr-1 pb-2 flex-1 scrollbar-thin scrollbar-thumb-muted">
-                {overdueTodos.map((todo) => (
-                  <TodoItem
-                    key={todo.id}
-                    todo={todo}
-                    onToggle={onToggle}
-                    onDelete={onDelete}
-                    onDuplicate={onDuplicate}
-                    savedTags={savedTags}
-                    onSelect={onSelectTodo}
-                    isSelected={selectedIds.has(todo.id)}
-                    onToggleSelect={toggleSelection}
-                  />
-                ))}
+                <AnimatePresence>
+                  {overdueTodos.map((todo) => (
+                    <TodoItem
+                      key={todo.id}
+                      todo={todo}
+                      onToggle={onToggle}
+                      onDelete={onDelete}
+                      onDuplicate={onDuplicate}
+                      savedTags={savedTags}
+                      onSelect={onSelectTodo}
+                      isSelected={selectedIds.has(todo.id)}
+                      onToggleSelect={toggleSelection}
+                    />
+                  ))}
+                </AnimatePresence>
                 {overdueTodos.length === 0 && (
                   <div className="text-sm text-muted-foreground/60 text-center py-10">
                     タスクなし
                   </div>
                 )}
               </ul>
-            </div>
+            </motion.div>
 
             {/* 進行中カラム */}
-            <div className="flex flex-col gap-3 bg-card p-3 sm:p-4 rounded-xl border shadow-sm max-h-[calc(100vh-14rem)] overflow-hidden">
+            <motion.div
+              layout
+              className="flex flex-col gap-3 bg-card p-3 sm:p-4 rounded-xl border shadow-sm max-h-[calc(100vh-14rem)] overflow-hidden"
+            >
               <div className="flex items-center justify-between shrink-0">
                 <h3 className="text-sm font-bold flex items-center gap-2 text-foreground">
                   <MdPendingActions className="w-4 h-4" /> 進行中
@@ -627,29 +653,34 @@ export const TodoList = memo(function TodoList({
                 </span>
               </div>
               <ul className="space-y-3 overflow-y-auto pr-1 pb-2 flex-1 scrollbar-thin scrollbar-thumb-muted">
-                {activeTodos.map((todo) => (
-                  <TodoItem
-                    key={todo.id}
-                    todo={todo}
-                    onToggle={onToggle}
-                    onDelete={onDelete}
-                    onDuplicate={onDuplicate}
-                    savedTags={savedTags}
-                    onSelect={onSelectTodo}
-                    isSelected={selectedIds.has(todo.id)}
-                    onToggleSelect={toggleSelection}
-                  />
-                ))}
+                <AnimatePresence>
+                  {activeTodos.map((todo) => (
+                    <TodoItem
+                      key={todo.id}
+                      todo={todo}
+                      onToggle={onToggle}
+                      onDelete={onDelete}
+                      onDuplicate={onDuplicate}
+                      savedTags={savedTags}
+                      onSelect={onSelectTodo}
+                      isSelected={selectedIds.has(todo.id)}
+                      onToggleSelect={toggleSelection}
+                    />
+                  ))}
+                </AnimatePresence>
                 {activeTodos.length === 0 && (
                   <div className="text-sm text-muted-foreground/60 text-center py-10">
                     タスクなし
                   </div>
                 )}
               </ul>
-            </div>
+            </motion.div>
 
             {/* 完了済みカラム */}
-            <div className="flex flex-col gap-3 bg-muted/30 p-3 sm:p-4 rounded-xl border border-transparent max-h-[calc(100vh-14rem)] overflow-hidden">
+            <motion.div
+              layout
+              className="flex flex-col gap-3 bg-muted/30 p-3 sm:p-4 rounded-xl border border-transparent max-h-[calc(100vh-14rem)] overflow-hidden"
+            >
               <div className="flex items-center justify-between shrink-0">
                 <h3 className="text-sm font-bold flex items-center gap-2 text-muted-foreground">
                   <MdCheckCircle className="w-4 h-4" /> 完了済み
@@ -659,31 +690,33 @@ export const TodoList = memo(function TodoList({
                 </span>
               </div>
               <ul className="space-y-3 overflow-y-auto pr-1 pb-2 flex-1 scrollbar-thin scrollbar-thumb-muted">
-                {completedTodos.map((todo) => (
-                  <TodoItem
-                    key={todo.id}
-                    todo={todo}
-                    onToggle={onToggle}
-                    onDelete={onDelete}
-                    onDuplicate={onDuplicate}
-                    savedTags={savedTags}
-                    onSelect={onSelectTodo}
-                    isSelected={selectedIds.has(todo.id)}
-                    onToggleSelect={toggleSelection}
-                  />
-                ))}
+                <AnimatePresence>
+                  {completedTodos.map((todo) => (
+                    <TodoItem
+                      key={todo.id}
+                      todo={todo}
+                      onToggle={onToggle}
+                      onDelete={onDelete}
+                      onDuplicate={onDuplicate}
+                      savedTags={savedTags}
+                      onSelect={onSelectTodo}
+                      isSelected={selectedIds.has(todo.id)}
+                      onToggleSelect={toggleSelection}
+                    />
+                  ))}
+                </AnimatePresence>
                 {completedTodos.length === 0 && (
                   <div className="text-sm text-muted-foreground/60 text-center py-10">
                     タスクなし
                   </div>
                 )}
               </ul>
-            </div>
+            </motion.div>
           </div>
         </div>
       )}
 
-      {/* フッター: 完了数 + 一括削除ボタン (選択中は非表示) */}
+      {/* フッター */}
       {todos.length > 0 && selectedIds.size === 0 && (
         <div className="mt-6 pt-4 border-t flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
@@ -695,7 +728,7 @@ export const TodoList = memo(function TodoList({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-muted-foreground hover:text-destructive gap-2"
+                  className="text-muted-foreground hover:text-destructive gap-2 btn-bounce"
                 >
                   <MdDeleteSweep className="w-4 h-4" />
                   完了済みを削除

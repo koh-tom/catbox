@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { FaPaw } from 'react-icons/fa';
 import { MdDashboard, MdDelete, MdListAlt, MdSettings } from 'react-icons/md';
@@ -34,7 +35,7 @@ export const BottomNav = memo(function BottomNav({ currentTab, onTabChange }: Bo
                   : 'text-muted-foreground hover:text-foreground',
               )}
             >
-              <div className="relative">
+              <div className="relative z-10">
                 <Icon
                   className={cn(
                     'w-6 h-6 transition-transform duration-300',
@@ -42,18 +43,38 @@ export const BottomNav = memo(function BottomNav({ currentTab, onTabChange }: Bo
                   )}
                 />
                 {isActive && (
-                  <FaPaw className="absolute -top-1 -right-1 w-3 h-3 text-primary animate-in zoom-in-50 duration-300" />
+                  <motion.div
+                    layoutId="paw"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute -top-1 -right-1 w-3 h-3 text-primary"
+                  >
+                    <FaPaw />
+                  </motion.div>
                 )}
               </div>
               <span
                 className={cn(
-                  'text-[10px] font-bold mt-1 tracking-wider transition-opacity duration-300',
+                  'text-[10px] font-bold mt-1 tracking-wider transition-opacity duration-300 z-10',
                   isActive ? 'opacity-100' : 'opacity-60',
                 )}
               >
                 {label.toUpperCase()}
               </span>
-              {isActive && <div className="absolute top-0 w-8 h-1 rounded-full bg-primary/20" />}
+              {isActive && (
+                <motion.div
+                  layoutId="active-tab"
+                  className="absolute inset-x-2 inset-y-1 bg-primary/5 rounded-2xl -z-0"
+                  transition={{ type: 'spring', bounce: 0.3, duration: 0.6 }}
+                />
+              )}
+              {isActive && (
+                <motion.div
+                  layoutId="active-dot"
+                  className="absolute top-0 w-8 h-1 rounded-full bg-primary/20"
+                  transition={{ type: 'spring', bounce: 0.3, duration: 0.6 }}
+                />
+              )}
             </button>
           );
         })}

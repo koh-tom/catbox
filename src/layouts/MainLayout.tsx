@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { MdAdd, MdHelpOutline, MdLogout, MdSearch } from 'react-icons/md';
@@ -227,21 +228,42 @@ export function MainLayout({ children }: MainLayoutProps) {
               </Button>
             </div>
 
-            <div className="flex-1 flex flex-col min-h-0 relative">{children}</div>
+            <div className="flex-1 flex flex-col min-h-0 relative px-0">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={location.pathname}
+                  initial={{ opacity: 0, y: 10, scale: 0.99 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.99 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                  className="flex-1 flex flex-col min-h-0"
+                >
+                  {children}
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </CardContent>
         </Card>
 
         <BottomNav currentTab={currentTab} onTabChange={handleTabChange} />
 
         {currentTab === 'todo' && (
-          <Button
-            onClick={openCreateModal}
-            size="icon"
-            className="fixed bottom-20 right-4 w-14 h-14 rounded-2xl shadow-lg bg-primary text-primary-foreground sm:hidden z-40 btn-bounce active:scale-90 transition-transform flex items-center justify-center border-2 border-background"
-            aria-label="新しく追加"
+          <motion.div
+            initial={{ scale: 0, rotate: -90 }}
+            animate={{ scale: 1, rotate: 0 }}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.9 }}
+            className="fixed bottom-20 right-4 z-40 sm:hidden"
           >
-            <MdAdd className="w-8 h-8" />
-          </Button>
+            <Button
+              onClick={openCreateModal}
+              size="icon"
+              className="w-14 h-14 rounded-2xl shadow-lg bg-primary text-primary-foreground flex items-center justify-center border-2 border-background"
+              aria-label="新しく追加"
+            >
+              <MdAdd className="w-8 h-8" />
+            </Button>
+          </motion.div>
         )}
 
         <TodoDetailModal
