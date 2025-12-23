@@ -37,7 +37,7 @@ export function TodosPage({ viewMode }: TodosPageProps) {
           : 'flex-1 min-h-0 p-3 sm:p-6 overflow-auto scrollbar-thin'
       }
     >
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 shrink-0">
+      <div className="hidden sm:flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 shrink-0">
         <Tabs
           value={viewMode}
           onValueChange={(v) => navigate(v === 'calendar' ? '/calendar' : '/')}

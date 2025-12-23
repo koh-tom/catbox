@@ -64,6 +64,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     if (currentPath.startsWith('/trash')) return 'trash';
     if (currentPath.startsWith('/portal')) return 'portal';
     if (currentPath.startsWith('/settings')) return 'settings';
+    if (currentPath.startsWith('/calendar')) return 'calendar';
     return 'todo';
   }, [currentPath]);
 
@@ -94,6 +95,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     (tab: AppTab) => {
       const paths: Record<AppTab, string> = {
         todo: '/',
+        calendar: '/calendar',
         portal: '/portal',
         trash: '/trash',
         settings: '/settings',
