@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { FaTrashAlt } from 'react-icons/fa';
-import { MdAdd, MdHelpOutline, MdLogout, MdSearch } from 'react-icons/md';
+import { FaPaw, FaTrashAlt } from 'react-icons/fa';
+import { MdAdd, MdCalendarMonth, MdHelpOutline, MdListAlt, MdLogout, MdSearch } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AboutModal } from '@/components/AboutModal';
 import { BottomNav } from '@/components/BottomNav';
@@ -150,6 +150,36 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <img src="/icon.png" alt="Catbox Icon" className="w-6 h-6 rounded-md shadow-sm" />
                 <span className="hidden sm:inline tracking-tight">{APP_NAME}</span>
               </CardTitle>
+
+              <div className="hidden sm:flex items-center bg-muted/30 p-1 rounded-lg gap-1">
+                <Button
+                  variant={currentTab === 'todo' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-8 gap-2 px-3"
+                  onClick={() => handleTabChange('todo')}
+                >
+                  <MdListAlt className="w-4 h-4" />
+                  <span>リスト</span>
+                </Button>
+                <Button
+                  variant={currentTab === 'calendar' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-8 gap-2 px-3"
+                  onClick={() => handleTabChange('calendar')}
+                >
+                  <MdCalendarMonth className="w-4 h-4" />
+                  <span>予定</span>
+                </Button>
+                <Button
+                  variant={currentTab === 'portal' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-8 gap-2 px-3"
+                  onClick={() => handleTabChange('portal')}
+                >
+                  <FaPaw className="w-4 h-4" />
+                  <span>ポータル</span>
+                </Button>
+              </div>
 
               <div className="flex-1 flex items-center justify-end gap-2 sm:gap-4">
                 <div className="relative max-w-[140px] sm:max-w-xs w-full group">
