@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { FaPaw } from 'react-icons/fa';
-import { MdCalendarMonth, MdDashboard, MdDelete, MdListAlt, MdSettings } from 'react-icons/md';
+import { MdCalendarMonth, MdDelete, MdListAlt, MdSettings } from 'react-icons/md';
 import { cn } from '@/lib/utils';
 import type { AppTab } from '@/types/todo';
 
@@ -13,7 +13,7 @@ interface BottomNavProps {
 const TABS = [
   { id: 'todo', label: 'リスト', icon: MdListAlt },
   { id: 'calendar', label: '予定', icon: MdCalendarMonth },
-  { id: 'portal', label: 'ポータル', icon: MdDashboard },
+  { id: 'portal', label: 'ポータル', icon: FaPaw },
   { id: 'trash', label: 'ゴミ箱', icon: MdDelete },
   { id: 'settings', label: '設定', icon: MdSettings },
 ] as const;
