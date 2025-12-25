@@ -1,17 +1,74 @@
-import { FaCat } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { useMemo } from 'react';
+import { FaFire, FaRegCalendarCheck, FaCheckCircle } from 'react-icons/fa';
+import { useTodoStore } from '@/store/useTodoStore';
+import { BentoTile } from '@/components/portal/BentoTile';
+import { GreetingTile } from '@/components/portal/GreetingTile';
+import { StatTile } from '@/components/portal/StatTile';
+import { WeatherTile } from '@/components/portal/WeatherTile';
+import { FocusTile } from '@/components/portal/FocusTile';
+import { UpcomingTile } from '@/components/portal/UpcomingTile';
+import { HabitTile } from '@/components/portal/HabitTile';
+import { CardContent } from '@/components/ui/card';
 
 export function PortalPage() {
+  const todos = useTodoStore((s) => s.todos);
+  const completedCount = useMemo(() => todos.filter((t) => t.completed).length, [todos]);
+  const activeTodos = useMemo(() => todos.filter((t) => !t.completed), [todos]);
+  const activeCount = activeTodos.length;
+
   return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-accent/5">
-      <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 shadow-sm rotate-3">
-        <FaCat className="w-10 h-10 text-primary" />
-      </div>
-      <h2 className="text-2xl font-bold mb-3">ポータル（ダッシュボード）</h2>
-      <p className="text-muted-foreground max-w-sm font-medium leading-relaxed">
-        ここには、1日の概要、天気、習慣トラッカーなどが集約される予定です。
-        <br />
-        現在丹精込めて開発中... 🐾
-      </p>
+    <div className="flex-1 overflow-auto bg-background/30 p-4 sm:p-6 scrollbar-thin">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        transition={{ staggerChildren: 0.1 }}
+        className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[minmax(120px,auto)]"
+      >
+        <BentoTile size="2x2" variant="primary">
+          <GreetingTile activeCount={activeCount} />
+        </BentoTile>
+
+        <BentoTile size="1x1">
+          <StatTile 
+            icon={FaRegCalendarCheck} 
+            value={activeCount} 
+            label="Active" 
+          />
+        </BentoTile>
+
+        <BentoTile size="1x1" variant="warm">
+          <WeatherTile />
+        </BentoTile>
+
+        <BentoTile size="2x1" variant="accent">
+          <StatTile 
+            icon={FaCheckCircle} 
+            value={completedCount} 
+            label="Completed" 
+            iconColorClass="text-green-500"
+            iconBgClass="bg-green-500/10"
+          />
+        </BentoTile>
+
+        <BentoTile size="2x1">
+          <FocusTile title={activeTodos[0]?.title} />
+        </BentoTile>
+
+        <BentoTile size="1x2" className="bg-card/80">
+          <UpcomingTile todos={activeTodos.slice(1)} />
+        </BentoTile>
+
+        <BentoTile size="3x1">
+          <HabitTile streak={4} />
+        </BentoTile>
+
+        <BentoTile size="1x1" variant="outline">
+          <CardContent className="p-4 flex items-center justify-center h-full">
+            <div className="text-[10px] font-black text-muted-foreground">AD 🐾</div>
+          </CardContent>
+        </BentoTile>
+      </motion.div>
     </div>
   );
 }
