@@ -6,10 +6,14 @@ export interface WeatherData {
   temperature: number;
   weatherCode: number;
   time: string;
+  hourly?: {
+    time: string[];
+    temperature: number[];
+    weatherCode: number[];
+  };
 }
 
 // Mapping WMO Weather interpretation codes (WW) to descriptions and icons
-// https://open-meteo.com/en/docs
 export const getBriefWeatherInfo = (code: number) => {
   if (code <= 1) return { label: '快晴', icon: 'sunny' };
   if (code <= 3) return { label: '晴れ', icon: 'partly-cloudy' };
@@ -36,7 +40,7 @@ export type WeatherCity = {
 };
 
 export async function fetchWeather(lat: number, lon: number): Promise<WeatherData> {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,weathercode`;
   const response = await fetch(url);
   if (!response.ok) throw new Error('Weather fetch failed');
   const data = await response.json();
@@ -45,5 +49,10 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
     temperature: data.current_weather.temperature,
     weatherCode: data.current_weather.weathercode,
     time: data.current_weather.time,
+    hourly: {
+      time: data.hourly.time,
+      temperature: data.hourly.temperature_2m,
+      weatherCode: data.hourly.weathercode,
+    }
   };
 }
