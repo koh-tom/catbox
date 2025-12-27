@@ -8,6 +8,7 @@ interface UIState {
   isDetailOpen: boolean;
   isAboutOpen: boolean;
   editingTodoId: string | null;
+  weatherCity: { name: string; lat: number; lon: number };
 
   setBreed: (breed: CatBreed) => void;
   setSearchQuery: (query: string) => void;
@@ -15,6 +16,7 @@ interface UIState {
   openEditModal: (todoId: string) => void;
   closeDetailModal: () => void;
   setAboutOpen: (isOpen: boolean) => void;
+  setWeatherCity: (city: { name: string; lat: number; lon: number }) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -23,6 +25,7 @@ export const useUIStore = create<UIState>((set) => ({
   isDetailOpen: false,
   isAboutOpen: false,
   editingTodoId: null,
+  weatherCity: JSON.parse(localStorage.getItem('catbox_weather_city') || '{"name":"東京","lat":35.6895,"lon":139.6917}'),
 
   setBreed: (breed) => {
     localStorage.setItem(CAT_BREED_STORAGE_KEY, breed);
@@ -43,4 +46,9 @@ export const useUIStore = create<UIState>((set) => ({
   },
 
   setAboutOpen: (isAboutOpen) => set({ isAboutOpen }),
+  
+  setWeatherCity: (weatherCity) => {
+    localStorage.setItem('catbox_weather_city', JSON.stringify(weatherCity));
+    set({ weatherCity });
+  },
 }));
