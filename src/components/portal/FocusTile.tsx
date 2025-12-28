@@ -12,9 +12,7 @@ export function FocusTile({ title }: FocusTileProps) {
         <span className="w-1.5 h-1.5 rounded-full bg-primary" />
         Must Do
       </h3>
-      <p className="text-sm font-bold truncate">
-        {title || 'Chill time🐾'}
-      </p>
+      <p className="text-sm font-bold truncate">{title || 'Chill time🐾'}</p>
       <div className="mt-2 text-[10px] text-muted-foreground font-medium flex items-center gap-1.5">
         <FaWalking className="w-3 h-3" />
         <span>最優先事項です</span>

@@ -9,10 +9,15 @@ interface UpcomingTileProps {
 export function UpcomingTile({ todos }: UpcomingTileProps) {
   return (
     <CardContent className="p-5 flex flex-col h-full">
-      <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Flow</h3>
+      <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">
+        Flow
+      </h3>
       <div className="flex-1 space-y-4 overflow-hidden">
         {todos.slice(0, 4).map((t) => (
-          <div key={t.id} className="text-[10px] font-bold py-2 border-b border-border/30 last:border-0 truncate">
+          <div
+            key={t.id}
+            className="text-[10px] font-bold py-2 border-b border-border/30 last:border-0 truncate"
+          >
             {t.title}
           </div>
         ))}

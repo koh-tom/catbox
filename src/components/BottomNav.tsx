@@ -28,7 +28,10 @@ export const BottomNav = memo(function BottomNav({ currentTab, onTabChange }: Bo
 
           if (isPortal) {
             return (
-              <div key={id} className="relative flex flex-col items-center justify-end w-full h-full pb-1">
+              <div
+                key={id}
+                className="relative flex flex-col items-center justify-end w-full h-full pb-1"
+              >
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -36,7 +39,9 @@ export const BottomNav = memo(function BottomNav({ currentTab, onTabChange }: Bo
                   onClick={() => onTabChange(id as AppTab)}
                   className={cn(
                     'absolute -top-4 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-colors border-4 border-background overflow-hidden',
-                    isActive ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card text-muted-foreground',
                   )}
                 >
                   <Icon className="w-7 h-7" />
@@ -47,7 +52,12 @@ export const BottomNav = memo(function BottomNav({ currentTab, onTabChange }: Bo
                     />
                   )}
                 </motion.button>
-                <span className={cn('text-[9px] font-bold mt-1 tracking-tighter opacity-70', isActive && 'text-primary opacity-100')}>
+                <span
+                  className={cn(
+                    'text-[9px] font-bold mt-1 tracking-tighter opacity-70',
+                    isActive && 'text-primary opacity-100',
+                  )}
+                >
                   {label}
                 </span>
               </div>
@@ -65,7 +75,12 @@ export const BottomNav = memo(function BottomNav({ currentTab, onTabChange }: Bo
               )}
             >
               <div className="relative z-10">
-                <Icon className={cn('w-6 h-6 transition-transform duration-300', isActive ? 'scale-110' : 'scale-100')} />
+                <Icon
+                  className={cn(
+                    'w-6 h-6 transition-transform duration-300',
+                    isActive ? 'scale-110' : 'scale-100',
+                  )}
+                />
                 {isActive && (
                   <motion.div
                     layoutId="paw"
@@ -77,7 +92,12 @@ export const BottomNav = memo(function BottomNav({ currentTab, onTabChange }: Bo
                   </motion.div>
                 )}
               </div>
-              <span className={cn('text-[9px] font-bold mt-1 tracking-tighter transition-opacity duration-300 z-10', isActive ? 'opacity-100' : 'opacity-60')}>
+              <span
+                className={cn(
+                  'text-[9px] font-bold mt-1 tracking-tighter transition-opacity duration-300 z-10',
+                  isActive ? 'opacity-100' : 'opacity-60',
+                )}
+              >
                 {label}
               </span>
               {isActive && (

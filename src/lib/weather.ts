@@ -44,7 +44,7 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
   const response = await fetch(url);
   if (!response.ok) throw new Error('Weather fetch failed');
   const data = await response.json();
-  
+
   return {
     temperature: data.current_weather.temperature,
     weatherCode: data.current_weather.weathercode,
@@ -53,6 +53,6 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
       time: data.hourly.time,
       temperature: data.hourly.temperature_2m,
       weatherCode: data.hourly.weathercode,
-    }
+    },
   };
 }

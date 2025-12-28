@@ -1,7 +1,14 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { FaPaw, FaTrashAlt } from 'react-icons/fa';
-import { MdAdd, MdCalendarMonth, MdHelpOutline, MdListAlt, MdLogout, MdSearch } from 'react-icons/md';
+import {
+  MdAdd,
+  MdCalendarMonth,
+  MdHelpOutline,
+  MdListAlt,
+  MdLogout,
+  MdSearch,
+} from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AboutModal } from '@/components/AboutModal';
 import { BottomNav } from '@/components/BottomNav';

@@ -1,16 +1,15 @@
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
-import { FaFire, FaRegCalendarCheck, FaCheckCircle } from 'react-icons/fa';
-import { useTodoStore } from '@/store/useTodoStore';
+import { FaCheckCircle, FaRegCalendarCheck } from 'react-icons/fa';
 import { BentoTile } from '@/components/portal/BentoTile';
-import { GreetingTile } from '@/components/portal/GreetingTile';
-import { StatTile } from '@/components/portal/StatTile';
-import { WeatherTile } from '@/components/portal/WeatherTile';
 import { FocusTile } from '@/components/portal/FocusTile';
-import { UpcomingTile } from '@/components/portal/UpcomingTile';
+import { GreetingTile } from '@/components/portal/GreetingTile';
 import { HabitTile } from '@/components/portal/HabitTile';
 import { HighscoreTile } from '@/components/portal/HighscoreTile';
-import { CardContent } from '@/components/ui/card';
+import { StatTile } from '@/components/portal/StatTile';
+import { UpcomingTile } from '@/components/portal/UpcomingTile';
+import { WeatherTile } from '@/components/portal/WeatherTile';
+import { useTodoStore } from '@/store/useTodoStore';
 
 export function PortalPage() {
   const todos = useTodoStore((s) => s.todos);
@@ -23,24 +22,36 @@ export function PortalPage() {
     const last30Days = today - 30 * 86400000;
 
     const completedTodos = todos.filter((t) => t.completed && t.completedAt);
-    
+
     // Group by date string to count daily completions
     const dailyCounts: Record<string, number> = {};
-    completedTodos.forEach(t => {
-      const dateStr = new Date(t.completedAt!).toISOString().split('T')[0];
-      dailyCounts[dateStr] = (dailyCounts[dateStr] || 0) + 1;
+    completedTodos.forEach((t) => {
+      if (t.completedAt) {
+        const dateStr = new Date(t.completedAt).toISOString().split('T')[0];
+        dailyCounts[dateStr] = (dailyCounts[dateStr] || 0) + 1;
+      }
     });
 
     const countsArray = Object.entries(dailyCounts).map(([date, count]) => ({
       timestamp: new Date(date).getTime(),
-      count
+      count,
     }));
 
-    const todayCount = completedTodos.filter(t => new Date(t.completedAt!).setHours(0,0,0,0) === today).length;
-    const yesterdayCount = completedTodos.filter(t => new Date(t.completedAt!).setHours(0,0,0,0) === yesterday).length;
-    
-    const weeklyHigh = Math.max(0, ...countsArray.filter(c => c.timestamp >= last7Days).map(c => c.count));
-    const monthlyHigh = Math.max(0, ...countsArray.filter(c => c.timestamp >= last30Days).map(c => c.count));
+    const todayCount = completedTodos.filter(
+      (t) => t.completedAt && new Date(t.completedAt).setHours(0, 0, 0, 0) === today,
+    ).length;
+    const yesterdayCount = completedTodos.filter(
+      (t) => t.completedAt && new Date(t.completedAt).setHours(0, 0, 0, 0) === yesterday,
+    ).length;
+
+    const weeklyHigh = Math.max(
+      0,
+      ...countsArray.filter((c) => c.timestamp >= last7Days).map((c) => c.count),
+    );
+    const monthlyHigh = Math.max(
+      0,
+      ...countsArray.filter((c) => c.timestamp >= last30Days).map((c) => c.count),
+    );
 
     return { todayCount, yesterdayCount, weeklyHigh, monthlyHigh };
   }, [todos]);
@@ -61,11 +72,7 @@ export function PortalPage() {
         </BentoTile>
 
         <BentoTile size="1x1">
-          <StatTile 
-            icon={FaRegCalendarCheck} 
-            value={activeCount} 
-            label="Active" 
-          />
+          <StatTile icon={FaRegCalendarCheck} value={activeCount} label="Active" />
         </BentoTile>
 
         <BentoTile size="1x1" variant="warm">
@@ -73,10 +80,10 @@ export function PortalPage() {
         </BentoTile>
 
         <BentoTile size="2x1" variant="accent">
-          <StatTile 
-            icon={FaCheckCircle} 
-            value={stats.todayCount} 
-            label="Completed Today" 
+          <StatTile
+            icon={FaCheckCircle}
+            value={stats.todayCount}
+            label="Completed Today"
             iconColorClass="text-green-500"
             iconBgClass="bg-green-500/10"
           />
@@ -95,7 +102,7 @@ export function PortalPage() {
         </BentoTile>
 
         <BentoTile size="1x2" variant="outline">
-          <HighscoreTile 
+          <HighscoreTile
             yesterday={stats.yesterdayCount}
             weeklyHigh={stats.weeklyHigh}
             monthlyHigh={stats.monthlyHigh}

@@ -2,11 +2,23 @@ import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-export type BentoSize = 
-  | '1x1' | '1x2' | '1x3' | '1x4' 
-  | '2x1' | '2x2' | '2x3' | '2x4' 
-  | '3x1' | '3x2' | '3x3' | '3x4' 
-  | '4x1' | '4x2' | '4x3' | '4x4';
+export type BentoSize =
+  | '1x1'
+  | '1x2'
+  | '1x3'
+  | '1x4'
+  | '2x1'
+  | '2x2'
+  | '2x3'
+  | '2x4'
+  | '3x1'
+  | '3x2'
+  | '3x3'
+  | '3x4'
+  | '4x1'
+  | '4x2'
+  | '4x3'
+  | '4x4';
 
 interface BentoTileProps {
   size: BentoSize;
@@ -51,7 +63,13 @@ export function BentoTile({ size, children, className, variant = 'glass' }: Bent
       }}
       className={cn(sizeClasses[size], 'group')}
     >
-      <Card className={cn('h-full border-none shadow-warm overflow-hidden relative', variantClasses[variant], className)}>
+      <Card
+        className={cn(
+          'h-full border-none shadow-warm overflow-hidden relative',
+          variantClasses[variant],
+          className,
+        )}
+      >
         {children}
       </Card>
     </motion.div>
