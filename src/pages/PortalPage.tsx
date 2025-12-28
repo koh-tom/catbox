@@ -9,14 +9,40 @@ import { WeatherTile } from '@/components/portal/WeatherTile';
 import { FocusTile } from '@/components/portal/FocusTile';
 import { UpcomingTile } from '@/components/portal/UpcomingTile';
 import { HabitTile } from '@/components/portal/HabitTile';
+import { HighscoreTile } from '@/components/portal/HighscoreTile';
 import { CardContent } from '@/components/ui/card';
 
 export function PortalPage() {
   const todos = useTodoStore((s) => s.todos);
 
-  const completedTodayCount = useMemo(() => {
-    const today = new Date().setHours(0, 0, 0, 0);
-    return todos.filter((t) => t.completed && t.completedAt && new Date(t.completedAt).setHours(0, 0, 0, 0) === today).length;
+  const stats = useMemo(() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const yesterday = today - 86400000;
+    const last7Days = today - 7 * 86400000;
+    const last30Days = today - 30 * 86400000;
+
+    const completedTodos = todos.filter((t) => t.completed && t.completedAt);
+    
+    // Group by date string to count daily completions
+    const dailyCounts: Record<string, number> = {};
+    completedTodos.forEach(t => {
+      const dateStr = new Date(t.completedAt!).toISOString().split('T')[0];
+      dailyCounts[dateStr] = (dailyCounts[dateStr] || 0) + 1;
+    });
+
+    const countsArray = Object.entries(dailyCounts).map(([date, count]) => ({
+      timestamp: new Date(date).getTime(),
+      count
+    }));
+
+    const todayCount = completedTodos.filter(t => new Date(t.completedAt!).setHours(0,0,0,0) === today).length;
+    const yesterdayCount = completedTodos.filter(t => new Date(t.completedAt!).setHours(0,0,0,0) === yesterday).length;
+    
+    const weeklyHigh = Math.max(0, ...countsArray.filter(c => c.timestamp >= last7Days).map(c => c.count));
+    const monthlyHigh = Math.max(0, ...countsArray.filter(c => c.timestamp >= last30Days).map(c => c.count));
+
+    return { todayCount, yesterdayCount, weeklyHigh, monthlyHigh };
   }, [todos]);
 
   const activeTodos = useMemo(() => todos.filter((t) => !t.completed), [todos]);
@@ -49,7 +75,7 @@ export function PortalPage() {
         <BentoTile size="2x1" variant="accent">
           <StatTile 
             icon={FaCheckCircle} 
-            value={completedTodayCount} 
+            value={stats.todayCount} 
             label="Completed Today" 
             iconColorClass="text-green-500"
             iconBgClass="bg-green-500/10"
@@ -68,10 +94,12 @@ export function PortalPage() {
           <HabitTile streak={4} />
         </BentoTile>
 
-        <BentoTile size="1x1" variant="outline">
-          <CardContent className="p-4 flex items-center justify-center h-full">
-            <div className="text-[10px] font-black text-muted-foreground">AD 🐾</div>
-          </CardContent>
+        <BentoTile size="1x2" variant="outline">
+          <HighscoreTile 
+            yesterday={stats.yesterdayCount}
+            weeklyHigh={stats.weeklyHigh}
+            monthlyHigh={stats.monthlyHigh}
+          />
         </BentoTile>
       </motion.div>
     </div>
