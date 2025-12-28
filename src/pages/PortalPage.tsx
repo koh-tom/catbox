@@ -13,7 +13,12 @@ import { CardContent } from '@/components/ui/card';
 
 export function PortalPage() {
   const todos = useTodoStore((s) => s.todos);
-  const completedCount = useMemo(() => todos.filter((t) => t.completed).length, [todos]);
+
+  const completedTodayCount = useMemo(() => {
+    const today = new Date().setHours(0, 0, 0, 0);
+    return todos.filter((t) => t.completed && t.completedAt && new Date(t.completedAt).setHours(0, 0, 0, 0) === today).length;
+  }, [todos]);
+
   const activeTodos = useMemo(() => todos.filter((t) => !t.completed), [todos]);
   const activeCount = activeTodos.length;
 
@@ -44,8 +49,8 @@ export function PortalPage() {
         <BentoTile size="2x1" variant="accent">
           <StatTile 
             icon={FaCheckCircle} 
-            value={completedCount} 
-            label="Completed" 
+            value={completedTodayCount} 
+            label="Completed Today" 
             iconColorClass="text-green-500"
             iconBgClass="bg-green-500/10"
           />
